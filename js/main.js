@@ -195,3 +195,43 @@ function notifyVisit() {
         })
         .catch(err => console.error("Bağlantı hatası:", err));
 }
+// 9. Mesaj Gönderme (Telegram)
+function sendTelegramMessage() {
+    const msgInput = document.getElementById('secret-message');
+    const statusText = document.getElementById('msg-status');
+    const message = msgInput.value.trim();
+
+    if (!message) {
+        statusText.innerText = "Lütfen boş mesaj gönderme... 🥺";
+        statusText.style.color = "red";
+        return;
+    }
+
+    const botToken = "BURAYA_BOT_TOKEN_YAZ";  // Aynı token
+    const chatId = "BURAYA_CHAT_ID_YAZ";      // Aynı chat ID
+
+    if (botToken.includes("BURAYA")) {
+        alert("Bot ayarları yapılmamış!");
+        return;
+    }
+
+    const fullMessage = "💌 Feride'den Yeni Mesaj:\n\n" + message;
+    const url = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(fullMessage)}`;
+
+    statusText.innerText = "Gönderiliyor...";
+
+    fetch(url)
+        .then(response => {
+            if (response.ok) {
+                msgInput.value = "";
+                statusText.innerText = "Mesajın iletildi ❤️";
+                statusText.style.color = "green";
+            } else {
+                statusText.innerText = "Bir hata oluştu.";
+            }
+        })
+        .catch(err => {
+            statusText.innerText = "Bağlantı hatası.";
+            console.error(err);
+        });
+}
