@@ -27,11 +27,10 @@ function checkPassword() {
         loginOverlay.style.opacity = '0';
         loginOverlay.style.transition = 'opacity 1s ease';
 
-        // Müzik başlat (Kullanıcı etkileşimi olduğu için çalışır)
-        audio.play().then(() => {
-            isPlaying = true;
-            musicBtn.innerHTML = '⏸️ Müziği Durdur';
-        }).catch(err => console.log("Otomatik oynatma hatası:", err));
+        // Müzik otomatik başlamasın, kullanıcı seçsin
+        // audio.play()... kaldırıldı
+        musicBtn.innerHTML = '🎵 Müziği Başlat';
+        isPlaying = false;
 
         setTimeout(() => {
             loginOverlay.style.display = 'none';
