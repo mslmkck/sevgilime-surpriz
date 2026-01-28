@@ -457,6 +457,16 @@ button {
     }
 }
 
+html,
+body {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+/* ... existing body styles ... */
+
 @media (max-width: 480px) {
     .section-padding {
         padding: 3rem 1rem;
@@ -466,11 +476,17 @@ button {
         font-size: 1.8rem;
     }
 
+    /* Fix Timer Overflow */
+    #timer {
+        gap: 10px;
+    }
+
     .time-box {
         min-width: 60px;
-        padding: 0.8rem;
+        padding: 0.5rem;
         flex: 1 1 40%;
         /* 2 items per row */
+        margin-bottom: 5px;
     }
 
     .time-box span {
@@ -479,12 +495,30 @@ button {
 
     .flip-card {
         width: 100%;
-        max-width: 280px;
-        height: 320px;
+        max-width: 100%;
+        /* Ensure it doesn't overflow parent */
+        height: 300px;
+    }
+
+    .login-container {
+        width: 90%;
+        padding: 1.5rem;
+        /* Reduce padding on mobile */
+    }
+
+    #game-area {
+        height: 250px;
+        width: 100%;
+        /* Ensure no fixed width issues */
+        max-width: 100%;
     }
 
     #hero {
         background-attachment: scroll;
-        /* Fix for some mobile browsers background jump */
+    }
+
+    .gallery-item {
+        flex: 0 0 80vw;
+        /* Better mobile sizing for gallery */
     }
 }
