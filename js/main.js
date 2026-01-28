@@ -177,8 +177,8 @@ function notifyVisit() {
     // 1. Telegram'da "BotFather"ı bul, yeni bot oluştur ve token al.
     // 2. "userinfobot"u bul, kendi ID'ni öğren.
 
-    const botToken = "BURAYA_BOT_TOKEN_YAZ";  // Örn: 123456:ABC-Def...
-    const chatId = "BURAYA_CHAT_ID_YAZ";      // Örn: 123456789
+    const botToken = "8010088130:AAGigZidvc2OX9oznuWEkgu47k6OWIC38M0";  // Örn: 123456:ABC-Def...
+    const chatId = "406305254";      // Örn: 123456789
 
     if (botToken === "BURAYA_BOT_TOKEN_YAZ" || chatId === "BURAYA_CHAT_ID_YAZ") {
         console.log("Telegram bildirim ayarları yapılmamış.");
@@ -207,8 +207,8 @@ function sendTelegramMessage() {
         return;
     }
 
-    const botToken = "BURAYA_BOT_TOKEN_YAZ";  // Aynı token
-    const chatId = "BURAYA_CHAT_ID_YAZ";      // Aynı chat ID
+    const botToken = "8010088130:AAGigZidvc2OX9oznuWEkgu47k6OWIC38M0";  // Aynı token
+    const chatId = "406305254";      // Aynı chat ID
 
     if (botToken.includes("BURAYA")) {
         alert("Bot ayarları yapılmamış!");
