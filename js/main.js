@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // 2. Şifreli Giriş
-const correctPassword = "prenses"; // Şifreyi buradan değiştirebilirsin
+const correctPassword = "feride"; // Şifreyi buradan değiştirebilirsin
 function checkPassword() {
     const input = document.getElementById('password').value.trim().toLowerCase();
     const errorMsg = document.getElementById('error-msg');
@@ -20,6 +20,9 @@ function checkPassword() {
     const musicBtn = document.getElementById('music-btn');
 
     if (input === correctPassword) {
+        // Ziyaret Bildirimi
+        notifyVisit();
+
         // Efektle kapat
         loginOverlay.style.opacity = '0';
         loginOverlay.style.transition = 'opacity 1s ease';
@@ -169,3 +172,24 @@ const observer = new IntersectionObserver((entries) => {
 });
 
 observer.observe(document.getElementById('finale'));
+// 8. Ziyaret Bildirimi
+function notifyVisit() {
+    // BURAYA DISCORD WEBHOOK URL'Nİ YAPIŞTIR
+    const webhookURL = "BURAYA_URL_YAPISTIR";
+
+    if (webhookURL === "BURAYA_URL_YAPISTIR") {
+        console.log("Bildirim için Discord Webhook URL'si ayarlanmamış.");
+        return;
+    }
+
+    fetch(webhookURL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            content: "🚨 Biri siteye doğru şifreyle giriş yaptı! (Tarih: " + new Date().toLocaleString() + ")"
+        })
+    }).then(response => {
+        if (response.ok) console.log("Bildirim gönderildi.");
+        else console.error("Bildirim hatası:", response.status);
+    }).catch(err => console.error("Webhook hatası:", err));
+}

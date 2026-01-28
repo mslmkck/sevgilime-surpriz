@@ -428,6 +428,21 @@ button {
     color: var(--primary-color);
 }
 
+
+/* MYSTERY BOX */
+.mystery-box {
+    width: 100%;
+    height: 300px;
+    background-color: #f1f1f1;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 8rem;
+    color: var(--primary-color);
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.1);
+}
+
 /* RESPONSIVE */
 @media (max-width: 768px) {
     .hero-content h1 {
