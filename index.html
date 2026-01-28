@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#fff0f5">
+    <title>Sana Özel ❤️</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Poppins:wght@300;400;600&display=swap"
+        rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- AOS Library for scroll animations -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <!-- 1. GİRİŞ EKRANI -->
+    <div id="login-overlay">
+        <div class="login-container" data-aos="zoom-in">
+            <h1>Hoşgeldin Sevgilim 🌸</h1>
+            <p>Devam etmek için minik bir sorum var...</p>
+            <div class="question-box">
+                <label for="password">Benim için sen nesin? (Şifre: prenses)</label>
+                <!-- İpucu: Cevap 'prenses' olarak ayarlandı js dosyasında -->
+                <input type="text" id="password" placeholder="...?" autofocus>
+                <button onclick="checkPassword()">Siteye Gir ❤️</button>
+            </div>
+            <p id="error-msg" class="hidden">Hayır, bu değil... Bir daha düşün 🥺</p>
+        </div>
+    </div>
+
+    <!-- Müzik Kontrol -->
+    <div class="music-control">
+        <button id="music-btn" onclick="toggleMusic()">
+            🎵 Müziği Başlat
+        </button>
+        <audio id="bg-music" loop>
+            <!-- Müzik dosyasını assets/music/song.mp3 olarak eklemelisiniz -->
+            <source src="assets/music/song.mp3" type="audio/mp3">
+        </audio>
+    </div>
+
+    <!-- ANA İÇERİK -->
+    <main id="main-content" class="hidden">
+
+        <!-- 2. HERO SECTION -->
+        <section id="hero">
+            <div class="hero-content" data-aos="fade-up">
+                <h1>Seninle Her Şey Güzel</h1>
+                <p>Hayatıma kattığın tüm renkler için teşekkür ederim.</p>
+                <div class="scroll-down">
+                    <a href="#timer-section">Devam Et <i class="fas fa-chevron-down"></i></a>
+                </div>
+            </div>
+            <div class="background-animation">
+                <!-- CSS ile hareketli kalpler/baloncuklar -->
+                <span></span><span></span><span></span><span></span><span></span>
+            </div>
+        </section>
+
+        <!-- 3. ZAMAN SAYACI -->
+        <section id="timer-section" class="section-padding">
+            <h2 data-aos="fade-up">Birlikte Geçen Her An Değerli</h2>
+            <div id="timer" data-aos="zoom-in">
+                <div class="time-box">
+                    <span id="days">0</span>
+                    <p>Gün</p>
+                </div>
+                <div class="time-box">
+                    <span id="hours">0</span>
+                    <p>Saat</p>
+                </div>
+                <div class="time-box">
+                    <span id="minutes">0</span>
+                    <p>Dakika</p>
+                </div>
+                <div class="time-box">
+                    <span id="seconds">0</span>
+                    <p>Saniye</p>
+                </div>
+            </div>
+            <p class="timer-note" data-aos="fade-up">Ve daha nicelerine... ♾️</p>
+        </section>
+
+        <!-- 4. GİZLİ MESAJ KARTLARI -->
+        <section id="messages-section" class="section-padding bg-alt">
+            <h2 data-aos="fade-up">Sana Notlarım Var 💌</h2>
+            <div class="cards-container">
+                <!-- Kart 1 -->
+                <div class="flip-card" data-aos="flip-left" data-aos-delay="100">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            <i class="fas fa-heart"></i>
+                            <p>Tıkla Aç</p>
+                        </div>
+                        <div class="flip-card-back">
+                            <p>Gülüşün dünyanın en güzel manzarası.</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Kart 2 -->
+                <div class="flip-card" data-aos="flip-left" data-aos-delay="200">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            <i class="fas fa-star"></i>
+                            <p>Tıkla Aç</p>
+                        </div>
+                        <div class="flip-card-back">
+                            <p>Seninle her gün yeni bir macera.</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Kart 3 -->
+                <div class="flip-card" data-aos="flip-left" data-aos-delay="300">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            <i class="fas fa-sun"></i>
+                            <p>Tıkla Aç</p>
+                        </div>
+                        <div class="flip-card-back">
+                            <p>Hayatımdaki en büyük şansım sensin.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. ANILAR GALERİSİ -->
+        <section id="gallery-section" class="section-padding">
+            <h2 data-aos="fade-up">En Güzel Anlarımız 📸</h2>
+            <div class="gallery-scroller" data-aos="fade-right">
+                <!-- Placeholder images -->
+                <div class="gallery-item">
+                    <img src="assets/images/special_photo.jpg" alt="Özel Anımız"
+                        style="width:100%; height:300px; object-fit:cover; border-radius:10px;">
+                    <p>En Güzel Halin ❤️</p>
+                </div>
+                <div class="gallery-item">
+                    <div class="img-placeholder" style="background-color: #ffafbd;">Fotoğraf 2</div>
+                    <p>Tatil kaçamağımız</p>
+                </div>
+                <div class="gallery-item">
+                    <div class="img-placeholder" style="background-color: #b9fffc;">Fotoğraf 3</div>
+                    <p>Doğum günün</p>
+                </div>
+                <div class="gallery-item">
+                    <div class="img-placeholder" style="background-color: #e2f0cb;">Fotoğraf 4</div>
+                    <p>Sıradan ama özel bir gün</p>
+                </div>
+            </div>
+            <p class="gallery-hint"><small>← Yana kaydır →</small></p>
+        </section>
+
+        <!-- 6. MİNİ OYUN -->
+        <section id="game-section" class="section-padding bg-alt">
+            <h2 data-aos="zoom-in">Küçük Bir Oyun 🎮</h2>
+            <p>Aşağıdaki alanda gizlenmiş <strong>5 kalbi</strong> bul, sana sürprizim var!</p>
+            <div id="game-area">
+                <div class="heart-target" style="top: 20%; left: 10%;" onclick="collectHeart(this)">❤️</div>
+                <div class="heart-target" style="top: 50%; left: 80%;" onclick="collectHeart(this)">❤️</div>
+                <div class="heart-target" style="top: 80%; left: 30%;" onclick="collectHeart(this)">❤️</div>
+                <div class="heart-target" style="top: 10%; left: 60%;" onclick="collectHeart(this)">❤️</div>
+                <div class="heart-target" style="top: 60%; left: 50%;" onclick="collectHeart(this)">❤️</div>
+                <div id="game-msg" class="hidden">
+                    <h3>Harikasın! 🎉</h3>
+                    <p>Kalbimin nerede olduğunu her zaman buluyorsun.</p>
+                </div>
+            </div>
+            <p>Toplanan: <span id="score">0</span>/5</p>
+        </section>
+
+        <!-- 7. FİNAL -->
+        <section id="finale" class="section-padding">
+            <div class="finale-content" data-aos="zoom-out-up">
+                <h1>Seni Çok Seviyorum ❤️</h1>
+                <p>Bugün, yarın ve her zaman...</p>
+            </div>
+        </section>
+
+        <footer>
+            <p>Sana Özel Yapıldı | 2024</p>
+        </footer>
+
+    </main>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="js/main.js"></script>
+</body>
+
+</html>
