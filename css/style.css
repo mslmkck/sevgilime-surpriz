@@ -515,10 +515,34 @@ body {
 
     #hero {
         background-attachment: scroll;
+        height: 100dvh;
+        /* Modern mobile browsers */
+        min-height: -webkit-fill-available;
+        /* iOS fix */
     }
 
     .gallery-item {
         flex: 0 0 80vw;
         /* Better mobile sizing for gallery */
+    }
+
+    /* iPhone Safe Area adjustments */
+    .section-padding {
+        padding-left: env(safe-area-inset-left);
+        padding-right: env(safe-area-inset-right);
+    }
+}
+
+/* Global iOS Fixes */
+html {
+    -webkit-text-size-adjust: 100%;
+}
+
+@supports (-webkit-touch-callout: none) {
+
+    /* CSS specific to iOS devices */
+    body {
+        /* Prevent elastic scrolling effect on iOS which can look weird */
+        overscroll-behavior-y: none;
     }
 }
