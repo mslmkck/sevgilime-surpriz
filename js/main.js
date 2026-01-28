@@ -172,24 +172,26 @@ const observer = new IntersectionObserver((entries) => {
 });
 
 observer.observe(document.getElementById('finale'));
-// 8. Ziyaret Bildirimi
+// 8. Ziyaret Bildirimi (Telegram)
 function notifyVisit() {
-    // BURAYA DISCORD WEBHOOK URL'Nİ YAPIŞTIR
-    const webhookURL = "BURAYA_URL_YAPISTIR";
+    // 1. Telegram'da "BotFather"ı bul, yeni bot oluştur ve token al.
+    // 2. "userinfobot"u bul, kendi ID'ni öğren.
 
-    if (webhookURL === "BURAYA_URL_YAPISTIR") {
-        console.log("Bildirim için Discord Webhook URL'si ayarlanmamış.");
+    const botToken = "BURAYA_BOT_TOKEN_YAZ";  // Örn: 123456:ABC-Def...
+    const chatId = "BURAYA_CHAT_ID_YAZ";      // Örn: 123456789
+
+    if (botToken === "BURAYA_BOT_TOKEN_YAZ" || chatId === "BURAYA_CHAT_ID_YAZ") {
+        console.log("Telegram bildirim ayarları yapılmamış.");
         return;
     }
 
-    fetch(webhookURL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            content: "🚨 Biri siteye doğru şifreyle giriş yaptı! (Tarih: " + new Date().toLocaleString() + ")"
+    const message = "🚨 Feride siteye giriş yaptı! (Tarih: " + new Date().toLocaleString() + ")";
+    const url = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(message)}`;
+
+    fetch(url)
+        .then(response => {
+            if (response.ok) console.log("Telegram bildirimi gönderildi.");
+            else console.error("Telegram hatası:", response.status);
         })
-    }).then(response => {
-        if (response.ok) console.log("Bildirim gönderildi.");
-        else console.error("Bildirim hatası:", response.status);
-    }).catch(err => console.error("Webhook hatası:", err));
+        .catch(err => console.error("Bağlantı hatası:", err));
 }
