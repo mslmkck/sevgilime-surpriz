@@ -242,6 +242,30 @@ function sendQuizResultsToTelegram() {
         .catch(err => console.error(err));
 }
 
+// 7. WhatsApp Entegrasyonu (Genel İletişim)
+function contactWhatsApp() {
+    const phoneNumber = "905555555555"; // Kendi numaranla değiştir
+    const message = "Merhaba, bir konuda görüş/öneri iletmek istiyorum...";
+
+    const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+    window.open(url, '_blank');
+}
+
+// WhatsApp (Quiz Sonuçları)
+function openWhatsApp() {
+    const phoneNumber = "905555555555"; // Kendi numaranla değiştir
+
+    let message = "🎮 *Feride'nin Oyun Sonuçları:* 🎮\n\n";
+
+    userAnswers.forEach((item, index) => {
+        message += `*${index + 1}. ${item.question}*\n👉 ${item.answer}\n\n`;
+    });
+
+    const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+    window.open(url, '_blank');
+}
+
+
 // 8. Ziyaret Bildirimi
 function notifyVisit() {
     const botToken = "8010088130:AAGigZidvc2OX9oznuWEkgu47k6OWIC38M0";

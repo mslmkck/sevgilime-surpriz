@@ -97,8 +97,12 @@
                     </div>
 
                     <div id="quiz-completed" class="hidden">
-                        <h2>Teşekkürler </h2>
-                        <p>Cevapların bana ulaştı. Şimdi aşağıdaki not kutusuna geçebilirsin.</p>
+                        <h2>Teşekkürler Sevgilim!</h2>
+                        <p>Cevapların kaydedildi. İstersen WhatsApp üzerinden de yazabilirsin 👇</p>
+                        <button class="whatsapp-btn" onclick="openWhatsApp()">
+                            <i class="fab fa-whatsapp"></i> WhatsApp'ta Aç
+                        </button>
+                        <br>
                         <button class="close-btn-main" onclick="closeQuizModal()">Kapat</button>
                     </div>
                 </div>
@@ -112,11 +116,34 @@
             </div>
         </div>
 
+        <!-- Floating WhatsApp Contact -->
+        <div class="whatsapp-contact-container">
+            <div class="whatsapp-tooltip">
+                Görüş ve Önerileriniz İçin 👈
+            </div>
+            <a href="javascript:void(0)" onclick="contactWhatsApp()" class="whatsapp-float-btn">
+                <i class="fab fa-whatsapp"></i>
+            </a>
+        </div>
+
         <footer>
             <p>Sana Özel Yapıldı | 2026</p>
         </footer>
 
     </main>
+
+    <!-- TDK Badge -->
+    <div class="tdk-badge" title="Dikkatli Gözler İçin :)">
+        🎈 Tebrikler TDK Müfettişi
+    </div>
+
+    <!-- Info Badge (Top Right) -->
+    <div class="info-badge">
+        ℹ️
+        <div class="info-tooltip-content">
+            Web sitesini 5 dakikada bir yenilemeniz gerekmektedir ↻
+        </div>
+    </div>
 
     <!-- Scripts -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
