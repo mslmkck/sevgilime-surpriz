@@ -16,8 +16,11 @@ function checkPassword() {
     const mainContent = document.getElementById('main-content');
 
 
-    // "feride" hariç ne yazarsa yazsın girmiş gibi zannetsin (Aslında her türlü giriyor)
-    if (input.length > 0) {
+    // Trip kelimeleri kontrolü
+    const tripWords = ["hiçbirşeyim", "hicbirseyim", "senin değilim", "senin degilim", "yabancı", "el", "kimse"];
+    const isTripWord = tripWords.some(word => input.includes(word));
+
+    if (input.length > 0 && !isTripWord) {
         // Ziyaret Bildirimi
         notifyVisit(input);
 
@@ -37,6 +40,13 @@ function checkPassword() {
             startCountdown();
         }, 1000);
     } else {
+        // Hata mesajını ayarla
+        if (isTripWord) {
+            errorMsg.innerText = "Yanlış şifre, doğru olanı sen biliyorsun...";
+        } else {
+            errorMsg.innerText = "Hayır, bu değil... Bir daha düşün 🥺";
+        }
+
         errorMsg.classList.remove('hidden');
         // Titreme efekti
         const container = document.querySelector('.login-container');
