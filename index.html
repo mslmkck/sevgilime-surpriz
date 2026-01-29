@@ -28,132 +28,30 @@
             <h1>Hoşgeldiniz</h1>
             <p>Devam etmek için minik bir sorum var...</p>
             <div class="question-box">
-                <label for="password">Benim için sen nesin? (Şifre: feride)</label>
+                <label for="password">Benim için sen nesin?</label>
                 <!-- İpucu: Cevap 'feride' olarak ayarlandı js dosyasında -->
                 <input type="text" id="password" placeholder="...?" autofocus>
                 <button onclick="checkPassword()">Siteye Gir ❤️</button>
+                <p class="info-note">ℹ️ İpucu: Şifre sürekli değişmektedir, hislerine güven.</p>
             </div>
             <p id="error-msg" class="hidden">Hayır, bu değil... Bir daha düşün 🥺</p>
         </div>
     </div>
 
-    <!-- Müzik Kontrol -->
-    <div class="music-control">
-        <button id="music-btn" onclick="toggleMusic()">
-            🎵 Müziği Başlat
-        </button>
-        <audio id="bg-music" loop>
-            <!-- Müzik dosyasını assets/music/song.mp3 olarak eklemelisiniz -->
-            <source src="assets/music/song.mp3" type="audio/mp3">
-        </audio>
-    </div>
-
     <!-- ANA İÇERİK -->
     <main id="main-content" class="hidden">
-
         <div class="simple-content">
-            <div id="animated-text" class="premium-text"></div>
-
-
-            <!-- Kum Saati ve Geri Sayım -->
-            <!-- Modern Kum Saati ve Geri Sayım -->
-            <div class="hourglass-section" data-aos="fade-in" data-aos-delay="1000">
-                <div class="hourglass-container">
-                    <div class="glass-top"></div>
-                    <div class="glass-bottom"></div>
-
-                    <div class="sand sand-top"></div>
-                    <div class="sand sand-stream"></div>
-                    <div class="sand sand-bottom"></div>
-                </div>
-                <div id="countdown" class="timer-display">24:00:00</div>
-            </div>
-
-            <!-- Floating Action Stack (Bottom Left) -->
-            <div class="action-stack">
-                <!-- 1. WhatsApp Contact -->
-                <div class="action-item">
-                    <div class="action-tooltip">Görüş ve Öneriler</div>
-                    <button onclick="contactWhatsApp()" class="action-btn style-whatsapp">
-                        <i class="fab fa-whatsapp"></i>
-                    </button>
-                </div>
-
-                <!-- 2. New Question Request -->
-                <div class="action-item">
-                    <div class="action-tooltip">Soru Talebi Oluştur</div>
-                    <button onclick="requestNewQuestion()" class="action-btn style-question">
-                        <i class="fas fa-pen"></i>
-                    </button>
-                </div>
-
-                <!-- 3. Game Trigger -->
-                <div class="action-item">
-                    <div class="action-tooltip">Oyuna Var Mısın?</div>
-                    <button onclick="openQuizModal()" class="action-btn style-game">
-                        <i class="fas fa-gamepad"></i>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Quiz Modal (Hidden by default) -->
-            <div id="quiz-modal" class="modal-overlay hidden">
-                <div class="quiz-card" onclick="event.stopPropagation()">
-                    <button class="close-modal" onclick="closeQuizModal()">×</button>
-                    <div class="quiz-header">
-                        <h3>Küçük Bir Oyun 🎮</h3>
-                        <p>Seninle ilgili birkaç tahminde bulunmak istiyorum...</p>
-                    </div>
-
-                    <div id="quiz-content">
-                        <h2 id="question-text">Soru Yükleniyor...</h2>
-                        <div class="options-grid">
-                            <button class="option-btn" onclick="selectOption(0)">Seçenek A</button>
-                            <button class="option-btn" onclick="selectOption(1)">Seçenek B</button>
-                        </div>
-                        <div class="progress-bar">
-                            <div id="progress-fill"></div>
-                        </div>
-                    </div>
-
-                    <div id="quiz-completed" class="hidden">
-                        <h2>Teşekkürler Sevgilim!</h2>
-                        <p>Cevapların kaydedildi. İstersen WhatsApp üzerinden de yazabilirsin 👇</p>
-                        <button class="whatsapp-btn" onclick="openWhatsApp()">
-                            <i class="fab fa-whatsapp"></i> WhatsApp'ta Aç
-                        </button>
-                        <br>
-                        <button class="close-btn-main" onclick="closeQuizModal()">Kapat</button>
-                    </div>
-                </div>
-            </div>
-
             <div class="msg-container" data-aos="fade-up">
-                <p>Bırakmak istediğiniz mesajı aşağıya yazabilirsiniz.</p>
+                <p>...</p>
                 <textarea id="secret-message" placeholder="Mesajınız..."></textarea>
                 <button onclick="sendTelegramMessage()">Gönder 📤</button>
                 <p id="msg-status"></p>
             </div>
         </div>
-
         <footer>
             <p>Sana Özel Yapıldı | 2026</p>
         </footer>
-
     </main>
-
-    <!-- TDK Badge -->
-    <div class="tdk-badge" title="Dikkatli Gözler İçin :)">
-        🎈 Tebrikler TDK Müfettişi
-    </div>
-
-    <!-- Info Badge (Top Right) -->
-    <div class="info-badge">
-        ℹ️
-        <div class="info-tooltip-content">
-            Web sitesini 5 dakikada bir yenilemeniz gerekmektedir ↻
-        </div>
-    </div>
 
     <!-- Scripts -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>

