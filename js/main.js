@@ -5,9 +5,6 @@ document.addEventListener('DOMContentLoaded', () => {
         once: true,
         offset: 100
     });
-
-    // Start Timer
-    setInterval(updateTimer, 1000);
 });
 
 // 2. Şifreli Giriş
@@ -28,7 +25,6 @@ function checkPassword() {
         loginOverlay.style.transition = 'opacity 1s ease';
 
         // Müzik otomatik başlamasın, kullanıcı seçsin
-        // audio.play()... kaldırıldı
         musicBtn.innerHTML = '🎵 Müziği Başlat';
         isPlaying = false;
 
@@ -37,6 +33,15 @@ function checkPassword() {
             mainContent.classList.remove('hidden');
             musicBtn.style.display = 'block'; // Müzik butonunu göster
             AOS.refresh();
+
+            // Metin animasyonunu başlat
+            animateText();
+
+            // Geri sayımı başlat
+            startCountdown();
+
+            // Oyunu hazırlama (Otomatik başlamaz, butona basılınca başlar)
+            // loadQuestion(); 
         }, 1000);
     } else {
         errorMsg.classList.remove('hidden');
@@ -77,137 +82,193 @@ function toggleMusic() {
     isPlaying = !isPlaying;
 }
 
-// 4. Zaman Sayacı
-// Tarihi buradan değiştirin: YIL, AY (0-11 arası), GÜN
-const startDate = new Date(1900, 0, 1); // 1 Ocak 1900
+// 4. Metin Animasyonu
+function animateText() {
+    const text = "Gölgede fısıldıyanlar güneşte konuşmaya cesaret edemezler";
+    const container = document.getElementById('animated-text');
+    if (!container) return;
 
-function updateTimer() {
-    const now = new Date();
-    const diff = now - startDate;
+    const words = text.split(' ');
 
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-    const minutes = Math.floor((diff / 1000 / 60) % 60);
-    const seconds = Math.floor((diff / 1000) % 60);
+    container.innerHTML = ''; // Clear just in case
 
-    document.getElementById('days').innerText = days;
-    document.getElementById('hours').innerText = hours;
-    document.getElementById('minutes').innerText = minutes;
-    document.getElementById('seconds').innerText = seconds;
+    words.forEach((word, index) => {
+        const span = document.createElement('span');
+        span.textContent = word + " ";
+
+        span.className = 'word-span';
+        span.style.transitionDelay = `${index * 300}ms`; // 300ms delay between words
+        container.appendChild(span);
+
+        setTimeout(() => {
+            span.classList.add('visible');
+        }, 50);
+    });
 }
 
-// 5. Kart Çevirme Efekti
-const cards = document.querySelectorAll('.flip-card');
-cards.forEach(card => {
-    card.addEventListener('click', function () {
-        this.classList.toggle('flipped');
-    });
-});
+// 5. Geri Sayım
+function startCountdown() {
+    const timerElement = document.getElementById('countdown');
 
-// 6. Mini Oyun Logic
-let heartsCollected = 0;
-const totalHearts = 5;
+    let targetTime = localStorage.getItem('targetTime');
 
-function collectHeart(element) {
-    if (!element.classList.contains('collected')) {
-        element.classList.add('collected');
-        heartsCollected++;
-        document.getElementById('score').innerText = heartsCollected;
-
-        // Küçük konfeti patlatma (her kalp için)
-        confetti({
-            particleCount: 50,
-            spread: 60,
-            origin: { y: 0.6 }
-        });
-
-        if (heartsCollected === totalHearts) {
-            setTimeout(() => {
-                const gameMsg = document.getElementById('game-msg');
-                gameMsg.classList.remove('hidden');
-                // Büyük konfeti
-                triggerBigConfetti();
-            }, 500);
-        }
+    if (!targetTime) {
+        const now = new Date().getTime();
+        targetTime = now + (24 * 60 * 60 * 1000);
+        localStorage.setItem('targetTime', targetTime);
     }
+
+    const interval = setInterval(() => {
+        const now = new Date().getTime();
+        const distance = targetTime - now;
+
+        if (distance < 0) {
+            clearInterval(interval);
+            timerElement.innerHTML = "00:00:00";
+            return;
+        }
+
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        timerElement.innerHTML =
+            (hours < 10 ? "0" + hours : hours) + ":" +
+            (minutes < 10 ? "0" + minutes : minutes) + ":" +
+            (seconds < 10 ? "0" + seconds : seconds);
+
+    }, 1000);
 }
 
-// 7. Final Konfeti
-function triggerBigConfetti() {
-    var end = Date.now() + (2 * 1000); // 2 saniye sürsün
+// 6. QUIZ OYUNU
+const questions = [
+    {
+        q: "Bugün nasılsın?",
+        options: ["Çok İyiyim! 🌟", "Biraz Yorgunum 😴"]
+    },
+    {
+        q: "Dün gece herkes uyurken içinden geçen özlem hissi...",
+        options: ["Sadece rüzgardı", "Derin bir gerçekti"]
+    },
+    {
+        q: "Bir günlüğüne nereye kaçalım?",
+        options: ["Deniz Kenarı 🌊", "Orman Kampı 🌲"]
+    },
+    {
+        q: "Elinde bir silgi olsa yaşadığımız anıları mı silerdin ? yoksa aramızda ki mesafeleri mi ?",
+        options: ["Anılar", "Mesafeler engeller"]
+    },
+    {
+        q: "Beni seviyor musun? (Zor Soru!)",
+        options: ["Evet, Çok! ❤️", "Tarif Edilemez! ♾️"]
+    }
+];
 
-    // Konfeti renkleri
-    var colors = ['#d4a5a5', '#9da9e5', '#ffffff'];
+let currentQuestion = 0;
+let userAnswers = [];
 
-    (function frame() {
-        confetti({
-            particleCount: 3,
-            angle: 60,
-            spread: 55,
-            origin: { x: 0 },
-            colors: colors
-        });
-        confetti({
-            particleCount: 3,
-            angle: 120,
-            spread: 55,
-            origin: { x: 1 },
-            colors: colors
-        });
-
-        if (Date.now() < end) {
-            requestAnimationFrame(frame);
-        }
-    }());
+function openQuizModal() {
+    const modal = document.getElementById('quiz-modal');
+    modal.classList.remove('hidden');
+    currentQuestion = 0;
+    userAnswers = [];
+    document.getElementById('quiz-content').classList.remove('hidden');
+    document.getElementById('quiz-completed').classList.add('hidden');
+    loadQuestion();
 }
 
-// Finale bölümü görünür olduğunda da konfeti patlat
-const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            triggerBigConfetti();
-        }
-    });
-});
+function closeQuizModal() {
+    const modal = document.getElementById('quiz-modal');
+    modal.classList.add('hidden');
+}
 
-observer.observe(document.getElementById('finale'));
-// 8. Ziyaret Bildirimi (Telegram)
-function notifyVisit() {
-    // 1. Telegram'da "BotFather"ı bul, yeni bot oluştur ve token al.
-    // 2. "userinfobot"u bul, kendi ID'ni öğren.
-
-    const botToken = "8010088130:AAGigZidvc2OX9oznuWEkgu47k6OWIC38M0";  // Örn: 123456:ABC-Def...
-    const chatId = "406305254";      // Örn: 123456789
-
-    if (botToken === "BURAYA_BOT_TOKEN_YAZ" || chatId === "BURAYA_CHAT_ID_YAZ") {
-        console.log("Telegram bildirim ayarları yapılmamış.");
+function loadQuestion() {
+    if (currentQuestion >= questions.length) {
+        endQuiz();
         return;
     }
+
+    const qData = questions[currentQuestion];
+    document.getElementById('question-text').innerText = qData.q;
+
+    const buttons = document.querySelectorAll('.option-btn');
+    buttons[0].innerText = qData.options[0];
+    buttons[1].innerText = qData.options[1];
+
+    // Update progress bar
+    const progress = ((currentQuestion) / questions.length) * 100;
+    document.getElementById('progress-fill').style.width = `${progress}%`;
+}
+
+function selectOption(optionIndex) {
+    const qData = questions[currentQuestion];
+    const selectedAnswer = qData.options[optionIndex];
+
+    // Cevabı kaydet
+    userAnswers.push({
+        question: qData.q,
+        answer: selectedAnswer
+    });
+
+    // Sonraki soruya geç
+    currentQuestion++;
+    loadQuestion();
+}
+
+function endQuiz() {
+    document.getElementById('quiz-content').classList.add('hidden');
+    document.getElementById('quiz-completed').classList.remove('hidden');
+    document.getElementById('progress-fill').style.width = '100%';
+
+    // Sonuçları Telegram'a gönder
+    sendQuizResultsToTelegram();
+}
+
+function sendQuizResultsToTelegram() {
+    // Tüm cevapları tek bir string'e dönüştür
+    let resultMessage = "🎮 OYUN SONUÇLARI - FERİDE:\n\n";
+
+    userAnswers.forEach((item, index) => {
+        resultMessage += `${index + 1}. ${item.question}\n   Cevap: ${item.answer}\n\n`;
+    });
+
+    const botToken = "8010088130:AAGigZidvc2OX9oznuWEkgu47k6OWIC38M0";
+    const chatId = "406305254";
+
+    const url = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(resultMessage)}`;
+
+    fetch(url)
+        .then(res => console.log("Quiz sonuçları gönderildi"))
+        .catch(err => console.error(err));
+}
+
+// 8. Ziyaret Bildirimi
+function notifyVisit() {
+    const botToken = "8010088130:AAGigZidvc2OX9oznuWEkgu47k6OWIC38M0";
+    const chatId = "406305254";
+
+    if (botToken === "BURAYA_BOT_TOKEN_YAZ") return;
 
     const message = "🚨 Feride siteye giriş yaptı! (Tarih: " + new Date().toLocaleString() + ")";
     const url = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(message)}`;
 
-    fetch(url)
-        .then(response => {
-            if (response.ok) console.log("Telegram bildirimi gönderildi.");
-            else console.error("Telegram hatası:", response.status);
-        })
-        .catch(err => console.error("Bağlantı hatası:", err));
+    fetch(url).catch(err => console.error("Bağlantı hatası:", err));
 }
-// 9. Mesaj Gönderme (Telegram)
+
+// 9. Mesaj Gönderme
 function sendTelegramMessage() {
     const msgInput = document.getElementById('secret-message');
     const statusText = document.getElementById('msg-status');
     const message = msgInput.value.trim();
 
     if (!message) {
-        statusText.innerText = "Lütfen boş mesaj gönderme... 🥺";
+        statusText.innerText = "Lütfen boş mesaj gönderme...";
         statusText.style.color = "red";
         return;
     }
 
-    const botToken = "8010088130:AAGigZidvc2OX9oznuWEkgu47k6OWIC38M0";  // Aynı token
-    const chatId = "406305254";      // Aynı chat ID
+    const botToken = "8010088130:AAGigZidvc2OX9oznuWEkgu47k6OWIC38M0";
+    const chatId = "406305254";
 
     if (botToken.includes("BURAYA")) {
         alert("Bot ayarları yapılmamış!");
@@ -218,15 +279,17 @@ function sendTelegramMessage() {
     const url = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(fullMessage)}`;
 
     statusText.innerText = "Gönderiliyor...";
+    statusText.style.color = "#d4a5a5";
 
     fetch(url)
         .then(response => {
             if (response.ok) {
                 msgInput.value = "";
-                statusText.innerText = "Mesajın iletildi ❤️";
-                statusText.style.color = "green";
+                statusText.innerText = "Mesajınız başarıyla iletildi.";
+                statusText.style.color = "lightgreen";
             } else {
                 statusText.innerText = "Bir hata oluştu.";
+                statusText.style.color = "red";
             }
         })
         .catch(err => {

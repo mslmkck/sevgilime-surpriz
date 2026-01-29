@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#fff0f5">
+    <meta name="theme-color" content="#0f0f13">
     <title>Sana Özel ❤️</title>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -52,18 +52,68 @@
     <main id="main-content" class="hidden">
 
         <div class="simple-content">
-            <div class="big-mystery-mark">❓</div>
+            <div id="animated-text" class="premium-text"></div>
+
+
+            <!-- Kum Saati ve Geri Sayım -->
+            <!-- Modern Kum Saati ve Geri Sayım -->
+            <div class="hourglass-section" data-aos="fade-in" data-aos-delay="1000">
+                <div class="hourglass-container">
+                    <div class="glass-top"></div>
+                    <div class="glass-bottom"></div>
+
+                    <div class="sand sand-top"></div>
+                    <div class="sand sand-stream"></div>
+                    <div class="sand sand-bottom"></div>
+                </div>
+                <div id="countdown" class="timer-display">24:00:00</div>
+            </div>
+
+            <!-- 2 Şıklı Soru Oyunu -->
+            <!-- Floating Game Trigger -->
+            <div id="game-trigger" onclick="openQuizModal()">
+                <div class="trigger-icon">🎮</div>
+                <div class="trigger-text">Oyuna var mısın?</div>
+            </div>
+
+            <!-- Quiz Modal (Hidden by default) -->
+            <div id="quiz-modal" class="modal-overlay hidden">
+                <div class="quiz-card" onclick="event.stopPropagation()">
+                    <button class="close-modal" onclick="closeQuizModal()">×</button>
+                    <div class="quiz-header">
+                        <h3>Küçük Bir Oyun 🎮</h3>
+                        <p>Seninle ilgili birkaç tahminde bulunmak istiyorum...</p>
+                    </div>
+
+                    <div id="quiz-content">
+                        <h2 id="question-text">Soru Yükleniyor...</h2>
+                        <div class="options-grid">
+                            <button class="option-btn" onclick="selectOption(0)">Seçenek A</button>
+                            <button class="option-btn" onclick="selectOption(1)">Seçenek B</button>
+                        </div>
+                        <div class="progress-bar">
+                            <div id="progress-fill"></div>
+                        </div>
+                    </div>
+
+                    <div id="quiz-completed" class="hidden">
+                        <h2>Teşekkürler </h2>
+                        <p>Cevapların bana ulaştı. Şimdi aşağıdaki not kutusuna geçebilirsin.</p>
+                        <button class="close-btn-main" onclick="closeQuizModal()">Kapat</button>
+                    </div>
+                </div>
+            </div>
 
             <div class="msg-container" data-aos="fade-up">
-                <p>Buraya benim için bir not bırakabilirsin...</p>
-                <textarea id="secret-message" placeholder="İçinden geçenleri yaz..."></textarea>
+                <p>Bırakmak istediğiniz mesajı aşağıya yazabilirsiniz.</p>
+                <textarea id="secret-message" placeholder="Mesajınız..."></textarea>
                 <button onclick="sendTelegramMessage()">Gönder 📤</button>
                 <p id="msg-status"></p>
             </div>
         </div>
 
         <footer>
-            <p>Sana Özel Yapıldı | 2024</p>
+            <p>Sana Özel Yapıldı | 2026</p>
         </footer>
 
     </main>
