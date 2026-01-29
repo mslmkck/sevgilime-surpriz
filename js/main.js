@@ -251,6 +251,15 @@ function contactWhatsApp() {
     window.open(url, '_blank');
 }
 
+// Yeni Soru Talebi
+function requestNewQuestion() {
+    const phoneNumber = "905555555555"; // Kendi numaranla değiştir
+    const message = "Merhaba, aklıma bir oyun sorusu geldi: \n\nSoru: ...\nSeçenekler: ...";
+
+    const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+    window.open(url, '_blank');
+}
+
 // WhatsApp (Quiz Sonuçları)
 function openWhatsApp() {
     const phoneNumber = "905555555555"; // Kendi numaranla değiştir

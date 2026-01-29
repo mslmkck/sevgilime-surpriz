@@ -69,11 +69,31 @@
                 <div id="countdown" class="timer-display">24:00:00</div>
             </div>
 
-            <!-- 2 Şıklı Soru Oyunu -->
-            <!-- Floating Game Trigger -->
-            <div id="game-trigger" onclick="openQuizModal()">
-                <div class="trigger-icon">🎮</div>
-                <div class="trigger-text">Oyuna var mısın?</div>
+            <!-- Floating Action Stack (Bottom Left) -->
+            <div class="action-stack">
+                <!-- 1. WhatsApp Contact -->
+                <div class="action-item">
+                    <div class="action-tooltip">Görüş ve Öneriler</div>
+                    <button onclick="contactWhatsApp()" class="action-btn style-whatsapp">
+                        <i class="fab fa-whatsapp"></i>
+                    </button>
+                </div>
+
+                <!-- 2. New Question Request -->
+                <div class="action-item">
+                    <div class="action-tooltip">Soru Talebi Oluştur</div>
+                    <button onclick="requestNewQuestion()" class="action-btn style-question">
+                        <i class="fas fa-pen"></i>
+                    </button>
+                </div>
+
+                <!-- 3. Game Trigger -->
+                <div class="action-item">
+                    <div class="action-tooltip">Oyuna Var Mısın?</div>
+                    <button onclick="openQuizModal()" class="action-btn style-game">
+                        <i class="fas fa-gamepad"></i>
+                    </button>
+                </div>
             </div>
 
             <!-- Quiz Modal (Hidden by default) -->
@@ -114,16 +134,6 @@
                 <button onclick="sendTelegramMessage()">Gönder 📤</button>
                 <p id="msg-status"></p>
             </div>
-        </div>
-
-        <!-- Floating WhatsApp Contact -->
-        <div class="whatsapp-contact-container">
-            <div class="whatsapp-tooltip">
-                Görüş ve Önerileriniz İçin 👈
-            </div>
-            <a href="javascript:void(0)" onclick="contactWhatsApp()" class="whatsapp-float-btn">
-                <i class="fab fa-whatsapp"></i>
-            </a>
         </div>
 
         <footer>

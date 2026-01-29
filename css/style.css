@@ -373,82 +373,7 @@ button {
     letter-spacing: 4px;
 }
 
-/* FLOATING GAME TRIGGER */
-#game-trigger {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 80px;
-    height: 80px;
-    background: rgba(212, 165, 165, 0.15);
-    border: 2px solid var(--primary-color);
-    border-radius: 50%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    z-index: 2000;
-    backdrop-filter: blur(5px);
-    box-shadow: 0 0 20px var(--primary-glow);
-    animation: floatAround 15s infinite linear;
-    transition: transform 0.3s;
-}
 
-#game-trigger:hover {
-    background: var(--primary-color);
-    color: #fff;
-    transform: scale(1.1) !important;
-    animation-play-state: paused;
-}
-
-.trigger-icon {
-    font-size: 2rem;
-    margin-bottom: 2px;
-}
-
-.trigger-text {
-    font-size: 0.6rem;
-    /* Küçük punto */
-    text-align: center;
-    line-height: 1.1;
-    font-weight: bold;
-    color: var(--text-color);
-    max-width: 70px;
-}
-
-#game-trigger:hover .trigger-text {
-    color: #fff;
-}
-
-/* Floating Animation Keyframes */
-@keyframes floatAround {
-    0% {
-        top: 20%;
-        left: 20%;
-    }
-
-    25% {
-        top: 80%;
-        left: 30%;
-    }
-
-    50% {
-        top: 50%;
-        left: 80%;
-    }
-
-    75% {
-        top: 30%;
-        left: 50%;
-    }
-
-    100% {
-        top: 20%;
-        left: 20%;
-    }
-}
 
 /* MODAL STYLES */
 .modal-overlay {
@@ -619,84 +544,93 @@ button {
     box-shadow: 0 8px 20px rgba(37, 211, 102, 0.5);
 }
 
-/* FLOATING WHATSAPP CONTACT */
-.whatsapp-contact-container {
+/* ACTION STACK (Unified Floating Buttons) */
+.action-stack {
     position: fixed;
     bottom: 30px;
     left: 30px;
     z-index: 2500;
     display: flex;
-    align-items: center;
+    flex-direction: column-reverse;
+    /* Stacks upwards */
     gap: 15px;
-    animation: fadeIn 1s ease 2s forwards;
-    /* Delay a bit */
-    opacity: 0;
 }
 
-@keyframes fadeIn {
-    to {
-        opacity: 1;
-    }
+.action-item {
+    position: relative;
+    display: flex;
+    align-items: center;
 }
 
-.whatsapp-float-btn {
+.action-btn {
     width: 60px;
     height: 60px;
-    background: #25D366;
-    color: #fff;
     border-radius: 50%;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 2rem;
-    box-shadow: 0 5px 20px rgba(37, 211, 102, 0.4);
+    font-size: 1.8rem;
+    color: #fff;
+    border: none;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
     transition: transform 0.3s;
-    text-decoration: none;
+    cursor: pointer;
 }
 
-.whatsapp-float-btn:hover {
-    transform: scale(1.1) rotate(10deg);
+.action-btn:hover {
+    transform: scale(1.1);
 }
 
-.whatsapp-tooltip {
+.style-whatsapp {
+    background: #25D366;
+}
+
+.style-question {
+    background: #3498db;
+}
+
+.style-game {
+    background: var(--primary-color);
+}
+
+.action-tooltip {
+    position: absolute;
+    left: 70px;
     background: var(--white);
+    color: #fff;
+    /* We'll make it match the button or standard white tooltip */
+    background: rgba(255, 255, 255, 0.9);
     color: #333;
-    padding: 8px 15px;
+    padding: 6px 15px;
     border-radius: 20px;
     font-size: 0.85rem;
     font-weight: 600;
-    position: relative;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    animation: bounceRight 2s infinite ease-in-out;
-    display: flex;
-    align-items: center;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(-10px);
+    transition: all 0.3s;
 }
 
-/* Tooltip Arrow (Right side of bubble, pointing to button) */
-.whatsapp-tooltip::after {
+/* Tooltip Arrow */
+.action-tooltip::before {
     content: '';
     position: absolute;
-    right: -6px;
+    left: -5px;
     top: 50%;
     transform: translateY(-50%);
     width: 0;
     height: 0;
-    border-top: 6px solid transparent;
-    border-bottom: 6px solid transparent;
-    border-left: 6px solid var(--white);
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+    border-right: 5px solid rgba(255, 255, 255, 0.9);
 }
 
-@keyframes bounceRight {
-
-    0%,
-    100% {
-        transform: translateX(0);
-    }
-
-    50% {
-        transform: translateX(-5px);
-    }
+.action-item:hover .action-tooltip {
+    opacity: 1;
+    transform: translateX(0);
 }
+
 
 /* TDK BADGE */
 .tdk-badge {
@@ -888,33 +822,22 @@ footer {
         grid-template-columns: 1fr;
     }
 
-    #game-trigger {
-        width: 60px;
-        height: 60px;
-    }
-
-    .trigger-icon {
-        font-size: 1.5rem;
-    }
-
-    .trigger-text {
-        font-size: 0.5rem;
-    }
-
-    .whatsapp-tooltip {
-        display: none;
-        /* Hide tooltip on mobile to save space, or just keep it small */
-    }
-
-    .whatsapp-contact-container {
+    /* ACTION STACK MOBLIE */
+    .action-stack {
         bottom: 20px;
         left: 20px;
+        gap: 10px;
     }
 
-    .whatsapp-float-btn {
+    .action-btn {
         width: 50px;
         height: 50px;
-        font-size: 1.5rem;
+        font-size: 1.3rem;
+    }
+
+    .action-tooltip {
+        display: none;
+        /* Hide tooltips on mobile */
     }
 
     .music-control {
