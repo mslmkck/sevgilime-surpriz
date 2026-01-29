@@ -242,13 +242,9 @@ button {
     z-index: 11;
 }
 
-.sand {
-    position: absolute;
-    background-color: var(--primary-color);
-    box-shadow: 0 0 10px var(--primary-glow);
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 5;
+/* CSS for Hangman */
+/* Please use the view_file tool to confirm end of file */
+z-index: 5;
 }
 
 .sand-top {

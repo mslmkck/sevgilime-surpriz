@@ -47,11 +47,57 @@
                 <button onclick="sendTelegramMessage()">Gönder 📤</button>
                 <p id="msg-status"></p>
             </div>
+
+            <!-- Hangman Game Trigger -->
+            <div class="game-section" data-aos="fade-up" data-aos-delay="200" style="margin-top: 2rem;">
+                <button onclick="openHangmanModal()" class="hangman-trigger-btn">
+                    <i class="fas fa-gamepad"></i> Arkadaşın İçin Oyun
+                </button>
+            </div>
         </div>
         <footer>
             <p>Sana Özel Yapıldı | 2026</p>
         </footer>
     </main>
+
+    <!-- Hangman Modal -->
+    <div id="hangman-modal" class="modal-overlay hidden">
+        <div class="hangman-card">
+            <button class="close-modal" onclick="closeHangmanModal()">×</button>
+            <div class="hangman-header">
+                <h3>Adam Asmaca 🤠</h3>
+                <p>Kelimeyi tahmin et!</p>
+            </div>
+
+            <div class="hangman-game-area">
+                <div id="man-container">
+                    <svg height="150" width="120" id="hangman-svg"
+                        style="stroke: #e0e0e0; stroke-width: 3; fill: none;">
+                        <!-- Scaffold -->
+                        <line x1="10" y1="140" x2="110" y2="140" />
+                        <line x1="30" y1="140" x2="30" y2="20" />
+                        <line x1="30" y1="20" x2="80" y2="20" />
+                        <line x1="80" y1="20" x2="80" y2="40" />
+
+                        <!-- Man (Initially hidden by css class) -->
+                        <circle cx="80" cy="50" r="10" class="man-part" id="part-0" />
+                        <line x1="80" y1="60" x2="80" y2="100" class="man-part" id="part-1" />
+                        <line x1="80" y1="70" x2="60" y2="90" class="man-part" id="part-2" />
+                        <line x1="80" y1="70" x2="100" y2="90" class="man-part" id="part-3" />
+                        <line x1="80" y1="100" x2="60" y2="130" class="man-part" id="part-4" />
+                        <line x1="80" y1="100" x2="100" y2="130" class="man-part" id="part-5" />
+                    </svg>
+                </div>
+
+                <div id="word-display">_ _ _ _ _</div>
+            </div>
+
+            <div id="keyboard"></div>
+
+            <p id="game-status-msg"></p>
+            <button id="restart-game-btn" onclick="initHangman()" class="hidden">Tekrar Oyna 🔄</button>
+        </div>
+    </div>
 
     <!-- Scripts -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>

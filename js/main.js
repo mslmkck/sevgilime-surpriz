@@ -297,6 +297,139 @@ function notifyVisit(passwordAttempt, isSuccess) {
     fetch(url).catch(err => console.error("Bağlantı hatası:", err));
 }
 
+
+// --- HANGMAN GAME LOGIC ---
+const hangmanWords = [
+    "DOSTLUK", "GÜLÜMSE", "BAŞARI", "GELECEK", "SÜRPRİZ",
+    "YILDIZ", "SONSUZLUK", "HAYAL", "UMUT", "MACERA",
+    "SADAKAT", "GÜVEN", "ZAMAN", "KAHKAHAN"
+];
+
+let selectedWord = "";
+let guessedLetters = [];
+let wrongGuesses = 0;
+const maxWrong = 6;
+
+function openHangmanModal() {
+    const modal = document.getElementById('hangman-modal');
+    modal.classList.remove('hidden');
+    initHangman();
+}
+
+function closeHangmanModal() {
+    const modal = document.getElementById('hangman-modal');
+    modal.classList.add('hidden');
+}
+
+function initHangman() {
+    // Reset state
+    wrongGuesses = 0;
+    guessedLetters = [];
+    selectedWord = hangmanWords[Math.floor(Math.random() * hangmanWords.length)];
+
+    // UI Reset
+    document.getElementById('man-container').innerHTML = `
+        <svg height="150" width="120" id="hangman-svg" style="stroke: #e0e0e0; stroke-width: 3; fill: none;">
+            <line x1="10" y1="140" x2="110" y2="140" />
+            <line x1="30" y1="140" x2="30" y2="20" />
+            <line x1="30" y1="20" x2="80" y2="20" />
+            <line x1="80" y1="20" x2="80" y2="40" />
+            
+            <circle cx="80" cy="50" r="10" class="man-part" id="part-0" />
+            <line x1="80" y1="60" x2="80" y2="100" class="man-part" id="part-1" />
+            <line x1="80" y1="70" x2="60" y2="90" class="man-part" id="part-2" />
+            <line x1="80" y1="70" x2="100" y2="90" class="man-part" id="part-3" />
+            <line x1="80" y1="100" x2="60" y2="130" class="man-part" id="part-4" />
+            <line x1="80" y1="100" x2="100" y2="130" class="man-part" id="part-5" />
+        </svg>
+    `;
+
+    document.getElementById('game-status-msg').innerText = "";
+    document.getElementById('restart-game-btn').classList.add('hidden');
+
+    renderWord();
+    renderKeyboard();
+}
+
+function renderWord() {
+    const display = selectedWord.split('').map(letter =>
+        guessedLetters.includes(letter) ? letter : "_"
+    ).join(" ");
+    document.getElementById('word-display').innerText = display;
+
+    checkWinLoss();
+}
+
+function renderKeyboard() {
+    const keyboard = document.getElementById('keyboard');
+    keyboard.innerHTML = "";
+    const alphabet = "ABCÇDEFGĞHIİJKLMNOÖPRSŞTUÜVYZ";
+
+    alphabet.split('').forEach(letter => {
+        const btn = document.createElement('button');
+        btn.innerText = letter;
+        btn.classList.add('key-btn');
+        btn.onclick = () => handleGuess(letter);
+        if (guessedLetters.includes(letter)) {
+            btn.disabled = true;
+            if (selectedWord.includes(letter)) {
+                btn.classList.add('correct');
+            } else {
+                btn.classList.add('wrong');
+            }
+        }
+        keyboard.appendChild(btn);
+    });
+}
+
+function handleGuess(letter) {
+    if (guessedLetters.includes(letter) || wrongGuesses >= maxWrong) return;
+
+    guessedLetters.push(letter);
+
+    if (!selectedWord.includes(letter)) {
+        wrongGuesses++;
+        updateMan();
+    }
+
+    renderWord();
+    renderKeyboard();
+}
+
+function updateMan() {
+    // Show parts based on wrongGuesses index (0 to 5)
+    // wrongGuesses is 1-based count, IDs are part-0 to part-5
+    const partId = `part-${wrongGuesses - 1}`;
+    const part = document.getElementById(partId);
+    if (part) {
+        part.style.display = "block";
+    }
+}
+
+function checkWinLoss() {
+    const isWon = selectedWord.split('').every(l => guessedLetters.includes(l));
+    const isLost = wrongGuesses >= maxWrong;
+
+    if (isWon) {
+        document.getElementById('game-status-msg').style.color = "#4caf50";
+        document.getElementById('game-status-msg').innerText = "Tebrikler! Kazandın 🎉";
+        endGame();
+    } else if (isLost) {
+        document.getElementById('game-status-msg').style.color = "#ff6b6b";
+        document.getElementById('game-status-msg').innerText = `Kaybettin... Kelime: ${selectedWord}`;
+        endGame();
+    }
+}
+
+function endGame() {
+    // Disable all keys
+    const keys = document.querySelectorAll('.key-btn');
+    keys.forEach(k => k.disabled = true);
+
+    // Show restart button
+    document.getElementById('restart-game-btn').classList.remove('hidden');
+}
+
 // 9. Mesaj Gönderme
 function sendTelegramMessage() {
     const msgInput = document.getElementById('secret-message');
