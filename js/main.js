@@ -16,11 +16,18 @@ function checkPassword() {
     const mainContent = document.getElementById('main-content');
 
 
-    // Trip kelimeleri kontrolü
-    const tripWords = ["hiçbirşeyim", "hicbirseyim", "senin değilim", "senin degilim", "yabancı", "el", "kimse"];
-    const isTripWord = tripWords.some(word => input.includes(word));
+    // Olumsuzluk içeren kelimeler (Genişletilmiş Liste)
+    const negativeWords = [
+        "hiç", "hic", "yok", "hayır", "hayir", "değil", "degil", "maalesef",
+        "istemem", "istemiyorum", "sevmiyorum", "bitti", "git", "ayrıl",
+        "nefret", "küs", "yalan", "sahte", "kötü", "berbat", "uzak", "soğuk",
+        "sevmem", "yabancı", "el", "kimse", "boş", "eski", "olmaz", "yapamam"
+    ];
 
-    if (input.length > 0 && !isTripWord) {
+    // Girilen metinde bu kelimelerden biri var mı?
+    const isNegative = negativeWords.some(word => input.includes(word));
+
+    if (input.length > 0 && !isNegative) {
         // Ziyaret Bildirimi
         notifyVisit(input);
 
@@ -41,7 +48,7 @@ function checkPassword() {
         }, 1000);
     } else {
         // Hata mesajını ayarla
-        if (isTripWord) {
+        if (isNegative) {
             errorMsg.innerText = "Yanlış şifre, doğru olanı sen biliyorsun...";
         } else {
             errorMsg.innerText = "Hayır, bu değil... Bir daha düşün 🥺";
