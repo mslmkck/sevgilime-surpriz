@@ -244,7 +244,7 @@ function sendQuizResultsToTelegram() {
 
 // 7. WhatsApp Entegrasyonu (Genel İletişim)
 function contactWhatsApp() {
-    const phoneNumber = "905555555555"; // Kendi numaranla değiştir
+    const phoneNumber = "90501507327"; // Güncellendi
     const message = "Merhaba, bir konuda görüş/öneri iletmek istiyorum...";
 
     const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
@@ -253,7 +253,7 @@ function contactWhatsApp() {
 
 // Yeni Soru Talebi
 function requestNewQuestion() {
-    const phoneNumber = "905555555555"; // Kendi numaranla değiştir
+    const phoneNumber = "90501507327"; // Güncellendi
     const message = "Merhaba, aklıma bir oyun sorusu geldi: \n\nSoru: ...\nSeçenekler: ...";
 
     const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
@@ -262,7 +262,7 @@ function requestNewQuestion() {
 
 // WhatsApp (Quiz Sonuçları)
 function openWhatsApp() {
-    const phoneNumber = "905555555555"; // Kendi numaranla değiştir
+    const phoneNumber = "90501507327"; // Güncellendi
 
     let message = "🎮 *Feride'nin Oyun Sonuçları:* 🎮\n\n";
 
