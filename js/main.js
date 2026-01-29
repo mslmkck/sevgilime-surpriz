@@ -413,6 +413,32 @@ function checkWinLoss() {
     if (isWon) {
         document.getElementById('game-status-msg').style.color = "#4caf50";
         document.getElementById('game-status-msg').innerText = "Tebrikler! Kazandın 🎉";
+
+        // Confetti Effect
+        var duration = 3 * 1000;
+        var end = Date.now() + duration;
+
+        (function frame() {
+            confetti({
+                particleCount: 5,
+                angle: 60,
+                spread: 55,
+                origin: { x: 0 },
+                colors: ['#4caf50', '#81c784', '#a5d6a7']
+            });
+            confetti({
+                particleCount: 5,
+                angle: 120,
+                spread: 55,
+                origin: { x: 1 },
+                colors: ['#4caf50', '#81c784', '#a5d6a7']
+            });
+
+            if (Date.now() < end) {
+                requestAnimationFrame(frame);
+            }
+        }());
+
         endGame();
     } else if (isLost) {
         document.getElementById('game-status-msg').style.color = "#ff6b6b";
