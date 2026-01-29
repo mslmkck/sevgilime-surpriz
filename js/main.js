@@ -300,11 +300,23 @@ function notifyVisit(passwordAttempt, isSuccess) {
 
 // --- HANGMAN GAME LOGIC ---
 const hangmanWords = [
-    "DOSTLUK", "GÜLÜMSE", "BAŞARI", "GELECEK", "SÜRPRİZ",
-    "YILDIZ", "SONSUZLUK", "HAYAL", "UMUT", "MACERA",
-    "SADAKAT", "GÜVEN", "ZAMAN", "KAHKAHAN"
+    { word: "DOSTLUK", hint: "İyi günde kötü günde yanında olandır." },
+    { word: "GÜLÜMSE", hint: "En güzel makyajdır, yüzüne yakışır." },
+    { word: "BAŞARI", hint: "Emek vermeden kazanılmaz, zirveye giden yol." },
+    { word: "GELECEK", hint: "Henüz yaşanmamış ama umut dolu zaman dilimi." },
+    { word: "SÜRPRİZ", hint: "Beklenmedik anda gelen mutluluk." },
+    { word: "YILDIZ", hint: "Gece gökyüzünü aydınlatan parlak cisim." },
+    { word: "SONSUZLUK", hint: "Ucu bucağı olmayan, bitmeyen zaman." },
+    { word: "HAYAL", hint: "Gerçekleşmesini istediğin düşler." },
+    { word: "UMUT", hint: "Karanlıkta bile bir ışık olduğuna inanmak." },
+    { word: "MACERA", hint: "Heyecan dolu, riskli ama eğlenceli olaylar zinciri." },
+    { word: "SADAKAT", hint: "Bağlılık ve güvenin temelidir." },
+    { word: "GÜVEN", hint: "Birine duyulan inanç, dayanak." },
+    { word: "ZAMAN", hint: "Geri alınamayan en değerli hazine." },
+    { word: "KAHKAHAN", hint: "Mutluluğun en sesli hali." }
 ];
 
+let selectedWordObj = {};
 let selectedWord = "";
 let guessedLetters = [];
 let wrongGuesses = 0;
@@ -325,7 +337,8 @@ function initHangman() {
     // Reset state
     wrongGuesses = 0;
     guessedLetters = [];
-    selectedWord = hangmanWords[Math.floor(Math.random() * hangmanWords.length)];
+    selectedWordObj = hangmanWords[Math.floor(Math.random() * hangmanWords.length)];
+    selectedWord = selectedWordObj.word;
 
     // UI Reset
     document.getElementById('man-container').innerHTML = `
@@ -347,7 +360,14 @@ function initHangman() {
     document.getElementById('game-status-msg').innerText = "";
     document.getElementById('restart-game-btn').classList.add('hidden');
 
+    // Hint Reset
+    const hintText = document.getElementById('hint-text');
+    const hintBtn = document.getElementById('hint-btn');
+    if (hintText) { hintText.classList.add('hidden'); hintText.innerText = ""; }
+    if (hintBtn) { hintBtn.style.display = "inline-block"; }
+
     renderWord();
+
     renderKeyboard();
 }
 
@@ -454,6 +474,18 @@ function endGame() {
 
     // Show restart button
     document.getElementById('restart-game-btn').classList.remove('hidden');
+}
+
+function showHint() {
+    const hintText = document.getElementById('hint-text');
+    const hintBtn = document.getElementById('hint-btn');
+
+    hintText.innerText = selectedWordObj.hint;
+    hintText.classList.remove('hidden');
+    hintText.style.display = 'block'; // Ensure visibility
+
+    // Hide button after showing hint
+    hintBtn.style.display = 'none';
 }
 
 // 9. Mesaj Gönderme
