@@ -28,33 +28,45 @@ function checkPassword() {
     const isNegative = negativeWords.some(word => input.includes(word));
 
     if (input.length > 0 && !isNegative) {
-        // Ziyaret Bildirimi
-        notifyVisit(input);
+        // BAŞARILI GİRİŞ
 
-        // Efektle kapat
-        loginOverlay.style.opacity = '0';
-        loginOverlay.style.transition = 'opacity 1s ease';
+        // 1. Ekrana Tebrik Mesajı Yaz
+        errorMsg.innerText = "Harikasın, kalbinin güzelliğiyle giriş yapılıyor... ❤️";
+        errorMsg.style.color = "#4caf50"; // Yeşil renk
+        errorMsg.classList.remove('hidden');
 
+        // 2. Telegram'a Bildir (Başarılı)
+        notifyVisit(input, true);
+
+        // 3. Biraz bekleyip (mesaj okunsun) siteyi aç
         setTimeout(() => {
-            loginOverlay.style.display = 'none';
-            mainContent.classList.remove('hidden');
-            AOS.refresh();
+            loginOverlay.style.opacity = '0';
+            loginOverlay.style.transition = 'opacity 1s ease';
 
-            // Metin animasyonunu başlat
-            animateText();
+            setTimeout(() => {
+                loginOverlay.style.display = 'none';
+                mainContent.classList.remove('hidden');
+                AOS.refresh();
+                animateText();
+                startCountdown();
+            }, 1000);
+        }, 1500); // 1.5 saniye mesajı görsün
 
-            // Geri sayımı başlat
-            startCountdown();
-        }, 1000);
     } else {
+        // BAŞARISIZ / ENGEL
+
         // Hata mesajını ayarla
         if (isNegative) {
             errorMsg.innerText = "Yanlış şifre, doğru olanı sen biliyorsun...";
+            // Telegram'a Bildir (Engellendi)
+            notifyVisit(input, false);
         } else {
             errorMsg.innerText = "Hayır, bu değil... Bir daha düşün 🥺";
         }
 
+        errorMsg.style.color = "#ff6b6b"; // Kırmızı renk (hata)
         errorMsg.classList.remove('hidden');
+
         // Titreme efekti
         const container = document.querySelector('.login-container');
         container.style.transform = 'translate(10px)';
@@ -270,13 +282,16 @@ function openWhatsApp() {
 
 
 // 8. Ziyaret Bildirimi
-function notifyVisit(passwordAttempt) {
+function notifyVisit(passwordAttempt, isSuccess) {
     const botToken = "8010088130:AAGigZidvc2OX9oznuWEkgu47k6OWIC38M0";
     const chatId = "406305254";
 
     if (botToken === "BURAYA_BOT_TOKEN_YAZ") return;
 
-    const message = `🚨 Feride siteye giriş yaptı!\n🔑 Denenen Şifre: "${passwordAttempt}"\n📅 Tarih: ${new Date().toLocaleString()}`;
+    let statusHeader = isSuccess ? "✅ BAŞARILI GİRİŞ" : "⛔ GİRİŞ ENGELLENDİ (Trip/Olumsuzluk)";
+
+    const message = `${statusHeader}\n\n👤 Feride giriş yapmayı denedi.\n🔑 Denenen Şifre: "${passwordAttempt}"\n📅 Tarih: ${new Date().toLocaleString()}`;
+
     const url = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(message)}`;
 
     fetch(url).catch(err => console.error("Bağlantı hatası:", err));
