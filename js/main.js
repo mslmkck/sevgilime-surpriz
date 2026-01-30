@@ -1,90 +1,95 @@
-// 1. AOS Init (Scroll Animations)
+// 1. AOS Init (Scroll Animations) & Music
 document.addEventListener('DOMContentLoaded', () => {
     AOS.init({
         duration: 1000,
         once: true,
         offset: 100
     });
+
+    // Müziği otomatik başlatmayı dene
+    const audio = document.getElementById('bg-music');
+    if (audio) {
+        audio.volume = 0.5; // %50 ses seviyesi
+        const playPromise = audio.play();
+
+        if (playPromise !== undefined) {
+            playPromise.then(_ => {
+                console.log("Müzik otomatik başladı.");
+            }).catch(error => {
+                console.log("Otomatik oynatma engellendi, etkileşim bekleniyor.");
+                // Sayfada herhangi bir yere tıklanırsa başlat
+                document.body.addEventListener('click', function () {
+                    audio.play();
+                }, { once: true });
+            });
+        }
+    }
 });
 
-// 2. Şifreli Giriş
-const correctPassword = "feride"; // Şifreyi buradan değiştirebilirsin
-function checkPassword() {
-    const input = document.getElementById('password').value.trim().toLowerCase();
-    const errorMsg = document.getElementById('error-msg');
-    const loginOverlay = document.getElementById('login-overlay');
-    const mainContent = document.getElementById('main-content');
+// 2. Mektup ve Parşomen Etkileşimi
+function openLetter() {
+    const envelopeWrapper = document.querySelector('.envelope-wrapper');
+    const envelopeOverlay = document.getElementById('envelope-overlay');
+    const parchmentModal = document.getElementById('parchment-modal');
+    const parchmentContainer = document.querySelector('.parchment-container');
 
+    // 1. Zarfı Aç (CSS Animasyonunu Tetikle)
+    envelopeWrapper.classList.add('open');
 
-    // Olumsuzluk içeren kelimeler (Genişletilmiş Liste)
-    const negativeWords = [
-        "hiç", "hic", "yok", "hayır", "hayir", "değil", "degil", "maalesef",
-        "istemem", "istemiyorum", "sevmiyorum", "bitti", "git", "ayrıl",
-        "nefret", "küs", "yalan", "sahte", "kötü", "berbat", "uzak", "soğuk",
-        "sevmem", "yabancı", "el", "kimse", "boş", "eski", "olmaz", "yapamam"
-    ];
+    // 2. Biraz bekle, sonra parşomeni göster
+    setTimeout(() => {
+        // Zarf ekranını gizle (opsiyonel: tamamen kaldırmak yerine arka planda tutabiliriz ama temiz görüntü için gizleyelim)
+        // envelopeOverlay.style.opacity = '0'; 
 
-    // Girilen metinde bu kelimelerden biri var mı?
-    const isNegative = negativeWords.some(word => input.includes(word));
+        // Parşomeni aç
+        parchmentModal.classList.remove('hidden');
 
-    if (input.length > 0 && !isNegative) {
-        // BAŞARILI GİRİŞ
-
-        // 1. Ekrana Tebrik Mesajı Yaz
-        errorMsg.innerText = "Harikasın, kalbinin güzelliğiyle giriş yapılıyor... ❤️";
-        errorMsg.style.color = "#4caf50"; // Yeşil renk
-        errorMsg.classList.remove('hidden');
-
-        // 2. Telegram'a Bildir (Başarılı)
-        notifyVisit(input, true);
-
-        // 3. Biraz bekleyip (mesaj okunsun) siteyi aç
-        setTimeout(() => {
-            loginOverlay.style.opacity = '0';
-            loginOverlay.style.transition = 'opacity 1s ease';
-
-            setTimeout(() => {
-                loginOverlay.style.display = 'none';
-                mainContent.classList.remove('hidden');
-                AOS.refresh();
-                animateText();
-                startCountdown();
-            }, 1000);
-        }, 1500); // 1.5 saniye mesajı görsün
-
-    } else {
-        // BAŞARISIZ / ENGEL
-
-        // Hata mesajını ayarla
-        if (isNegative) {
-            errorMsg.innerText = "Yanlış şifre, doğru olanı sen biliyorsun...";
-            // Telegram'a Bildir (Engellendi)
-            notifyVisit(input, false);
-        } else {
-            errorMsg.innerText = "Hayır, bu değil... Bir daha düşün 🥺";
+        // İstatistik/Bildirim Gönder
+        if (typeof notifyVisit === 'function') {
+            notifyVisit("Mektup Açıldı", true);
         }
 
-        errorMsg.style.color = "#ff6b6b"; // Kırmızı renk (hata)
-        errorMsg.classList.remove('hidden');
-
-        // Titreme efekti
-        const container = document.querySelector('.login-container');
-        container.style.transform = 'translate(10px)';
+        // Küçük bir gecikmeyle içeriği büyüt (animasyon için)
         setTimeout(() => {
-            container.style.transform = 'translate(-10px)';
+            parchmentContainer.classList.add('active');
         }, 100);
-        setTimeout(() => {
-            container.style.transform = 'translate(0)';
-        }, 200);
-    }
+
+    }, 800); // 0.8 saniye bekle (zarf açılma süresine yakın)
 }
 
-// Enter tuşu ile giriş
-document.getElementById('password').addEventListener('keypress', function (e) {
-    if (e.key === 'Enter') {
-        checkPassword();
-    }
-});
+function closeParchment() {
+    const parchmentModal = document.getElementById('parchment-modal');
+    const envelopeOverlay = document.getElementById('envelope-overlay');
+    const mainContent = document.getElementById('main-content');
+    const videoContainer = document.getElementById('video-container');
+    const finalVideo = document.getElementById('final-video');
+    const bgMusic = document.getElementById('bg-music');
+
+    // Parşomeni kapat
+    parchmentModal.classList.add('hidden');
+
+    // Zarf ekranını kaybet
+    envelopeOverlay.style.opacity = '0';
+    setTimeout(() => {
+        envelopeOverlay.style.display = 'none';
+
+        // Ana içeriği göster
+        mainContent.classList.remove('hidden');
+
+        // Arka plan müziğini durdur (video sesi için)
+        if (bgMusic) {
+            bgMusic.pause();
+        }
+
+        // Videoyu göster ve oynat
+        if (videoContainer && finalVideo) {
+            videoContainer.classList.remove('hidden');
+            finalVideo.play().catch(e => console.log("Video otomatik oynatılamadı:", e));
+        }
+
+        AOS.refresh();
+    }, 1000);
+}
 
 
 
@@ -297,236 +302,51 @@ function notifyVisit(passwordAttempt, isSuccess) {
     fetch(url).catch(err => console.error("Bağlantı hatası:", err));
 }
 
+// VIDEO İŞLEMLERİ
+document.addEventListener('DOMContentLoaded', () => {
+    const finalVideo = document.getElementById('final-video');
+    if (finalVideo) {
+        // Video bittiğinde otomatik kapat/bildir
+        finalVideo.addEventListener('ended', () => {
+            closeVideo();
+        });
+    }
+});
 
-// --- HANGMAN GAME LOGIC ---
-const hangmanWords = [
-    { word: "DOSTLUK", hint: "İyi günde kötü günde yanında olandır." },
-    { word: "GÜLÜMSE", hint: "En güzel makyajdır, yüzüne yakışır." },
-    { word: "BAŞARI", hint: "Emek vermeden kazanılmaz, zirveye giden yol." },
-    { word: "GELECEK", hint: "Henüz yaşanmamış ama umut dolu zaman dilimi." },
-    { word: "SÜRPRİZ", hint: "Beklenmedik anda gelen mutluluk." },
-    { word: "YILDIZ", hint: "Gece gökyüzünü aydınlatan parlak cisim." },
-    { word: "SONSUZLUK", hint: "Ucu bucağı olmayan, bitmeyen zaman." },
-    { word: "HAYAL", hint: "Gerçekleşmesini istediğin düşler." },
-    { word: "UMUT", hint: "Karanlıkta bile bir ışık olduğuna inanmak." },
-    { word: "MACERA", hint: "Heyecan dolu, riskli ama eğlenceli olaylar zinciri." },
-    { word: "SADAKAT", hint: "Bağlılık ve güvenin temelidir." },
-    { word: "GÜVEN", hint: "Birine duyulan inanç, dayanak." },
-    { word: "ZAMAN", hint: "Geri alınamayan en değerli hazine." },
-    { word: "KAHKAHAN", hint: "Mutluluğun en sesli hali." }
-];
+function closeVideo() {
+    const videoContainer = document.getElementById('video-container');
+    const finalMsgContainer = document.getElementById('final-msg-container');
+    const finalVideo = document.getElementById('final-video');
 
-let selectedWordObj = {};
-let selectedWord = "";
-let guessedLetters = [];
-let wrongGuesses = 0;
-const maxWrong = 6;
-
-function openHangmanModal() {
-    const modal = document.getElementById('hangman-modal');
-    modal.classList.remove('hidden');
-    initHangman();
-}
-
-function closeHangmanModal() {
-    const modal = document.getElementById('hangman-modal');
-    modal.classList.add('hidden');
-}
-
-function initHangman() {
-    // Reset state
-    wrongGuesses = 0;
-    guessedLetters = [];
-    selectedWordObj = hangmanWords[Math.floor(Math.random() * hangmanWords.length)];
-    selectedWord = selectedWordObj.word;
-
-    // UI Reset
-    document.getElementById('man-container').innerHTML = `
-        <svg height="150" width="120" id="hangman-svg" style="stroke: #e0e0e0; stroke-width: 3; fill: none;">
-            <line x1="10" y1="140" x2="110" y2="140" />
-            <line x1="30" y1="140" x2="30" y2="20" />
-            <line x1="30" y1="20" x2="80" y2="20" />
-            <line x1="80" y1="20" x2="80" y2="40" />
-            
-            <circle cx="80" cy="50" r="10" class="man-part" id="part-0" />
-            <line x1="80" y1="60" x2="80" y2="100" class="man-part" id="part-1" />
-            <line x1="80" y1="70" x2="60" y2="90" class="man-part" id="part-2" />
-            <line x1="80" y1="70" x2="100" y2="90" class="man-part" id="part-3" />
-            <line x1="80" y1="100" x2="60" y2="130" class="man-part" id="part-4" />
-            <line x1="80" y1="100" x2="100" y2="130" class="man-part" id="part-5" />
-        </svg>
-    `;
-
-    document.getElementById('game-status-msg').innerText = "";
-    document.getElementById('restart-game-btn').classList.add('hidden');
-
-    // Hint Reset
-    const hintText = document.getElementById('hint-text');
-    const hintBtn = document.getElementById('hint-btn');
-    if (hintText) { hintText.classList.add('hidden'); hintText.innerText = ""; }
-    if (hintBtn) { hintBtn.style.display = "inline-block"; }
-
-    renderWord();
-
-    renderKeyboard();
-}
-
-function renderWord() {
-    const display = selectedWord.split('').map(letter =>
-        guessedLetters.includes(letter) ? letter : "_"
-    ).join(" ");
-    document.getElementById('word-display').innerText = display;
-
-    checkWinLoss();
-}
-
-function renderKeyboard() {
-    const keyboard = document.getElementById('keyboard');
-    keyboard.innerHTML = "";
-    const alphabet = "ABCÇDEFGĞHIİJKLMNOÖPRSŞTUÜVYZ";
-
-    alphabet.split('').forEach(letter => {
-        const btn = document.createElement('button');
-        btn.innerText = letter;
-        btn.classList.add('key-btn');
-        btn.onclick = () => handleGuess(letter);
-        if (guessedLetters.includes(letter)) {
-            btn.disabled = true;
-            if (selectedWord.includes(letter)) {
-                btn.classList.add('correct');
-            } else {
-                btn.classList.add('wrong');
-            }
-        }
-        keyboard.appendChild(btn);
-    });
-}
-
-function handleGuess(letter) {
-    if (guessedLetters.includes(letter) || wrongGuesses >= maxWrong) return;
-
-    guessedLetters.push(letter);
-
-    if (!selectedWord.includes(letter)) {
-        wrongGuesses++;
-        updateMan();
+    // İzlenen süreyi al
+    let watchedTime = 0;
+    if (finalVideo) {
+        watchedTime = Math.floor(finalVideo.currentTime);
+        finalVideo.pause();
     }
 
-    renderWord();
-    renderKeyboard();
+    // Telegram'a bildir
+    notifyVideoWatched(watchedTime);
+
+    // Videoyu gizle
+    videoContainer.classList.add('hidden');
+
+    // Son mesajı göster ("Seni bekliyorum...")
+    finalMsgContainer.classList.remove('hidden');
 }
 
-function updateMan() {
-    // Show parts based on wrongGuesses index (0 to 5)
-    // wrongGuesses is 1-based count, IDs are part-0 to part-5
-    const partId = `part-${wrongGuesses - 1}`;
-    const part = document.getElementById(partId);
-    if (part) {
-        part.style.display = "block";
-    }
-}
-
-function checkWinLoss() {
-    const isWon = selectedWord.split('').every(l => guessedLetters.includes(l));
-    const isLost = wrongGuesses >= maxWrong;
-
-    if (isWon) {
-        document.getElementById('game-status-msg').style.color = "#4caf50";
-        document.getElementById('game-status-msg').innerText = "Tebrikler! Kazandın 🎉";
-
-        // Confetti Effect
-        var duration = 3 * 1000;
-        var end = Date.now() + duration;
-
-        (function frame() {
-            confetti({
-                particleCount: 5,
-                angle: 60,
-                spread: 55,
-                origin: { x: 0 },
-                colors: ['#4caf50', '#81c784', '#a5d6a7']
-            });
-            confetti({
-                particleCount: 5,
-                angle: 120,
-                spread: 55,
-                origin: { x: 1 },
-                colors: ['#4caf50', '#81c784', '#a5d6a7']
-            });
-
-            if (Date.now() < end) {
-                requestAnimationFrame(frame);
-            }
-        }());
-
-        endGame();
-    } else if (isLost) {
-        document.getElementById('game-status-msg').style.color = "#ff6b6b";
-        document.getElementById('game-status-msg').innerText = `Kaybettin... Kelime: ${selectedWord}`;
-        endGame();
-    }
-}
-
-function endGame() {
-    // Disable all keys
-    const keys = document.querySelectorAll('.key-btn');
-    keys.forEach(k => k.disabled = true);
-
-    // Show restart button
-    document.getElementById('restart-game-btn').classList.remove('hidden');
-}
-
-function showHint() {
-    const hintText = document.getElementById('hint-text');
-    const hintBtn = document.getElementById('hint-btn');
-
-    hintText.innerText = selectedWordObj.hint;
-    hintText.classList.remove('hidden');
-    hintText.style.display = 'block'; // Ensure visibility
-
-    // Hide button after showing hint
-    hintBtn.style.display = 'none';
-}
-
-// 9. Mesaj Gönderme
-function sendTelegramMessage() {
-    const msgInput = document.getElementById('secret-message');
-    const statusText = document.getElementById('msg-status');
-    const message = msgInput.value.trim();
-
-    if (!message) {
-        statusText.innerText = "Lütfen boş mesaj gönderme...";
-        statusText.style.color = "red";
-        return;
-    }
-
+function notifyVideoWatched(seconds) {
     const botToken = "8010088130:AAGigZidvc2OX9oznuWEkgu47k6OWIC38M0";
     const chatId = "406305254";
 
-    if (botToken.includes("BURAYA")) {
-        alert("Bot ayarları yapılmamış!");
-        return;
-    }
+    // Süreyi dakika:saniye formatına çevir
+    const minutes = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    const timeString = `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
 
-    const fullMessage = "💌 Feride'den Yeni Mesaj:\n\n" + message;
-    const url = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(fullMessage)}`;
+    const message = `🎥 VİDEO İZLENDİ!\n\nFeride videoyu kapattı/bitirdi.\n⏱️ İzlenen Süre: ${timeString}`;
 
-    statusText.innerText = "Gönderiliyor...";
-    statusText.style.color = "#d4a5a5";
+    const url = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(message)}`;
 
-    fetch(url)
-        .then(response => {
-            if (response.ok) {
-                msgInput.value = "";
-                statusText.innerText = "Mesajınız başarıyla iletildi.";
-                statusText.style.color = "lightgreen";
-            } else {
-                statusText.innerText = "Bir hata oluştu.";
-                statusText.style.color = "red";
-            }
-        })
-        .catch(err => {
-            statusText.innerText = "Bağlantı hatası.";
-            console.error(err);
-        });
+    fetch(url).catch(err => console.error("Video bildirimi gönderilemedi:", err));
 }

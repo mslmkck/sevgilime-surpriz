@@ -23,87 +23,76 @@
 <body>
 
     <!-- 1. GİRİŞ EKRANI -->
-    <div id="login-overlay">
-        <div class="login-container" data-aos="zoom-in">
-            <h1>Hoşgeldiniz</h1>
-            <p>Devam etmek için minik bir sorum var...</p>
-            <div class="question-box">
-                <label for="password">Benim için sen nesin?</label>
-                <!-- İpucu: Cevap 'feride' olarak ayarlandı js dosyasında -->
-                <input type="text" id="password" placeholder="...?" autofocus>
-                <button onclick="checkPassword()">Siteye Gir ❤️</button>
-                <p class="info-note">ℹ️ İpucu: Şifre sürekli değişmektedir, hislerine güven.</p>
+    <!-- 1. INTRO: ZARF VE SİYAH EKRAN -->
+    <div id="envelope-overlay">
+        <div class="envelope-wrapper" onclick="openLetter()">
+            <div class="envelope">
+                <div class="front flap"></div>
+                <div class="front pocket"></div>
+                <div class="letter">
+                    <div class="letter-corner"></div>
+                </div>
+                <!-- Kalp animasyonları kaldırıldı -->
             </div>
-            <p id="error-msg" class="hidden">Hayır, bu değil... Bir daha düşün 🥺</p>
+            <p class="click-hint">Mektubu Açmak İçin Tıkla ✨</p>
+        </div>
+    </div>
+
+    <!-- Background Music -->
+    <audio id="bg-music" loop>
+        <source src="assets/music/song.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- 2. PARŞOMEN NOTU -->
+    <div id="parchment-modal" class="hidden">
+        <div class="parchment-container">
+            <button class="close-parchment" onclick="closeParchment()">×</button>
+            <div class="parchment-content">
+                <h2>Sevgilime...</h2>
+                <p>
+                    Feride,<br><br>
+                    Bu satırları okuyorsan eğer, bil ki kalbimdeki yerin hiç değişmedi.
+                    Sözcükler bazen hisleri anlatmaya yetmez ama şunu bil:
+                    Mesafeler ne kadar uzak olsa da, gökyüzüne baktığımızda aynı yıldıza gülümsüyoruz.
+                    <br><br>
+                    Seni Seviyorum. ❤️
+                </p>
+            </div>
         </div>
     </div>
 
     <!-- ANA İÇERİK -->
     <main id="main-content" class="hidden">
         <div class="simple-content">
-            <div class="msg-container" data-aos="fade-up">
-                <p>...</p>
-                <textarea id="secret-message" placeholder="Mesajınız..."></textarea>
-                <button onclick="sendTelegramMessage()">Gönder 📤</button>
-                <p id="msg-status"></p>
+            <!-- Animated Text Container (Optional: Can keep or remove based on preference, keeping for transition) -->
+            <div id="animated-text" class="premium-text" data-aos="fade-up" style="display:none;"></div>
+
+            <!-- Video Section -->
+            <div id="video-container" class="hidden"
+                style="position: relative; width: 100%; display: flex; flex-direction: column; align-items: center;">
+                <div class="video-wrapper" style="width: 100%; max-width: 800px; position: relative;">
+                    <button onclick="closeVideo()" class="close-video-btn"
+                        style="position: absolute; top: -40px; right: 0; background: transparent; color: #fff; border: 1px solid #fff; border-radius: 50%; width: 30px; height: 30px; cursor: pointer;">×</button>
+                    <video id="final-video" controls playsinline
+                        style="width: 100%; height: auto; border-radius: 20px; box-shadow: 0 0 30px rgba(212, 165, 165, 0.3); max-height: 80vh;">
+                        <source src="Video Project.mp4" type="video/mp4">
+                        Tarayıcınız video etiketini desteklemiyor.
+                    </video>
+                </div>
+                <!-- Video bittiğinde veya kapatıldığında mesaj çıkacak -->
             </div>
 
-            <!-- Hangman Game Trigger -->
-            <div class="game-section" data-aos="fade-up" data-aos-delay="200" style="margin-top: 2rem;">
-                <button onclick="openHangmanModal()" class="hangman-trigger-btn">
-                    <i class="fas fa-gamepad"></i> Arkadaşın İçin Oyun
-                </button>
+            <!-- Final Message Section -->
+            <div id="final-msg-container" class="hidden" data-aos="zoom-in">
+                <div class="final-card">
+                    <div class="alert-icon">!</div>
+                    <p class="final-text">Seni bekliyorum...</p>
+                </div>
             </div>
-        </div>
-        <footer>
-            <p>Sana Özel Yapıldı | 2026</p>
-        </footer>
+            <footer>
+                <p>Sana Özel Yapıldı | 2026</p>
+            </footer>
     </main>
-
-    <!-- Hangman Modal -->
-    <div id="hangman-modal" class="modal-overlay hidden">
-        <div class="hangman-card">
-            <button class="close-modal" onclick="closeHangmanModal()">×</button>
-            <div class="hangman-header">
-                <h3>Adam Asmaca 🤠</h3>
-                <p>Kelimeyi tahmin et!</p>
-            </div>
-
-            <div class="hangman-game-area">
-                <div id="man-container">
-                    <svg height="150" width="120" id="hangman-svg"
-                        style="stroke: #e0e0e0; stroke-width: 3; fill: none;">
-                        <!-- Scaffold -->
-                        <line x1="10" y1="140" x2="110" y2="140" />
-                        <line x1="30" y1="140" x2="30" y2="20" />
-                        <line x1="30" y1="20" x2="80" y2="20" />
-                        <line x1="80" y1="20" x2="80" y2="40" />
-
-                        <!-- Man (Initially hidden by css class) -->
-                        <circle cx="80" cy="50" r="10" class="man-part" id="part-0" />
-                        <line x1="80" y1="60" x2="80" y2="100" class="man-part" id="part-1" />
-                        <line x1="80" y1="70" x2="60" y2="90" class="man-part" id="part-2" />
-                        <line x1="80" y1="70" x2="100" y2="90" class="man-part" id="part-3" />
-                        <line x1="80" y1="100" x2="60" y2="130" class="man-part" id="part-4" />
-                        <line x1="80" y1="100" x2="100" y2="130" class="man-part" id="part-5" />
-                    </svg>
-                </div>
-
-                <div id="word-display">_ _ _ _ _</div>
-
-                <!-- Hint Section -->
-                <div class="hint-section">
-                    <button id="hint-btn" onclick="showHint()">💡 İpucu</button>
-                    <p id="hint-text" class="hidden"></p>
-                </div>
-            </div>
-
-            <div id="keyboard"></div>
-
-            <p id="game-status-msg"></p>
-            <button id="restart-game-btn" onclick="initHangman()" class="hidden">Tekrar Oyna 🔄</button>
-        </div>
-    </div>
 
     <!-- Scripts -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
