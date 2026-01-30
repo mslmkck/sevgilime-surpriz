@@ -267,6 +267,8 @@ button {
     align-items: center;
     z-index: 10000;
     transition: opacity 0.5s ease;
+    padding: 20px;
+    /* Kenarlardan boşluk */
 }
 
 .parchment-container {
@@ -274,9 +276,14 @@ button {
     /* Parchment color */
     background-image: url('https://www.transparenttextures.com/patterns/aged-paper.png');
     /* Subtle texture if available, fallback is color */
-    padding: 3rem;
-    width: 90%;
-    max-width: 600px;
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 650px;
+    /* Genişliği artırdık */
+    max-height: 85vh;
+    /* Ekran yüksekliğinin %85'ini geçmesin */
+    overflow-y: auto;
+    /* İçerik taşarsa kaydırma çubuğu çıksın */
     border-radius: 5px;
     box-shadow: 0 0 30px rgba(196, 164, 132, 0.4), inset 0 0 50px rgba(0, 0, 0, 0.1);
     position: relative;
@@ -291,14 +298,17 @@ button {
 }
 
 .close-parchment {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    font-size: 1.5rem;
+    position: sticky;
+    /* Kaydırırken görünür kalsın */
+    top: 0;
+    float: right;
+    font-size: 2rem;
     background: transparent;
     border: none;
     color: #8b4513;
     cursor: pointer;
+    z-index: 2;
+    margin-bottom: 5px;
 }
 
 .parchment-content {
@@ -307,20 +317,70 @@ button {
     color: #4a3b2a;
     /* Dark brown ink color */
     text-align: center;
+    clear: both;
+    /* Butonun altına itmesi için */
 }
 
 .parchment-content h2 {
-    font-size: 2rem;
-    margin-bottom: 1.5rem;
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
     border-bottom: 2px solid rgba(139, 69, 19, 0.2);
-    padding-bottom: 10px;
+    padding-bottom: 5px;
     color: #8b4513;
 }
 
 .parchment-content p {
-    font-size: 1.2rem;
-    line-height: 1.8;
+    font-size: 1.1rem;
+    /* Okunabilirlik için biraz küçültüldü */
+    line-height: 1.5;
     font-style: italic;
+    margin-top: 10px;
+}
+
+.parchment-continue-btn {
+    background: transparent;
+    border: 1px solid #8b4513;
+    color: #8b4513;
+    padding: 8px 20px;
+    margin-top: 20px;
+    border-radius: 20px;
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+.parchment-continue-btn:hover {
+    background: #8b4513;
+    color: #f4e4bc;
+    transform: translateY(-2px);
+}
+
+@media (max-width: 480px) {
+    .parchment-container {
+        padding: 1.5rem;
+        max-width: 95%;
+    }
+
+    .parchment-content h2 {
+        font-size: 1.5rem;
+    }
+
+    .parchment-content p {
+        font-size: 1rem;
+    }
+
+    .close-video-btn {
+        top: -40px;
+        right: 5px;
+        width: 35px;
+        height: 35px;
+        font-size: 1.2rem;
+        background: rgba(0, 0, 0, 0.5);
+        /* Mobilde daha belirgin olması için */
+        border: 1px solid #fff;
+    }
 }
 
 
