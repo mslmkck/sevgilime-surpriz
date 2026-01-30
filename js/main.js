@@ -6,74 +6,74 @@ document.addEventListener('DOMContentLoaded', () => {
         offset: 100
     });
 
-    const audio = document.getElementById('bg-music');
     const loginScreen = document.getElementById('login-screen');
     const enterBtn = document.getElementById('enter-btn');
     const envelopeOverlay = document.getElementById('envelope-overlay');
 
+    // MÜZİK AYARLARI (Native Audio)
+    // Şarkımızı tanımlayalım
+    const audio = new Audio('assets/music/song.mp3');
+    audio.loop = true;
+    audio.volume = 0.5;
+
+    // Global erişim (Diğer fonksiyonlar için)
+    window.siteAudio = audio;
+
+    // Hata ayıklama
+    audio.addEventListener('error', (e) => {
+        console.error("Müzik Hatası:", e);
+        // alert("Müzik yüklenemedi! Dosya yolu: assets/music/song.mp3");
+    });
+
     // Giriş Butonuna Tıklanınca
     if (enterBtn) {
         const startSite = () => {
-            // 1. Müziği Başlat (iOS için kritik: önce load, sonra play)
-            if (audio) {
-                // Sadece duruyorsa başlat
-                if (audio.paused) {
-                    audio.load(); // iOS için içeriği tazeleyelim
-                    audio.muted = false;
-                    // iOS volume kontrolüne izin vermez ama yine de set edelim
-                    audio.volume = 0.5;
+            // Müzik Başlat
+            // Promise yapısını kullanarak hatayı yakalayalım
+            const playPromise = audio.play();
 
-                    const playPromise = audio.play();
-                    if (playPromise !== undefined) {
-                        playPromise.catch(error => {
-                            console.log("Müzik başlatma hatası:", error);
-                        });
-                    }
-                }
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    console.log("Müzik başladı.");
+                }).catch(error => {
+                    console.error("Müzik başlatılamadı:", error);
+                    alert("Müzik başlatılamadı. Lütfen cihazınızın sessiz modunu kapatın ve ekrana dokunun.");
+                });
             }
 
-            // 2. Giriş Ekranını Kapat
+            // Ekran Geçişi
             loginScreen.style.opacity = '0';
-            // Butona tekrar basılmasını engelle
             enterBtn.disabled = true;
 
             setTimeout(() => {
                 loginScreen.style.display = 'none';
-
-                // 3. Zarf Ekranını Göster
-                if (envelopeOverlay) {
-                    envelopeOverlay.classList.remove('hidden');
-                }
+                if (envelopeOverlay) envelopeOverlay.classList.remove('hidden');
             }, 1000);
         };
 
-        // Hem click hem touchstart ekleyelim (iOS garantisi için)
-        // touchstart, click'ten önce çalışır ve daha güvenilirdir (mobil için)
         enterBtn.addEventListener('click', startSite);
         enterBtn.addEventListener('touchstart', (e) => {
-            // Zoom veya scroll gibi şeyleri engellemek için değil ama double tap için
-            startSite();
-        }, { passive: true, once: true });
+            // Dokunma ile kesin başlat
+            if (audio.paused) startSite();
+        }, { passive: true });
     }
 
-    // Envelope Interaction Logic
+    // Envelope Interaction
     const envelope = document.getElementById('envelope-wrapper');
     if (envelope) {
         const handleInteraction = (e) => {
             openLetter();
 
-            // Zarf açıldığında müziğin sesini biraz açabiliriz
-            if (audio) {
-                audio.volume = 1.0;
+            // Sesi yükselt
+            if (window.siteAudio) {
+                window.siteAudio.volume = 1.0;
             }
 
-            // Remove listeners once opened
             envelope.removeEventListener('click', handleInteraction);
             envelope.removeEventListener('touchstart', handleInteraction);
         };
 
         envelope.addEventListener('click', handleInteraction);
-        // touchstart is faster and ensures user interaction context on iOS
         envelope.addEventListener('touchstart', handleInteraction, { passive: true });
     }
 });
@@ -88,17 +88,13 @@ function openLetter() {
     // 1. Zarfı Aç (CSS Animasyonunu Tetikle)
     envelopeWrapper.classList.add('open');
 
-    // MÜZİĞİ BAŞLAT (Yedek)
-    const audio = document.getElementById('bg-music');
-    if (audio && audio.paused) {
-        audio.play().catch(e => console.log("Yedek müzik başlatma:", e));
+    // Yedek çalma (Eğer başta çalmadıysa)
+    if (window.siteAudio && window.siteAudio.paused) {
+        window.siteAudio.play().catch(e => console.log("Yedek müzik başlatma:", e));
     }
 
     // 2. Biraz bekle, sonra parşomeni göster
     setTimeout(() => {
-        // Zarf ekranını gizle (opsiyonel: tamamen kaldırmak yerine arka planda tutabiliriz ama temiz görüntü için gizleyelim)
-        // envelopeOverlay.style.opacity = '0'; 
-
         // Parşomeni aç
         parchmentModal.classList.remove('hidden');
 
@@ -112,7 +108,7 @@ function openLetter() {
             parchmentContainer.classList.add('active');
         }, 100);
 
-    }, 800); // 0.8 saniye bekle (zarf açılma süresine yakın)
+    }, 800);
 }
 
 function closeParchment() {
@@ -121,7 +117,6 @@ function closeParchment() {
     const mainContent = document.getElementById('main-content');
     const videoContainer = document.getElementById('video-container');
     const finalVideo = document.getElementById('final-video');
-    const bgMusic = document.getElementById('bg-music');
 
     // Parşomeni kapat
     parchmentModal.classList.add('hidden');
@@ -134,9 +129,9 @@ function closeParchment() {
         // Ana içeriği göster
         mainContent.classList.remove('hidden');
 
-        // Arka plan müziğini durdur (video sesi için)
-        if (bgMusic) {
-            bgMusic.pause();
+        // Arka plan müziğini durdur
+        if (window.siteAudio) {
+            window.siteAudio.pause();
         }
 
         // Videoyu göster ve oynat
