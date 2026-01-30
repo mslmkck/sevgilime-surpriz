@@ -13,16 +13,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Giriş Butonuna Tıklanınca
     if (enterBtn) {
-        enterBtn.addEventListener('click', () => {
-            // 1. Müziği Başlat
+        const startSite = () => {
+            // 1. Müziği Başlat (iOS için kritik: önce load, sonra play)
             if (audio) {
-                audio.muted = false;
-                audio.volume = 0.5;
-                audio.play().catch(e => console.log("Müzik hatası:", e));
+                // Sadece duruyorsa başlat
+                if (audio.paused) {
+                    audio.load(); // iOS için içeriği tazeleyelim
+                    audio.muted = false;
+                    // iOS volume kontrolüne izin vermez ama yine de set edelim
+                    audio.volume = 0.5;
+
+                    const playPromise = audio.play();
+                    if (playPromise !== undefined) {
+                        playPromise.catch(error => {
+                            console.log("Müzik başlatma hatası:", error);
+                        });
+                    }
+                }
             }
 
             // 2. Giriş Ekranını Kapat
             loginScreen.style.opacity = '0';
+            // Butona tekrar basılmasını engelle
+            enterBtn.disabled = true;
+
             setTimeout(() => {
                 loginScreen.style.display = 'none';
 
@@ -31,7 +45,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     envelopeOverlay.classList.remove('hidden');
                 }
             }, 1000);
-        });
+        };
+
+        // Hem click hem touchstart ekleyelim (iOS garantisi için)
+        // touchstart, click'ten önce çalışır ve daha güvenilirdir (mobil için)
+        enterBtn.addEventListener('click', startSite);
+        enterBtn.addEventListener('touchstart', (e) => {
+            // Zoom veya scroll gibi şeyleri engellemek için değil ama double tap için
+            startSite();
+        }, { passive: true, once: true });
     }
 
     // Envelope Interaction Logic
