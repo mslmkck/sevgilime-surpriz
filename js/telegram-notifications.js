@@ -5,9 +5,16 @@
 // Telegram Bot Configuration
 // Bot oluşturmak için: https://t.me/BotFather
 const TELEGRAM_CONFIG = {
-    botToken: 'YOUR_BOT_TOKEN_HERE',  // telegram-panel.html ile yapılandır
-    chatId: 'YOUR_CHAT_ID_HERE'       // telegram-panel.html ile yapılandır
+    botToken: '8010088130:AAGigZidvc2OX9oznuWEkgu47k6OWIC38M0',  // BotFather'dan alınan token
+    chatId: '406305254'  // Telegram chat ID
 };
+
+// LocalStorage'a otomatik kaydet (ilk çalıştırmada)
+if (!localStorage.getItem('telegram_bot_token')) {
+    localStorage.setItem('telegram_bot_token', TELEGRAM_CONFIG.botToken);
+    localStorage.setItem('telegram_chat_id', TELEGRAM_CONFIG.chatId);
+    console.log('✅ Telegram config otomatik kaydedildi');
+}
 
 // Telegram'a mesaj gönder
 async function sendTelegramNotification(message, options = {}) {
