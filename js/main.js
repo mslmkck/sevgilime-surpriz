@@ -6,23 +6,34 @@ document.addEventListener('DOMContentLoaded', () => {
         offset: 100
     });
 
-    // Müziği otomatik başlatmayı dene
+    // Müziği otomatik başlatmayı dene (Desktop için)
     const audio = document.getElementById('bg-music');
-    if (audio) {
-        audio.volume = 0.5; // %50 ses seviyesi
-        const playPromise = audio.play();
 
-        if (playPromise !== undefined) {
-            playPromise.then(_ => {
-                console.log("Müzik otomatik başladı.");
-            }).catch(error => {
-                console.log("Otomatik oynatma engellendi, etkileşim bekleniyor.");
-                // Sayfada herhangi bir yere tıklanırsa başlat
-                document.body.addEventListener('click', function () {
-                    audio.play();
-                }, { once: true });
-            });
-        }
+    // Envelope Interaction Logic for iOS
+    const envelope = document.getElementById('envelope-wrapper');
+    if (envelope) {
+        const handleInteraction = (e) => {
+            // Müzik kilidini aç (iOS Hack)
+            if (audio) {
+                audio.muted = false;
+                audio.volume = 1.0;
+                const playPromise = audio.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(error => {
+                        console.log("Interaction play failed:", error);
+                    });
+                }
+            }
+            openLetter();
+
+            // Remove listeners once opened
+            envelope.removeEventListener('click', handleInteraction);
+            envelope.removeEventListener('touchstart', handleInteraction);
+        };
+
+        envelope.addEventListener('click', handleInteraction);
+        // touchstart is faster and ensures user interaction context on iOS
+        envelope.addEventListener('touchstart', handleInteraction, { passive: true });
     }
 });
 
@@ -36,11 +47,10 @@ function openLetter() {
     // 1. Zarfı Aç (CSS Animasyonunu Tetikle)
     envelopeWrapper.classList.add('open');
 
-    // MÜZİĞİ BAŞLAT (iOS/Mobil için en garantili yöntem: kullanıcı etkileşimi anında)
+    // MÜZİĞİ BAŞLAT (Yedek)
     const audio = document.getElementById('bg-music');
     if (audio && audio.paused) {
-        audio.volume = 0.5;
-        audio.play().catch(e => console.log("Müzik başlatılamadı:", e));
+        audio.play().catch(e => console.log("Yedek müzik başlatma:", e));
     }
 
     // 2. Biraz bekle, sonra parşomeni göster

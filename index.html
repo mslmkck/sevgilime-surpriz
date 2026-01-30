@@ -25,7 +25,7 @@
     <!-- 1. GİRİŞ EKRANI -->
     <!-- 1. INTRO: ZARF VE SİYAH EKRAN -->
     <div id="envelope-overlay">
-        <div class="envelope-wrapper" onclick="openLetter()">
+        <div class="envelope-wrapper" id="envelope-wrapper">
             <div class="envelope">
                 <div class="front flap"></div>
                 <div class="front pocket"></div>
@@ -39,7 +39,7 @@
     </div>
 
     <!-- Background Music -->
-    <audio id="bg-music" loop>
+    <audio id="bg-music" loop preload="auto">
         <source src="assets/music/song.mp3" type="audio/mpeg">
     </audio>
 
