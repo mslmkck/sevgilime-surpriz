@@ -1,5 +1,7 @@
-// 1. AOS Init (Scroll Animations) & Music
+// Main JavaScript - Cleaned for Step-by-Step Build
+
 document.addEventListener('DOMContentLoaded', () => {
+    // 1. AOS Init (Scroll Animations) - Gelecek adımlar için hazır dursun
     AOS.init({
         duration: 1000,
         once: true,
@@ -8,28 +10,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const loginScreen = document.getElementById('login-screen');
     const enterBtn = document.getElementById('enter-btn');
-    const envelopeOverlay = document.getElementById('envelope-overlay');
+    const mainContent = document.getElementById('main-content');
 
     // MÜZİK AYARLARI (Native Audio)
-    // Şarkımızı tanımlayalım
-    const audio = new Audio('assets/music/song.mp3');
+    // Şarkımızı tanımlayalım (Otomatik çalma politikaları gereği tıklama ile başlatacağız)
+    const audio = new Audio('assets/music/track1.mp3');
     audio.loop = true;
     audio.volume = 0.5;
 
-    // Global erişim (Diğer fonksiyonlar için)
+    // Global erişim
     window.siteAudio = audio;
-
-    // Hata ayıklama
-    audio.addEventListener('error', (e) => {
-        console.error("Müzik Hatası:", e);
-        // alert("Müzik yüklenemedi! Dosya yolu: assets/music/song.mp3");
-    });
 
     // Giriş Butonuna Tıklanınca
     if (enterBtn) {
         const startSite = () => {
             // Müzik Başlat
-            // Promise yapısını kullanarak hatayı yakalayalım
             const playPromise = audio.play();
 
             if (playPromise !== undefined) {
@@ -37,369 +32,621 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.log("Müzik başladı.");
                 }).catch(error => {
                     console.error("Müzik başlatılamadı:", error);
-                    alert("Müzik başlatılamadı. Lütfen cihazınızın sessiz modunu kapatın ve ekrana dokunun.");
                 });
             }
 
-            // Ekran Geçişi
+            // Ekran Geçişi: Login -> Profil Seçimi
             loginScreen.style.opacity = '0';
             enterBtn.disabled = true;
 
             setTimeout(() => {
                 loginScreen.style.display = 'none';
-                if (envelopeOverlay) envelopeOverlay.classList.remove('hidden');
+
+                // Profil Seçim Ekranını Göster
+                const profileScreen = document.getElementById('profile-selection-screen');
+                if (profileScreen) {
+                    profileScreen.classList.remove('hidden');
+                }
+
+                // Müzik kontrolcüsünü de göster (Müzik başladı çünkü)
+                const musicCont = document.getElementById('music-container');
+                if (musicCont) musicCont.classList.remove('hidden');
+
             }, 1000);
         };
 
         enterBtn.addEventListener('click', startSite);
         enterBtn.addEventListener('touchstart', (e) => {
-            // Dokunma ile kesin başlat
             if (audio.paused) startSite();
         }, { passive: true });
     }
 
-    // Envelope Interaction
-    const envelope = document.getElementById('envelope-wrapper');
-    if (envelope) {
-        const handleInteraction = (e) => {
-            openLetter();
+    // PROFİL SEÇİM MANTIĞI
+    const profileScreen = document.getElementById('profile-selection-screen');
+    const btnRabbit = document.getElementById('select-rabbit');
+    const btnFox = document.getElementById('select-fox');
 
-            // Sesi yükselt
-            if (window.siteAudio) {
-                window.siteAudio.volume = 1.0;
-            }
+    function selectProfile(profileType) {
+        // Profili kaydet (İleride kullanılabilir)
+        localStorage.setItem('userProfile', profileType);
 
-            envelope.removeEventListener('click', handleInteraction);
-            envelope.removeEventListener('touchstart', handleInteraction);
-        };
-
-        envelope.addEventListener('click', handleInteraction);
-        envelope.addEventListener('touchstart', handleInteraction, { passive: true });
-    }
-});
-
-// 2. Mektup ve Parşomen Etkileşimi
-function openLetter() {
-    const envelopeWrapper = document.querySelector('.envelope-wrapper');
-    const envelopeOverlay = document.getElementById('envelope-overlay');
-    const parchmentModal = document.getElementById('parchment-modal');
-    const parchmentContainer = document.querySelector('.parchment-container');
-
-    // 1. Zarfı Aç (CSS Animasyonunu Tetikle)
-    envelopeWrapper.classList.add('open');
-
-    // Yedek çalma (Eğer başta çalmadıysa)
-    if (window.siteAudio && window.siteAudio.paused) {
-        window.siteAudio.play().catch(e => console.log("Yedek müzik başlatma:", e));
-    }
-
-    // 2. Biraz bekle, sonra parşomeni göster
-    setTimeout(() => {
-        // Parşomeni aç
-        parchmentModal.classList.remove('hidden');
-
-        // İstatistik/Bildirim Gönder
-        if (typeof notifyVisit === 'function') {
-            notifyVisit("Mektup Açıldı", true);
+        // Telegram bildirimi gönder
+        if (window.telegramNotifications) {
+            window.telegramNotifications.notifyProfileSelection(profileType);
         }
 
-        // Küçük bir gecikmeyle içeriği büyüt (animasyon için)
-        setTimeout(() => {
-            parchmentContainer.classList.add('active');
-        }, 100);
-
-    }, 800);
-}
-
-function closeParchment() {
-    const parchmentModal = document.getElementById('parchment-modal');
-    const envelopeOverlay = document.getElementById('envelope-overlay');
-    const mainContent = document.getElementById('main-content');
-    const videoContainer = document.getElementById('video-container');
-    const finalVideo = document.getElementById('final-video');
-
-    // Parşomeni kapat
-    parchmentModal.classList.add('hidden');
-
-    // Zarf ekranını kaybet
-    envelopeOverlay.style.opacity = '0';
-    setTimeout(() => {
-        envelopeOverlay.style.display = 'none';
+        // Profil ekranını gizle
+        if (profileScreen) profileScreen.style.display = 'none';
 
         // Ana içeriği göster
-        mainContent.classList.remove('hidden');
-
-        // Arka plan müziğini durdur
-        if (window.siteAudio) {
-            window.siteAudio.pause();
+        if (mainContent) {
+            mainContent.classList.remove('hidden');
+            AOS.refresh();
         }
-
-        // Videoyu göster ve oynat
-        if (videoContainer && finalVideo) {
-            videoContainer.classList.remove('hidden');
-            finalVideo.play().catch(e => console.log("Video otomatik oynatılamadı:", e));
-        }
-
-        AOS.refresh();
-    }, 1000);
-}
-
-
-
-// 4. Metin Animasyonu
-function animateText() {
-    const text = "Gölgede fısıldıyanlar güneşte konuşmaya cesaret edemezler";
-    const container = document.getElementById('animated-text');
-    if (!container) return;
-
-    const words = text.split(' ');
-
-    container.innerHTML = ''; // Clear just in case
-
-    words.forEach((word, index) => {
-        const span = document.createElement('span');
-        span.textContent = word + " ";
-
-        span.className = 'word-span';
-        span.style.transitionDelay = `${index * 300}ms`; // 300ms delay between words
-        container.appendChild(span);
-
-        setTimeout(() => {
-            span.classList.add('visible');
-        }, 50);
-    });
-}
-
-// 5. Geri Sayım
-function startCountdown() {
-    const timerElement = document.getElementById('countdown');
-
-    let targetTime = localStorage.getItem('targetTime');
-
-    if (!targetTime) {
-        const now = new Date().getTime();
-        targetTime = now + (24 * 60 * 60 * 1000);
-        localStorage.setItem('targetTime', targetTime);
     }
 
-    const interval = setInterval(() => {
-        const now = new Date().getTime();
-        const distance = targetTime - now;
+    if (btnRabbit) btnRabbit.addEventListener('click', () => selectProfile('rabbit'));
+    if (btnFox) btnFox.addEventListener('click', () => selectProfile('fox'));
 
-        if (distance < 0) {
-            clearInterval(interval);
-            timerElement.innerHTML = "00:00:00";
+    // ODA GEÇİŞLERİ
+    const roomSelection = document.getElementById('room-selection');
+    const btnPoetry = document.getElementById('btn-poetry');
+    const btnMemory = document.getElementById('btn-memory');
+    const sectionPoetry = document.getElementById('poetry-room');
+    const sectionMemory = document.getElementById('memory-room');
+    const btnMeeting = document.getElementById('btn-meeting');
+    const sectionMeeting = document.getElementById('meeting-room');
+
+    window.openRoom = function (roomSection) {
+        if (!roomSelection || !roomSection) return;
+
+        // Hallway'i gizle
+        roomSelection.classList.add('hidden');
+
+        // İlgili odayı göster
+        roomSection.classList.remove('hidden');
+
+        // Scroll başa al
+        window.scrollTo(0, 0);
+
+        // Telegram bildirimi
+        if (window.telegramNotifications) {
+            let roomName = 'unknown';
+            if (roomSection === sectionPoetry) roomName = 'poetry';
+            else if (roomSection === sectionMemory) roomName = 'memory';
+            else if (roomSection === sectionMeeting) roomName = 'meeting';
+            else if (roomSection.id === 'game-room') roomName = 'game';
+
+            window.telegramNotifications.notifyRoomEntered(roomName);
+        }
+    };
+
+    // Global fonksiyon (HTML'den çağrılabilmesi için window'a atıyoruz)
+    window.goBackToHall = () => {
+        // Tüm oda içeriklerini gizle
+        sectionPoetry.classList.add('hidden');
+        sectionMemory.classList.add('hidden');
+        if (sectionMeeting) sectionMeeting.classList.add('hidden');
+
+        // Oyun Odası varsa onu da gizle
+        const gameRoom = document.getElementById('game-room');
+        if (gameRoom) {
+            gameRoom.classList.add('hidden');
+            // Oyun menüsünü göster, oyunları gizle
+            const gamesMenu = document.querySelector('.games-menu');
+            if (gamesMenu) gamesMenu.classList.remove('hidden');
+            const wheelGame = document.getElementById('wheel-game-container');
+            const wordsGame = document.getElementById('words-game-container');
+            if (wheelGame) wheelGame.classList.add('hidden');
+            if (wordsGame) wordsGame.classList.add('hidden');
+        }
+
+        // Seçim ekranını geri getir
+        roomSelection.classList.remove('hidden');
+    };
+
+    if (btnPoetry) btnPoetry.addEventListener('click', () => openRoom(sectionPoetry));
+    if (btnMemory) btnMemory.addEventListener('click', () => openRoom(sectionMemory));
+    if (btnMeeting) btnMeeting.addEventListener('click', () => openRoom(sectionMeeting));
+
+    // RESİM YÜKLEME MANTIĞI
+    const imageInput = document.getElementById('image-upload');
+    let currentSlotId = null;
+
+    // HTML'den çağrılacak fonksiyon (window'a ata)
+    window.triggerUpload = (slotId) => {
+        currentSlotId = slotId;
+        if (imageInput) imageInput.click();
+    };
+
+    if (imageInput) {
+        imageInput.addEventListener('change', function (e) {
+            if (this.files && this.files[0] && currentSlotId) {
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    const imgElement = document.getElementById(`img-${currentSlotId}`);
+                    const slot = imgElement.parentElement;
+                    const placeholder = slot.querySelector('.empty-placeholder');
+
+                    if (imgElement) {
+                        imgElement.src = e.target.result;
+                        imgElement.classList.remove('hidden');
+                    }
+
+                    if (placeholder) {
+                        placeholder.style.display = 'none';
+                    }
+                }
+
+                reader.readAsDataURL(this.files[0]);
+            }
+            // Aynı dosyayı tekrar seçebilmek için input'u sıfırla
+            this.value = '';
+        });
+    }
+
+    // ======================================
+    // 5. MÜZİK OYNATICI MANTIĞI
+    // ======================================
+    const musicContainer = document.getElementById('music-container');
+    const musicPanel = document.getElementById('music-panel');
+    const musicBtn = document.getElementById('music-btn');
+    const playPauseBtn = document.getElementById('play-pause-btn');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const volumeSlider = document.getElementById('volume-slider');
+    const playlistItems = document.querySelectorAll('#playlist li');
+
+    let isPlaying = false;
+    let currentTrackIndex = 0;
+
+    // Panel Aç/Kapa
+    if (musicBtn) {
+        musicBtn.addEventListener('click', () => {
+            if (musicPanel.classList.contains('hidden')) {
+                musicPanel.classList.remove('hidden');
+            } else {
+                musicPanel.classList.add('hidden');
+            }
+        });
+    }
+
+    // Şarkı Çal
+    function playTrack(index) {
+        // Liste sınırları kontrolü
+        if (index < 0) index = playlistItems.length - 1;
+        if (index >= playlistItems.length) index = 0;
+
+        currentTrackIndex = index;
+        const newSrc = playlistItems[currentTrackIndex].getAttribute('data-src');
+
+        // UI Güncelle (Active class)
+        playlistItems.forEach(item => item.classList.remove('active'));
+        playlistItems[currentTrackIndex].classList.add('active');
+
+        // Audio kaynağını zorla güncelle ve yükle (Sorunsuz geçiş için)
+        audio.src = newSrc;
+        audio.load();
+
+        const playPromise = audio.play();
+        if (playPromise !== undefined) {
+            playPromise.then(() => {
+                isPlaying = true;
+                updatePlayIcon();
+                console.log("Şarkı çalıyor:", newSrc);
+            }).catch(err => {
+                console.error("Çalma hatası:", err);
+                // Otomatik geçiş hatası olursa (örneğin kullanıcı etkileşimi yoksa)
+            });
+        }
+    }
+
+    // Toggle Play/Pause
+    function togglePlay() {
+        if (audio.paused) {
+            audio.play();
+            isPlaying = true;
+        } else {
+            audio.pause();
+            isPlaying = false;
+        }
+        updatePlayIcon();
+    }
+
+    function updatePlayIcon() {
+        if (playPauseBtn) {
+            playPauseBtn.innerHTML = isPlaying ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-play"></i>';
+        }
+    }
+
+    // Event Listeners
+    if (playPauseBtn) playPauseBtn.addEventListener('click', togglePlay);
+
+    if (prevBtn) prevBtn.addEventListener('click', () => {
+        playTrack(currentTrackIndex - 1);
+    });
+
+    if (nextBtn) nextBtn.addEventListener('click', () => {
+        playTrack(currentTrackIndex + 1);
+    });
+
+    // Liste elemanlarına tıklama
+    playlistItems.forEach((item, index) => {
+        item.addEventListener('click', () => {
+            playTrack(index);
+        });
+    });
+
+    // Ses Kontrolü
+    if (volumeSlider) {
+        volumeSlider.addEventListener('input', (e) => {
+            audio.volume = e.target.value;
+        });
+    }
+
+    // Müzik bittiğinde sıradakine geç
+    audio.addEventListener('ended', () => {
+        playTrack(currentTrackIndex + 1);
+    });
+
+    // Initial State: İlk şarkıyı active yap (çalmadan)
+    if (playlistItems.length > 0) {
+        playlistItems[0].classList.add('active');
+    }
+
+    // Uygulama başladığında müzik kutusunu göster
+    if (enterBtn) {
+        enterBtn.addEventListener('click', () => {
+            setTimeout(() => {
+                if (musicContainer) musicContainer.classList.remove('hidden');
+            }, 1000);
+        });
+    }
+
+    // ======================================
+    // 6. ŞİİR ODASI MANTIĞI (FLOATING POEMS)
+    // ======================================
+    const floatingArea = document.getElementById('floating-area');
+    const poemModal = document.getElementById('poem-modal');
+    const modalPoemTitle = document.getElementById('modal-poem-title');
+    const modalPoemBody = document.getElementById('modal-poem-body');
+    const newPoemForm = document.getElementById('new-poem-form');
+
+    // Varsayılan Şiirler ve LocalStorage
+    let poems = JSON.parse(localStorage.getItem('myPoems')) || [
+        {
+            id: 1,
+            title: "Çalıkuşu...",
+            body: `Feride,
+Kendini engellere, duvarlara hapsettin. Sanıyorsun ki bu yangın sönecek...
+Yanılıyorsun Feride.
+Bana 'Tenlerimiz buluşmazsa ne işe yarar sevmek?' diye sorduğun o geceyi hatırla.
+Şu an çaldığın o kapılar, kaçtığın o yollar... Hepsi yine bana çıkacak.
+Seni Seviyorum.`
+        }
+    ];
+
+    // Şiirleri Uçuşur Hale Getir
+    function renderFloatingPoems() {
+        if (!floatingArea) return;
+        floatingArea.innerHTML = '';
+
+        poems.forEach(poem => {
+            const el = document.createElement('div');
+            el.classList.add('floating-poem');
+            el.innerText = poem.title;
+
+            // Rastgele Konum (Sayfa sınırları içinde kalsın)
+            // %10 ile %80 arası güvenli bölge
+            const randomTop = Math.floor(Math.random() * 70) + 10;
+            const randomLeft = Math.floor(Math.random() * 70) + 10;
+            const randomDelay = Math.random() * 5;
+
+            el.style.top = `${randomTop}%`;
+            el.style.left = `${randomLeft}%`;
+            el.style.animationDelay = `${randomDelay}s`;
+            el.style.animationDuration = `${15 + Math.random() * 10}s`; // 15-25sn arası sürsün
+
+            // Tıklayınca Aç
+            el.addEventListener('click', (e) => {
+                e.stopPropagation(); // Arka plana tıklamayı engelle
+                openPoemModal(poem);
+            });
+
+            floatingArea.appendChild(el);
+        });
+    }
+
+    // Modal Açma/Kapama
+    function openPoemModal(poem) {
+        modalPoemTitle.innerText = poem.title;
+        modalPoemBody.innerText = poem.body;
+        poemModal.classList.remove('hidden');
+    }
+
+    window.closePoemModal = () => {
+        poemModal.classList.add('hidden');
+    }
+
+    // Yeni Şiir Formunu Göster
+    window.toggleAddPoemForm = () => {
+        if (newPoemForm) newPoemForm.classList.toggle('hidden');
+    }
+
+    // Yeni Şiir Kaydet
+    window.saveNewPoem = () => {
+        const titleInput = document.getElementById('new-poem-title');
+        const bodyInput = document.getElementById('new-poem-body');
+
+        if (!titleInput || !bodyInput) return;
+
+        const title = titleInput.value.trim();
+        const body = bodyInput.value.trim();
+
+        if (!title || !body) {
+            alert("Lütfen başlık ve şiir içeriğini doldurun.");
             return;
         }
 
-        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+        const newPoem = {
+            id: Date.now(),
+            title: title,
+            body: body
+        };
 
-        timerElement.innerHTML =
-            (hours < 10 ? "0" + hours : hours) + ":" +
-            (minutes < 10 ? "0" + minutes : minutes) + ":" +
-            (seconds < 10 ? "0" + seconds : seconds);
+        poems.push(newPoem);
+        localStorage.setItem('myPoems', JSON.stringify(poems)); // Kalıcı yap
 
-    }, 1000);
-}
+        // Telegram bildirimi
+        if (window.telegramNotifications) {
+            window.telegramNotifications.notifyPoemCreated(title, body);
+        }
 
-// 6. QUIZ OYUNU
-const questions = [
-    {
-        q: "Bugün nasılsın?",
-        options: ["Çok İyiyim! 🌟", "Biraz Yorgunum 😴"]
-    },
-    {
-        q: "Dün gece herkes uyurken içinden geçen özlem hissi...",
-        options: ["Sadece rüzgardı", "Derin bir gerçekti"]
-    },
-    {
-        q: "Bir günlüğüne nereye kaçalım?",
-        options: ["Deniz Kenarı 🌊", "Orman Kampı 🌲"]
-    },
-    {
-        q: "Elinde bir silgi olsa yaşadığımız anıları mı silerdin ? yoksa aramızda ki mesafeleri mi ?",
-        options: ["Anılar", "Mesafeler engeller"]
-    },
-    {
-        q: "Beni seviyor musun? (Zor Soru!)",
-        options: ["Evet, Çok! ❤️", "Tarif Edilemez! ♾️"]
+        renderFloatingPoems(); // Listeyi güncelle
+        toggleAddPoemForm(); // Formu kapat
+
+        // Inputları temizle
+        titleInput.value = '';
+        bodyInput.value = '';
     }
-];
 
-let currentQuestion = 0;
-let userAnswers = [];
+    // Odaya girince şiirleri oluştur (Eğer daha önce oluşturulmadıysa)
+    if (btnPoetry) {
+        btnPoetry.addEventListener('click', () => {
+            renderFloatingPoems();
+        });
+    }
+    // ======================================
+    // 7. BULUŞMA ODASI MANTIĞI (CHAT ve ÇİFT KULLANICI)
+    // ======================================
+    const chatInput = document.getElementById('chat-input');
+    const sendBtn = document.getElementById('send-btn');
+    const chatMessages = document.getElementById('chat-messages');
+    const toggleUserBtn = document.getElementById('toggle-user-btn');
 
-function openQuizModal() {
-    const modal = document.getElementById('quiz-modal');
-    modal.classList.remove('hidden');
-    currentQuestion = 0;
-    userAnswers = [];
-    document.getElementById('quiz-content').classList.remove('hidden');
-    document.getElementById('quiz-completed').classList.add('hidden');
-    loadQuestion();
-}
+    // Mesajları Yükle
+    let messages = JSON.parse(localStorage.getItem('chatMessages')) || [];
 
-function closeQuizModal() {
-    const modal = document.getElementById('quiz-modal');
-    modal.classList.add('hidden');
-}
+    // Varsayılan Kullanıcı: 'user' (Sen)
+    // Artık sabit, çünkü gerçek bir uygulama gibi sadece sen olabilirsin.
+    const currentUser = 'user';
 
-function loadQuestion() {
-    if (currentQuestion >= questions.length) {
-        endQuiz();
+    // Profiller (Varsayılan)
+    let myProfile = localStorage.getItem('userProfile') || 'rabbit';
+    let partnerProfile = myProfile === 'rabbit' ? 'fox' : 'rabbit';
+
+    // Emojiler
+    const emojis = {
+        'rabbit': '🐰',
+        'fox': '🦊',
+        'user': '👤' // Fallback
+    };
+
+    // Mesajları Ekrana Bas
+    function renderMessages() {
+        if (!chatMessages) return;
+
+        // Emojileri tekrar kontrol et (Profil değişmiş olabilir)
+        const currentMyProfile = localStorage.getItem('userProfile') || 'rabbit';
+        const currentPartnerProfile = currentMyProfile === 'rabbit' ? 'fox' : 'rabbit';
+        const myEmoji = emojis[currentMyProfile];
+        const partnerEmoji = emojis[currentPartnerProfile];
+
+        chatMessages.innerHTML = `
+            <div class="message system-message">
+                Buluşma odasına hoş geldin... Şömine çok güzel yanıyor. 🔥
+            </div>
+        `;
+
+        messages.forEach(msg => {
+            const div = document.createElement('div');
+            div.classList.add('message');
+            const isUser = msg.sender === 'user';
+
+            div.classList.add(isUser ? 'sent' : 'received');
+
+            // Emoji Ekle
+            const emoji = isUser ? myEmoji : partnerEmoji;
+
+            // Saat Biçimi (HH:MM)
+            const date = new Date(msg.time);
+            const timeStr = isNaN(date.getTime()) ? '' : date.getHours().toString().padStart(2, '0') + ':' + date.getMinutes().toString().padStart(2, '0');
+
+            // Mesaj İçeriği + Saat
+            if (isUser) {
+                div.innerHTML = `
+                    <div class="msg-content">${msg.text} <span class="emoji-icon" style="font-size:1.2rem; margin-left:5px;">${emoji}</span></div>
+                    <div class="msg-time" style="text-align: right; font-size: 0.7rem; opacity: 0.7; margin-top: 2px;">${timeStr} ${timeStr ? '<i class="fas fa-check-double"></i>' : ''}</div>
+                `;
+            } else {
+                div.innerHTML = `
+                    <div class="msg-content"><span class="emoji-icon" style="font-size:1.2rem; margin-right:5px;">${emoji}</span> ${msg.text}</div>
+                    <div class="msg-time" style="text-align: left; font-size: 0.7rem; opacity: 0.7; margin-top: 2px;">${timeStr}</div>
+                `;
+            }
+
+            chatMessages.appendChild(div);
+        });
+
+        // En alta kaydır
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // Mesaj Gönder
+    function sendMessage() {
+        if (!chatInput) return;
+
+        const text = chatInput.value.trim();
+        if (!text) return;
+
+        // O anki currentUser kimse onun adıyla kaydet
+        const newMsg = { sender: currentUser, text: text, time: Date.now() };
+        messages.push(newMsg);
+
+        // LocalStorage Kayıt
+        localStorage.setItem('chatMessages', JSON.stringify(messages));
+
+        // Telegram bildirimi
+        if (window.telegramNotifications) {
+            window.telegramNotifications.notifyChatMessage(currentUser, text);
+        }
+
+        // UI Güncelle
+        renderMessages();
+        chatInput.value = '';
+    }
+
+    if (sendBtn) {
+        sendBtn.addEventListener('click', sendMessage);
+    }
+
+    if (chatInput) {
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+    }
+
+    // Odaya girince mesajları yükle
+    if (btnMeeting) {
+        btnMeeting.addEventListener('click', () => {
+            // Hafif gecikme ile yükle ki display:none kalkınca scroll hesaplanabilsin
+            setTimeout(renderMessages, 100);
+        });
+    }
+
+});
+
+// =============================================
+// GÖRÜŞ VE ÖNERİ SİSTEMİ - GLOBAL FONKSİYON
+// =============================================
+
+window.sendFeedback = function () {
+    const textarea = document.getElementById('feedback-message');
+    const statusDiv = document.getElementById('feedback-status');
+    const sendBtn = document.getElementById('send-feedback-btn');
+
+    if (!textarea || !statusDiv) return;
+
+    const message = textarea.value.trim();
+
+    // Validasyon
+    if (!message) {
+        statusDiv.className = 'feedback-status error';
+        statusDiv.textContent = '❌ Lütfen bir mesaj yazın!';
+        statusDiv.classList.remove('hidden');
+
+        setTimeout(() => {
+            statusDiv.classList.add('hidden');
+        }, 3000);
         return;
     }
 
-    const qData = questions[currentQuestion];
-    document.getElementById('question-text').innerText = qData.q;
+    if (message.length < 5) {
+        statusDiv.className = 'feedback-status error';
+        statusDiv.textContent = '❌ Mesaj en az 5 karakter olmalı!';
+        statusDiv.classList.remove('hidden');
 
-    const buttons = document.querySelectorAll('.option-btn');
-    buttons[0].innerText = qData.options[0];
-    buttons[1].innerText = qData.options[1];
+        setTimeout(() => {
+            statusDiv.classList.add('hidden');
+        }, 3000);
+        return;
+    }
 
-    // Update progress bar
-    const progress = ((currentQuestion) / questions.length) * 100;
-    document.getElementById('progress-fill').style.width = `${progress}%`;
-}
+    // Gönderiliyor durumu
+    statusDiv.className = 'feedback-status sending';
+    statusDiv.textContent = '📤 Gönderiliyor...';
+    statusDiv.classList.remove('hidden');
+    sendBtn.disabled = true;
 
-function selectOption(optionIndex) {
-    const qData = questions[currentQuestion];
-    const selectedAnswer = qData.options[optionIndex];
+    // Telegram bildirimi gönder
+    const timestamp = new Date().toLocaleString('tr-TR');
+    const telegramMessage = `
+<b>💌 Yeni Görüş/Öneri</b>
 
-    // Cevabı kaydet
-    userAnswers.push({
-        question: qData.q,
-        answer: selectedAnswer
-    });
+<i>"${message}"</i>
 
-    // Sonraki soruya geç
-    currentQuestion++;
-    loadQuestion();
-}
+🕐 ${timestamp}
+    `.trim();
 
-function endQuiz() {
-    document.getElementById('quiz-content').classList.add('hidden');
-    document.getElementById('quiz-completed').classList.remove('hidden');
-    document.getElementById('progress-fill').style.width = '100%';
+    // Telegram config'i localStorage'dan al
+    const botToken = localStorage.getItem('telegram_bot_token') || 'YOUR_BOT_TOKEN';
+    const chatId = localStorage.getItem('telegram_chat_id') || 'YOUR_CHAT_ID';
 
-    // Sonuçları Telegram'a gönder
-    sendQuizResultsToTelegram();
-}
+    // Config kontrolü
+    if (botToken === 'YOUR_BOT_TOKEN' || chatId === 'YOUR_CHAT_ID') {
+        statusDiv.className = 'feedback-status error';
+        statusDiv.textContent = '⚠️ Telegram yapılandırması eksik! telegram-panel.html\'i kullan.';
+        statusDiv.classList.remove('hidden');
+        sendBtn.disabled = false;
+        setTimeout(() => statusDiv.classList.add('hidden'), 5000);
+        return;
+    }
 
-function sendQuizResultsToTelegram() {
-    // Tüm cevapları tek bir string'e dönüştür
-    let resultMessage = "🎮 OYUN SONUÇLARI - FERİDE:\n\n";
+    // Telegram'a gönder
+    const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
 
-    userAnswers.forEach((item, index) => {
-        resultMessage += `${index + 1}. ${item.question}\n   Cevap: ${item.answer}\n\n`;
-    });
+    fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            chat_id: chatId,
+            text: telegramMessage,
+            parse_mode: 'HTML'
+        })
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.ok) {
+                statusDiv.className = 'feedback-status success';
+                statusDiv.textContent = '✅ Mesajın gönderildi! Teşekkürler 💕';
+                textarea.value = '';
 
-    const botToken = "8010088130:AAGigZidvc2OX9oznuWEkgu47k6OWIC38M0";
-    const chatId = "406305254";
+                // LocalStorage'a da kaydet
+                const feedbacks = JSON.parse(localStorage.getItem('feedbacks') || '[]');
+                feedbacks.push({
+                    message: message,
+                    timestamp: Date.now()
+                });
+                localStorage.setItem('feedbacks', JSON.stringify(feedbacks));
 
-    const url = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(resultMessage)}`;
+                setTimeout(() => {
+                    statusDiv.classList.add('hidden');
+                }, 5000);
+            } else {
+                throw new Error('Telegram API error');
+            }
+        })
+        .catch(error => {
+            console.error('Feedback error:', error);
+            statusDiv.className = 'feedback-status error';
+            statusDiv.textContent = '❌ Gönderilirken hata oluştu. Lütfen tekrar dene.';
 
-    fetch(url)
-        .then(res => console.log("Quiz sonuçları gönderildi"))
-        .catch(err => console.error(err));
-}
-
-// 7. WhatsApp Entegrasyonu (Genel İletişim)
-function contactWhatsApp() {
-    const phoneNumber = "90501507327"; // Güncellendi
-    const message = "Merhaba, bir konuda görüş/öneri iletmek istiyorum...";
-
-    const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-    window.open(url, '_blank');
-}
-
-// Yeni Soru Talebi
-function requestNewQuestion() {
-    const phoneNumber = "90501507327"; // Güncellendi
-    const message = "Merhaba, aklıma bir oyun sorusu geldi: \n\nSoru: ...\nSeçenekler: ...";
-
-    const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-    window.open(url, '_blank');
-}
-
-// WhatsApp (Quiz Sonuçları)
-function openWhatsApp() {
-    const phoneNumber = "90501507327"; // Güncellendi
-
-    let message = "🎮 *Feride'nin Oyun Sonuçları:* 🎮\n\n";
-
-    userAnswers.forEach((item, index) => {
-        message += `*${index + 1}. ${item.question}*\n👉 ${item.answer}\n\n`;
-    });
-
-    const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-    window.open(url, '_blank');
-}
-
-
-// 8. Ziyaret Bildirimi
-function notifyVisit(passwordAttempt, isSuccess) {
-    const botToken = "8010088130:AAGigZidvc2OX9oznuWEkgu47k6OWIC38M0";
-    const chatId = "406305254";
-
-    if (botToken === "BURAYA_BOT_TOKEN_YAZ") return;
-
-    let statusHeader = isSuccess ? "✅ BAŞARILI GİRİŞ" : "⛔ GİRİŞ ENGELLENDİ (Trip/Olumsuzluk)";
-
-    const message = `${statusHeader}\n\n👤 Feride giriş yapmayı denedi.\n🔑 Denenen Şifre: "${passwordAttempt}"\n📅 Tarih: ${new Date().toLocaleString()}`;
-
-    const url = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(message)}`;
-
-    fetch(url).catch(err => console.error("Bağlantı hatası:", err));
-}
-
-// VIDEO İŞLEMLERİ
-document.addEventListener('DOMContentLoaded', () => {
-    const finalVideo = document.getElementById('final-video');
-    if (finalVideo) {
-        // Video bittiğinde otomatik kapat/bildir
-        finalVideo.addEventListener('ended', () => {
-            closeVideo();
+            setTimeout(() => {
+                statusDiv.classList.add('hidden');
+            }, 5000);
+        })
+        .finally(() => {
+            sendBtn.disabled = false;
         });
-    }
-});
-
-function closeVideo() {
-    const videoContainer = document.getElementById('video-container');
-    const finalMsgContainer = document.getElementById('final-msg-container');
-    const finalVideo = document.getElementById('final-video');
-
-    // İzlenen süreyi al
-    let watchedTime = 0;
-    if (finalVideo) {
-        watchedTime = Math.floor(finalVideo.currentTime);
-        finalVideo.pause();
-    }
-
-    // Telegram'a bildir
-    notifyVideoWatched(watchedTime);
-
-    // Videoyu gizle
-    videoContainer.classList.add('hidden');
-
-    // Son mesajı göster ("Seni bekliyorum...")
-    finalMsgContainer.classList.remove('hidden');
-}
-
-function notifyVideoWatched(seconds) {
-    const botToken = "8010088130:AAGigZidvc2OX9oznuWEkgu47k6OWIC38M0";
-    const chatId = "406305254";
-
-    // Süreyi dakika:saniye formatına çevir
-    const minutes = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    const timeString = `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
-
-    const message = `🎥 VİDEO İZLENDİ!\n\nFeride videoyu kapattı/bitirdi.\n⏱️ İzlenen Süre: ${timeString}`;
-
-    const url = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(message)}`;
-
-    fetch(url).catch(err => console.error("Video bildirimi gönderilemedi:", err));
-}
+};

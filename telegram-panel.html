@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Kontrol Paneli</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        h2 {
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+
+        .status {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            font-size: 1.1rem;
+        }
+
+        .success {
+            background: rgba(74, 222, 128, 0.2);
+            border: 2px solid #4ade80;
+        }
+
+        .warning {
+            background: rgba(251, 191, 36, 0.2);
+            border: 2px solid #fbbf24;
+        }
+
+        .error {
+            background: rgba(239, 68, 68, 0.2);
+            border: 2px solid #ef4444;
+        }
+
+        button {
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #d4a5a5, #ffd700);
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1a1a20;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1rem;
+        }
+
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .info {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-top: 10px;
+        }
+
+        code {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>📱 Telegram Kontrol Paneli</h1>
+
+        <!-- Durum Kartı -->
+        <div class="card">
+            <h2>🔍 Mevcut Durum</h2>
+            <div id="status"></div>
+        </div>
+
+        <!-- Yapılandırma Kartı -->
+        <div class="card">
+            <h2>⚙️ Yapılandırma</h2>
+            <p style="margin-bottom: 15px;">Bot token ve Chat ID'nizi girin:</p>
+
+            <input type="text" id="bot-token" placeholder="Bot Token (örn: 1234567890:ABCdef...)">
+            <div class="info">💡 Bot token'ı @BotFather'dan alabilirsiniz</div>
+
+            <input type="text" id="chat-id" placeholder="Chat ID (örn: 123456789)">
+            <div class="info">💡 Chat ID'yi @userinfobot'tan öğrenebilirsiniz</div>
+
+            <div style="margin-top: 20px;">
+                <button onclick="saveConfig()">💾 Kaydet</button>
+                <button onclick="clearConfig()">🗑️ Temizle</button>
+            </div>
+        </div>
+
+        <!-- Test Kartı -->
+        <div class="card">
+            <h2>🧪 Test Et</h2>
+            <p style="margin-bottom: 15px;">Telegram bildirimini test edin:</p>
+            <button onclick="sendTestNotification()">📤 Test Bildirimi Gönder</button>
+            <div id="test-result" style="margin-top: 15px;"></div>
+        </div>
+
+        <!-- Bilgilendirme -->
+        <div class="card">
+            <h2>📚 Nasıl Kullanılır?</h2>
+            <ol style="line-height: 2; margin-left: 20px;">
+                <li>Telegram'da <code>@BotFather</code> kullanıcısını bulun</li>
+                <li><code>/newbot</code> komutuyla yeni bot oluşturun</li>
+                <li>Aldığınız bot token'ı yukarı yapıştırın</li>
+                <li>Telegram'da <code>@userinfobot</code> ile Chat ID'nizi öğrenin</li>
+                <li>Chat ID'yi yukarı yapıştırın</li>
+                <li>Kaydet butonuna tıklayın</li>
+                <li>Test bildirimi gönderin!</li>
+            </ol>
+        </div>
+    </div>
+
+    <script src="js/telegram-notifications.js"></script>
+    <script>
+        // Sayfa yüklendiğinde durumu kontrol et
+        window.addEventListener('load', checkStatus);
+
+        function checkStatus() {
+            const statusDiv = document.getElementById('status');
+            const savedToken = localStorage.getItem('telegram_bot_token');
+            const savedChatId = localStorage.getItem('telegram_chat_id');
+
+            if (savedToken && savedChatId) {
+                statusDiv.innerHTML = `
+                    <div class="status success">
+                        ✅ <strong>Telegram Yapılandırılmış!</strong><br>
+                        Bot Token: ${savedToken.substring(0, 15)}...<br>
+                        Chat ID: ${savedChatId}
+                    </div>
+                `;
+
+                // Input'ları doldur
+                document.getElementById('bot-token').value = savedToken;
+                document.getElementById('chat-id').value = savedChatId;
+            } else {
+                statusDiv.innerHTML = `
+                    <div class="status warning">
+                        ⚠️ <strong>Telegram Yapılandırılmamış</strong><br>
+                        Lütfen aşağıdaki formu doldurun.
+                    </div>
+                `;
+            }
+        }
+
+        function saveConfig() {
+            const botToken = document.getElementById('bot-token').value.trim();
+            const chatId = document.getElementById('chat-id').value.trim();
+
+            if (!botToken || !chatId) {
+                alert('❌ Lütfen tüm alanları doldurun!');
+                return;
+            }
+
+            // Token formatını kontrol et
+            if (!botToken.includes(':')) {
+                alert('❌ Geçersiz bot token formatı! Token şu formatta olmalı: 1234567890:ABCdef...');
+                return;
+            }
+
+            // Chat ID sayı mı kontrol et
+            if (isNaN(chatId)) {
+                alert('❌ Chat ID sayı olmalıdır!');
+                return;
+            }
+
+            // Kaydet
+            window.telegramNotifications.setConfig(botToken, chatId);
+
+            alert('✅ Yapılandırma kaydedildi!');
+            checkStatus();
+        }
+
+        function clearConfig() {
+            if (confirm('Tüm Telegram yapılandırması silinecek. Emin misiniz?')) {
+                localStorage.removeItem('telegram_bot_token');
+                localStorage.removeItem('telegram_chat_id');
+                document.getElementById('bot-token').value = '';
+                document.getElementById('chat-id').value = '';
+
+                alert('🗑️ Yapılandırma temizlendi!');
+                checkStatus();
+            }
+        }
+
+        async function sendTestNotification() {
+            const resultDiv = document.getElementById('test-result');
+            resultDiv.innerHTML = '<div class="status warning">⏳ Gönderiliyor...</div>';
+
+            // Config yüklü mü kontrol et
+            const savedToken = localStorage.getItem('telegram_bot_token');
+            const savedChatId = localStorage.getItem('telegram_chat_id');
+
+            if (!savedToken || !savedChatId) {
+                resultDiv.innerHTML = '<div class="status error">❌ Önce yapılandırma yapmalısınız!</div>';
+                return;
+            }
+
+            // Test bildirimi gönder
+            try {
+                await window.telegramNotifications.test();
+
+                setTimeout(() => {
+                    resultDiv.innerHTML = `
+                        <div class="status success">
+                            ✅ <strong>Test bildirimi gönderildi!</strong><br>
+                            Telegram'ı kontrol edin.
+                        </div>
+                    `;
+                }, 1000);
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="status error">
+                        ❌ <strong>Hata oluştu:</strong><br>
+                        ${error.message}
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+
+</html>

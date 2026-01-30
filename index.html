@@ -18,6 +18,7 @@
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/games.css">
 </head>
 
 <body>
@@ -25,93 +26,316 @@
     <!-- 1. GİRİŞ EKRANI (Butonlu) -->
     <div id="login-screen">
         <div class="login-content">
-            <h1>Hoşgeldin...</h1>
-            <p>Müziği hissetmek için butona tıkla.</p>
-            <button id="enter-btn" class="login-btn">Müziği Başlat 🎵</button>
+            <button id="enter-btn" class="key-btn">
+                <i class="fas fa-key"></i> Eve Gir
+            </button>
         </div>
     </div>
 
-    <!-- 2. ZARF EKRANI (Başlangıçta Gizli) -->
-    <div id="envelope-overlay" class="hidden">
-        <div class="envelope-wrapper" id="envelope-wrapper">
-            <div class="envelope">
-                <div class="front flap"></div>
-                <div class="front pocket"></div>
-                <div class="letter">
-                    <div class="letter-corner"></div>
+    <!-- 1.5. PROFİL SEÇİM EKRANI (YENİ) -->
+    <div id="profile-selection-screen" class="hidden">
+        <div class="profile-content">
+            <h2 class="profile-title" data-aos="fade-down">Hangi Karaktersin?</h2>
+            <div class="profile-container">
+                <!-- Tavşan Kartı -->
+                <div class="profile-card" id="select-rabbit">
+                    <div class="profile-emoji">🐰</div>
+                    <h3>Tavşan</h3>
                 </div>
-                <!-- Kalp animasyonları kaldırıldı -->
-            </div>
-            <p class="click-hint">Mektubu Açmak İçin Tıkla ✨</p>
-        </div>
-    </div>
-
-    <!-- Background Music -->
-    <audio id="bg-music" loop preload="auto">
-        <source src="assets/music/song.mp3" type="audio/mpeg">
-    </audio>
-
-    <!-- 2. PARŞOMEN NOTU -->
-    <div id="parchment-modal" class="hidden">
-        <div class="parchment-container">
-            <button class="close-parchment" onclick="closeParchment()">×</button>
-            <div class="parchment-content">
-                <h2>Çalıkuşu...</h2>
-                <p>
-                    Feride,<br>
-                    Kendini engellere, duvarlara hapsettin. Sanıyorsun ki bu yangın sönecek...<br>
-                    Yanılıyorsun Feride.<br>
-                    Bana 'Tenlerimiz buluşmazsa ne işe yarar sevmek?' diye sorduğun o geceyi hatırla. O açlık, o tutku
-                    bir 'Engelle' butonuyla geçer mi sandın?<br>
-                    Şu an çaldığın o kapılar, kaçtığın o yollar... Hepsi yine bana çıkacak.<br>
-                    Bu şarkıyı iyi dinle. Çünkü bu sadece bir şarkı değil. Senin şu an damarlarında dolaşan o çaresiz
-                    gerçeğin ta kendisi.<br>
-                    Kaç bakalım... Ne kadar uzağa gidebileceksin, içindeki benden?
-                    <br><br>
-                    Seni Seviyorum. ❤️
-                </p>
-                <button onclick="closeParchment()" class="parchment-continue-btn">Devam Et ➡️</button>
+                <!-- Tilki Kartı -->
+                <div class="profile-card" id="select-fox">
+                    <div class="profile-emoji">🦊</div>
+                    <h3>Tilki</h3>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- ANA İÇERİK -->
+    <!-- ANA İÇERİK (Oda Seçimi) -->
     <main id="main-content" class="hidden">
-        <div class="simple-content">
-            <!-- Animated Text Container (Optional: Can keep or remove based on preference, keeping for transition) -->
-            <div id="animated-text" class="premium-text" data-aos="fade-up" style="display:none;"></div>
-
-            <!-- Video Section -->
-            <div id="video-container" class="hidden"
-                style="position: relative; width: 100%; display: flex; flex-direction: column; align-items: center;">
-                <div class="video-wrapper" style="width: 100%; max-width: 800px; position: relative;">
-                    <button onclick="closeVideo()" class="close-video-btn"
-                        style="position: absolute; top: -40px; right: 0; background: transparent; color: #fff; border: 1px solid #fff; border-radius: 50%; width: 30px; height: 30px; cursor: pointer;">×</button>
-                    <video id="final-video" controls playsinline
-                        style="width: 100%; height: auto; border-radius: 20px; box-shadow: 0 0 30px rgba(212, 165, 165, 0.3); max-height: 80vh;">
-                        <source src="Video Project.mp4" type="video/mp4">
-                        Tarayıcınız video etiketini desteklemiyor.
-                    </video>
+        <div id="room-selection">
+            <h2 class="room-title" data-aos="fade-down">Nereye Gitmek İstersin?</h2>
+            <div class="rooms-container">
+                <!-- Şiir Odası Kartı -->
+                <div class="room-card" id="btn-poetry" data-aos="fade-right">
+                    <div class="room-img" style="background-image: url('assets/img/poetry_room.png');"></div>
+                    <div class="room-info">
+                        <h3>Şiir Odası</h3>
+                        <p>Kelimelerin büyülü dünyası...</p>
+                    </div>
                 </div>
-                <!-- Video bittiğinde veya kapatıldığında mesaj çıkacak -->
+
+                <!-- Anı Odası Kartı -->
+                <div class="room-card" id="btn-memory" data-aos="fade-left">
+                    <div class="room-img" style="background-image: url('assets/img/memory_room.png');"></div>
+                    <div class="room-info">
+                        <h3>Anı Odası</h3>
+                        <p>Geçmişin tatlı izleri...</p>
+                    </div>
+                </div>
+
+                <!-- Buluşma Odası Kartı (YENİ) -->
+                <div class="room-card" id="btn-meeting" data-aos="fade-up">
+                    <div class="room-img" style="background-image: url('assets/img/meeting_room.png');"></div>
+                    <div class="room-info">
+                        <h3>Buluşma Odası</h3>
+                        <p>Şömine başında sohbet...</p>
+                    </div>
+                </div>
+
+                <!-- Oyun Odası Kartı (YENİ) -->
+                <div class="room-card" id="btn-game" data-aos="fade-up">
+                    <div class="room-img" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"></div>
+                    <div class="room-info">
+                        <h3>🎮 Oyun Odası</h3>
+                        <p>Eğlence zamanı!</p>
+                    </div>
+                </div>
             </div>
 
-            <!-- Final Message Section -->
-            <div id="final-msg-container" class="hidden" data-aos="zoom-in">
-                <div class="final-card">
-                    <div class="alert-icon">!</div>
-                    <p class="final-text">Seni bekliyorum...</p>
+            <!-- Görüş ve Öneri Kutusu -->
+            <div class="feedback-section" data-aos="fade-up" data-aos-delay="200">
+                <div class="feedback-card">
+                    <h3>💌 Görüş ve Önerileriniz</h3>
+                    <p>Siteyi nasıl buldun? Ne eklememi istersin? Fikirlerini benimle paylaş! 💕</p>
+                    <div class="feedback-form">
+                        <textarea id="feedback-message" placeholder="Düşüncelerini buraya yaz... 💭"
+                            rows="4"></textarea>
+                        <button id="send-feedback-btn" onclick="sendFeedback()">
+                            <i class="fas fa-paper-plane"></i> Gönder
+                        </button>
+                    </div>
+                    <div id="feedback-status" class="feedback-status hidden"></div>
                 </div>
             </div>
-            <footer>
-                <p>Sana Özel Yapıldı | 2026</p>
-            </footer>
+        </div>
+
+        <!-- ODA İÇERİKLERİ -->
+        <section id="poetry-room" class="room-section hidden">
+            <!-- Arka Plan -->
+            <div class="overlay"></div>
+
+            <button class="back-btn" onclick="goBackToHall()">
+                <i class="fas fa-arrow-left"></i> Hol'e Dön
+            </button>
+
+            <!-- Uçuşan Şiir İsimleri Alanı -->
+            <div id="floating-area">
+                <!-- JS ile buraya şiir başlıkları eklenecek -->
+            </div>
+
+            <!-- Şiir Okuma Modalı (Parşomen) - Başlangıçta Gizli -->
+            <div id="poem-modal" class="hidden overlay-modal">
+                <button class="close-modal-btn" onclick="closePoemModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+                <div class="parchment-wrapper">
+                    <div class="parchment">
+                        <h2 class="poem-title" id="modal-poem-title">Başlık</h2>
+                        <div class="poem-body" id="modal-poem-body">
+                            <!-- Şiir içeriği buraya gelecek -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Şiir Ekleme Butonu (Sol Alt) -->
+            <button id="add-poem-fab" onclick="toggleAddPoemForm()">
+                <i class="fas fa-feather-alt"></i> Şiir Ekle
+            </button>
+
+            <!-- Şiir Ekleme Formu -->
+            <div id="new-poem-form" class="hidden overlay-modal">
+                <div class="form-card">
+                    <h3>Yeni Şiir Yaz 🖋️</h3>
+                    <input type="text" id="new-poem-title" placeholder="Şiir Başlığı...">
+                    <textarea id="new-poem-body" placeholder="İçindeki dök..."></textarea>
+                    <div class="form-buttons">
+                        <button onclick="saveNewPoem()" class="save-btn">Kaydet</button>
+                        <button onclick="toggleAddPoemForm()" class="cancel-btn">İptal</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="memory-room" class="room-section hidden">
+            <!-- Anı Odası Arka Planı -->
+            <div class="overlay"></div>
+
+            <button class="back-btn" onclick="goBackToHall()">
+                <i class="fas fa-arrow-left"></i> Hol'e Dön
+            </button>
+
+            <h1 class="memory-title" data-aos="fade-down">Anılarımız</h1>
+
+            <!-- 3x3 Resim Çerçevesi Galeri -->
+            <div class="frame-container" data-aos="zoom-in">
+                <div class="grid-3x3">
+                    <!-- 9 Adet Slot -->
+                    <!-- Slot 1 -->
+                    <div class="frame-slot" onclick="triggerUpload(1)">
+                        <img id="img-1"
+                            src="https://images.unsplash.com/photo-1516961642265-531546e84af2?q=80&w=1000&auto=format&fit=crop"
+                            alt="Memory">
+                    </div>
+                    <!-- Slot 2 -->
+                    <div class="frame-slot" onclick="triggerUpload(2)">
+                        <img id="img-2"
+                            src="https://images.unsplash.com/photo-1529619768328-e37af76c6fe5?q=80&w=1000&auto=format&fit=crop"
+                            alt="Memory">
+                    </div>
+                    <!-- Slot 3 -->
+                    <div class="frame-slot" onclick="triggerUpload(3)">
+                        <div class="empty-placeholder"><i class="fas fa-plus"></i><br>Ekle</div>
+                        <img id="img-3" class="hidden" src="" alt="Memory">
+                    </div>
+
+                    <!-- Slot 4 -->
+                    <div class="frame-slot" onclick="triggerUpload(4)">
+                        <div class="empty-placeholder"><i class="fas fa-plus"></i><br>Ekle</div>
+                        <img id="img-4" class="hidden" src="" alt="Memory">
+                    </div>
+                    <!-- Slot 5 (Merkez) -->
+                    <div class="frame-slot" onclick="triggerUpload(5)">
+                        <div class="empty-placeholder"><i class="fas fa-plus"></i><br>Ekle</div>
+                        <img id="img-5" class="hidden" src="" alt="Memory">
+                    </div>
+                    <!-- Slot 6 -->
+                    <div class="frame-slot" onclick="triggerUpload(6)">
+                        <div class="empty-placeholder"><i class="fas fa-plus"></i><br>Ekle</div>
+                        <img id="img-6" class="hidden" src="" alt="Memory">
+                    </div>
+
+                    <!-- Slot 7 -->
+                    <div class="frame-slot" onclick="triggerUpload(7)">
+                        <div class="empty-placeholder"><i class="fas fa-plus"></i><br>Ekle</div>
+                        <img id="img-7" class="hidden" src="" alt="Memory">
+                    </div>
+                    <!-- Slot 8 -->
+                    <div class="frame-slot" onclick="triggerUpload(8)">
+                        <div class="empty-placeholder"><i class="fas fa-plus"></i><br>Ekle</div>
+                        <img id="img-8" class="hidden" src="" alt="Memory">
+                    </div>
+                    <!-- Slot 9 -->
+                    <div class="frame-slot" onclick="triggerUpload(9)">
+                        <div class="empty-placeholder"><i class="fas fa-plus"></i><br>Ekle</div>
+                        <img id="img-9" class="hidden" src="" alt="Memory">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gizli Dosya Yükleme Inputu -->
+            <input type="file" id="image-upload" accept="image/*" style="display: none;">
+        </section>
+
+        <!-- BULUŞMA ODASI (YENİ) -->
+        <section id="meeting-room" class="room-section hidden">
+            <div class="overlay"></div>
+
+            <button class="back-btn" onclick="goBackToHall()">
+                <i class="fas fa-arrow-left"></i> Hol'e Dön
+            </button>
+
+            <!-- Sohbet Alanı -->
+            <div class="chat-container">
+                <div class="chat-header">
+                    <h2>🔥 Şömine Başı Sohbeti</h2>
+                </div>
+                <div class="chat-messages" id="chat-messages">
+                    <!-- Mesajlar buraya gelecek -->
+                    <div class="message system-message">
+                        Buluşma odasına hoş geldin... Şömine çok güzel yanıyor. 🔥
+                    </div>
+                </div>
+                <div class="chat-input-area">
+                    <input type="text" id="chat-input" placeholder="Bir şeyler söyle...">
+                    <button id="send-btn"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+            </div>
+        </section>
+
+        <!-- OYUN ODASI (YENİ) -->
+        <section id="game-room" class="room-section hidden">
+            <div class="overlay"></div>
+
+            <button class="back-btn" onclick="goBackToHall()">
+                <i class="fas fa-arrow-left"></i> Hol'e Dön
+            </button>
+
+            <div class="games-menu">
+                <h2 class="games-title">🎮 Hangi Oyunu Oynamak İstersin?</h2>
+                <div class="game-buttons">
+                    <button class="game-select-btn" id="btn-wheel-game">
+                        <i class="fas fa-circle-notch"></i> Kader Çarkı
+                    </button>
+                    <button class="game-select-btn" id="btn-words-game">
+                        <i class="fas fa-times-circle"></i> Yasak Kelimeler
+                    </button>
+                </div>
+            </div>
+
+            <!-- KADER ÇARKI OYUNU -->
+            <div class="game-container hidden" id="wheel-game-container">
+                <button class="game-back-btn" id="wheel-back-btn">◀ Geri</button>
+                <h2 class="game-title">🎡 Kader Çarkı</h2>
+                <div class="wheel-wrapper">
+                    <canvas id="wheelCanvas" width="400" height="400"></canvas>
+                    <button class="spin-btn" id="spin-btn">ÇEVİR!</button>
+                </div>
+                <div class="wheel-result hidden" id="wheel-result"></div>
+            </div>
+
+            <!-- YASAK KELİMELER OYUNU -->
+            <div class="game-container hidden" id="words-game-container">
+                <button class="game-back-btn" id="words-back-btn">◀ Geri</button>
+                <h2 class="game-title">🚫 Yasak Kelimeler</h2>
+                <p class="words-instruction">💡 Negatif kelimeleri tıklayıp patlatın!</p>
+                <div class="words-playground" id="words-playground">
+                    <!-- Kelimeler buraya JS ile gelecek -->
+                </div>
+                <div class="words-result hidden" id="words-result"></div>
+            </div>
+        </section>
     </main>
 
+    <!-- MÜZİK OYNATICI -->
+    <div id="music-container" class="hidden">
+        <!-- Müzik Kontrol Butonu -->
+        <button id="music-btn">
+            <i class="fas fa-music"></i>
+        </button>
+
+        <!-- Müzik Paneli -->
+        <div id="music-panel" class="hidden">
+            <h4>Müzik Listesi</h4>
+            <ul id="playlist">
+                <li data-src="assets/music/track1.mp3">🎵 Bir Beyaz Orkide</li>
+                <li data-src="assets/music/track2.mp3">🎸 Dedublüman - Sen Bilmezsin</li>
+                <li data-src="assets/music/track3.mp3">🎤 Sen Beni Unutamazsın</li>
+                <li data-src="assets/music/track4.mp3">💔 Senden Geçemiyorum</li>
+            </ul>
+            <div class="controls">
+                <button id="prev-btn"><i class="fas fa-backward"></i></button>
+                <button id="play-pause-btn"><i class="fas fa-play"></i></button>
+                <button id="next-btn"><i class="fas fa-forward"></i></button>
+            </div>
+            <!-- Ses Kontrolü -->
+            <div class="volume-control">
+                <i class="fas fa-volume-down"></i>
+                <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="0.5">
+                <i class="fas fa-volume-up"></i>
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="js/telegram-notifications.js"></script>
     <script src="js/main.js"></script>
+    <script src="js/games.js"></script>
 </body>
 
 </html>
