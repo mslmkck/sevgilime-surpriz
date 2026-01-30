@@ -22,9 +22,17 @@
 
 <body>
 
-    <!-- 1. GİRİŞ EKRANI -->
-    <!-- 1. INTRO: ZARF VE SİYAH EKRAN -->
-    <div id="envelope-overlay">
+    <!-- 1. GİRİŞ EKRANI (Butonlu) -->
+    <div id="login-screen">
+        <div class="login-content">
+            <h1>Hoşgeldin...</h1>
+            <p>Müziği hissetmek için giriş yap.</p>
+            <button id="enter-btn" class="login-btn">Giriş Yap </button>
+        </div>
+    </div>
+
+    <!-- 2. ZARF EKRANI (Başlangıçta Gizli) -->
+    <div id="envelope-overlay" class="hidden">
         <div class="envelope-wrapper" id="envelope-wrapper">
             <div class="envelope">
                 <div class="front flap"></div>

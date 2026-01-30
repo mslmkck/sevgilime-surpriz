@@ -7,47 +7,43 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const audio = document.getElementById('bg-music');
+    const loginScreen = document.getElementById('login-screen');
+    const enterBtn = document.getElementById('enter-btn');
+    const envelopeOverlay = document.getElementById('envelope-overlay');
 
-    // Müzik çalma fonksiyonu - Hata yönetimi ile
-    const playMusic = () => {
-        if (audio && audio.paused) {
-            audio.muted = false;
-            audio.volume = 0.5; // Başlangıç ses seviyesi
-            const playPromise = audio.play();
-            if (playPromise !== undefined) {
-                playPromise.catch(error => {
-                    console.log("Otomatik oynatma engellendi, etkileşim bekleniyor:", error);
-                    // Etkileşim bekleyicisi ekle
-                    document.addEventListener('click', () => {
-                        if (audio.paused) audio.play();
-                    }, { once: true });
-                });
+    // Giriş Butonuna Tıklanınca
+    if (enterBtn) {
+        enterBtn.addEventListener('click', () => {
+            // 1. Müziği Başlat
+            if (audio) {
+                audio.muted = false;
+                audio.volume = 0.5;
+                audio.play().catch(e => console.log("Müzik hatası:", e));
             }
-        }
-    };
 
-    // 1. Sayfa yüklendiğinde şansımızı dene
-    playMusic();
+            // 2. Giriş Ekranını Kapat
+            loginScreen.style.opacity = '0';
+            setTimeout(() => {
+                loginScreen.style.display = 'none';
 
-    // 2. Her ihtimale karşı sayfadaki ilk tıklamada müziği başlat
-    document.body.addEventListener('click', () => {
-        if (audio && audio.paused) {
-            audio.play().catch(e => console.log("Etkileşim ile başlatma hatası:", e));
-        }
-    }, { once: true });
+                // 3. Zarf Ekranını Göster
+                if (envelopeOverlay) {
+                    envelopeOverlay.classList.remove('hidden');
+                }
+            }, 1000);
+        });
+    }
 
     // Envelope Interaction Logic
     const envelope = document.getElementById('envelope-wrapper');
     if (envelope) {
         const handleInteraction = (e) => {
-            // Müzik kesin başlasın
-            if (audio) {
-                audio.muted = false;
-                audio.volume = 1.0;
-                audio.play().catch(e => console.log("Zarf açılırken müzik hatası:", e));
-            }
-
             openLetter();
+
+            // Zarf açıldığında müziğin sesini biraz açabiliriz
+            if (audio) {
+                audio.volume = 1.0;
+            }
 
             // Remove listeners once opened
             envelope.removeEventListener('click', handleInteraction);
