@@ -36,6 +36,13 @@ function openLetter() {
     // 1. Zarfı Aç (CSS Animasyonunu Tetikle)
     envelopeWrapper.classList.add('open');
 
+    // MÜZİĞİ BAŞLAT (iOS/Mobil için en garantili yöntem: kullanıcı etkileşimi anında)
+    const audio = document.getElementById('bg-music');
+    if (audio && audio.paused) {
+        audio.volume = 0.5;
+        audio.play().catch(e => console.log("Müzik başlatılamadı:", e));
+    }
+
     // 2. Biraz bekle, sonra parşomeni göster
     setTimeout(() => {
         // Zarf ekranını gizle (opsiyonel: tamamen kaldırmak yerine arka planda tutabiliriz ama temiz görüntü için gizleyelim)
