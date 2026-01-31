@@ -221,12 +221,12 @@ const spinBtn = document.getElementById('spin-btn');
 const wheelResultDiv = document.getElementById('wheel-result');
 
 const segments = [
-    { text: '☕ Kahve', color: '#FF6B6B' },
-    { text: '🎬 Sinema', color: '#4ECDC4' },
-    { text: '💋 Öpücük', color: '#FF69B4' },
-    { text: '🤫 Sır', color: '#95E1D3' },
-    { text: '🎶 Şarkı', color: '#F38181' },
-    { text: '🚔 Kelepçe', color: '#FFA07A' }
+    { text: '☕ Kahve', color: '#FF6B6B', msg: 'Hadi bir kahve yapalım! ☕' },
+    { text: '🎬 Sinema', color: '#4ECDC4', msg: 'Film seçimi sende! 🍿' },
+    { text: '💋 Öpücük', color: '#FF69B4', msg: 'Muck! 😘' },
+    { text: '🤫 Sır', color: '#95E1D3', msg: 'Bana bir sırrını ver... 🗝️' },
+    { text: '🎶 Şarkı', color: '#F38181', msg: 'Bana bir şarkı söyle! 🎤' },
+    { text: '🚔 Kelepçe', color: '#FFA07A', msg: 'Bugün benimsin! 😈' }
 ];
 
 let currentAngle = 0;
@@ -234,104 +234,95 @@ let isSpinning = false;
 
 function initWheel() {
     if (!ctx || !canvas) return;
-
-    // Canvas boyutunu responsive yap
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
-
     drawWheel();
 }
 
 function resizeCanvas() {
-    // Ekran boyutuna göre canvas boyutunu ayarla
     const size = Math.min(window.innerWidth * 0.9, 450);
-    canvas.width = size;
-    canvas.height = size;
+    // Canvas PPI fix (bulanıklığı önlemek için 2 kat)
+    const dpr = window.devicePixelRatio || 1;
+    // CSS boyutu
+    canvas.style.width = size + "px";
+    canvas.style.height = size + "px";
+    // Gerçek boyut
+    canvas.width = size * dpr;
+    canvas.height = size * dpr;
+    // Scale
+    ctx.scale(dpr, dpr);
+
     drawWheel();
 }
 
 function drawWheel() {
     if (!ctx || !canvas) return;
 
-    const centerX = canvas.width / 2;
-    const centerY = canvas.height / 2;
-    const radius = canvas.width / 2 - 10;
+    // CSS boyutu üzerinden hesapla
+    const width = parseFloat(canvas.style.width);
+    const height = parseFloat(canvas.style.height);
+
+    const centerX = width / 2;
+    const centerY = height / 2;
+    const radius = (width / 2) - 15;
     const anglePerSegment = (2 * Math.PI) / segments.length;
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, width, height);
 
-    // Gölge ekle
+    // Gölge
     ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
-    ctx.shadowBlur = 15;
-    ctx.shadowOffsetX = 5;
-    ctx.shadowOffsetY = 5;
+    ctx.shadowBlur = 10;
+    ctx.shadowOffsetX = 2;
+    ctx.shadowOffsetY = 2;
 
     segments.forEach((segment, index) => {
         const startAngle = currentAngle + (index * anglePerSegment);
         const endAngle = startAngle + anglePerSegment;
 
-        // Gradient oluştur
-        const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
-        gradient.addColorStop(0, segment.color);
-        gradient.addColorStop(1, shadeColor(segment.color, -20));
-
-        // Dilim çiz
         ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
         ctx.arc(centerX, centerY, radius, startAngle, endAngle);
-        ctx.lineTo(centerX, centerY);
-        ctx.fillStyle = gradient;
+        ctx.closePath();
+
+        ctx.fillStyle = segment.color;
         ctx.fill();
 
-        // Parlak kenar
         ctx.strokeStyle = '#fff';
-        ctx.lineWidth = 4;
+        ctx.lineWidth = 2;
         ctx.stroke();
 
-        // Metin çiz
+        // Metin
         ctx.save();
         ctx.translate(centerX, centerY);
         ctx.rotate(startAngle + anglePerSegment / 2);
         ctx.textAlign = 'right';
         ctx.fillStyle = '#fff';
-        ctx.font = `bold ${canvas.width / 25}px Arial`;
-        ctx.shadowBlur = 5;
-        ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
-        ctx.fillText(segment.text, radius - 25, 7);
+        ctx.font = `bold ${width / 20}px Arial`;
+        ctx.shadowBlur = 2;
+        ctx.shadowColor = 'rgba(0,0,0,0.5)';
+        ctx.fillText(segment.text, radius - 20, 5);
         ctx.restore();
     });
 
-    // Merkez daire - gradient
-    ctx.shadowBlur = 0;
-    const centerGradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, 30);
-    centerGradient.addColorStop(0, '#FFD700');
-    centerGradient.addColorStop(1, '#FFA500');
-
+    // Merkez Nokta
     ctx.beginPath();
-    ctx.arc(centerX, centerY, 30, 0, 2 * Math.PI);
-    ctx.fillStyle = centerGradient;
-    ctx.fill();
-    ctx.strokeStyle = '#fff';
-    ctx.lineWidth = 3;
-    ctx.stroke();
-
-    // Ok işareti
+    ctx.arc(centerX, centerY, 25, 0, 2 * Math.PI);
     ctx.fillStyle = '#fff';
-    ctx.font = `bold ${canvas.width / 20}px Arial`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('▼', centerX, centerY);
-}
+    ctx.fill();
 
-// Renk koyulaştırma fonksiyonu
-function shadeColor(color, percent) {
-    const num = parseInt(color.replace("#", ""), 16);
-    const amt = Math.round(2.55 * percent);
-    const R = (num >> 16) + amt;
-    const G = (num >> 8 & 0x00FF) + amt;
-    const B = (num & 0x0000FF) + amt;
-    return "#" + (0x1000000 + (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 +
-        (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 + (B < 255 ? B < 1 ? 0 : B : 255))
-        .toString(16).slice(1);
+    // OK İŞARETİ (ÜSTTE SABİT)
+    // Canvasın en tepesinde, aşağı bakan bir üçgen
+    ctx.save();
+    ctx.translate(centerX, 0); // Üst orta
+    ctx.beginPath();
+    ctx.moveTo(-15, 0);
+    ctx.lineTo(15, 0);
+    ctx.lineTo(0, 30); // Ok ucu aşağı
+    ctx.fillStyle = '#FFD700'; // Altın sarısı
+    ctx.shadowColor = '#000';
+    ctx.shadowBlur = 5;
+    ctx.fill();
+    ctx.restore();
 }
 
 function spinWheel() {
@@ -341,47 +332,64 @@ function spinWheel() {
     if (spinBtn) spinBtn.disabled = true;
     if (wheelResultDiv) wheelResultDiv.classList.add('hidden');
 
-    // Confetti efekti
-    if (window.confetti) {
-        setTimeout(() => {
-            confetti({
-                particleCount: 100,
-                spread: 70,
-                origin: { y: 0.6 }
-            });
-        }, 3000);
-    }
+    // Rastgele dönüş (en az 5 tur)
+    const extraRounds = 5;
+    const randomDegree = Math.random() * 360; // 0-360 arası rastgele bitiş
+    const totalRotation = (360 * extraRounds) + randomDegree;
 
-    const totalRotation = 360 * 6 + Math.random() * 360;
-    const duration = 4000;
+    // GSAP aslında 'angle' objesini değil, değişkeni animasyonlayabilir ama obje daha temiz.
+    // currentAngle radians cinsinden. totalRotation degree cinsinden.
+    // Dönüşüm yaparak ilerleyelim.
 
-    gsap.to({ angle: 0 }, {
-        angle: totalRotation,
-        duration: duration / 1000,
+    // Başlangıç açısı (degree olarak düşünelim)
+    let currentDeg = (currentAngle * 180 / Math.PI) % 360;
+
+    const targetDeg = currentDeg + totalRotation;
+
+    let animObj = { val: currentDeg };
+
+    gsap.to(animObj, {
+        val: targetDeg,
+        duration: 4,
         ease: 'power4.out',
         onUpdate: function () {
-            currentAngle = (this.targets()[0].angle * Math.PI / 180);
+            // Radyana çevir ve çiz
+            currentAngle = (animObj.val * Math.PI / 180);
             drawWheel();
         },
         onComplete: () => {
             isSpinning = false;
             if (spinBtn) spinBtn.disabled = false;
-            setTimeout(showResult, 300);
+
+            // KAZANANI HESAPLA
+            // Ok (pointer) ÜSTTE (270 derece veya 1.5 PI). 
+            // Canvas koordinatlarında 0 derece sağ, 90 aşağı, 180 sol, 270 üst.
+            // Tekerin dönüşü (currentAngle) segmentleri kaydırıyor.
+
+            // Etkin açı = (Ok Açısı - Çark Açısı) normalize edilmiş
+            const pointerAngle = 1.5 * Math.PI; // 270 derece
+            let relativeAngle = (pointerAngle - currentAngle) % (2 * Math.PI);
+            if (relativeAngle < 0) relativeAngle += (2 * Math.PI);
+
+            const anglePerSegment = (2 * Math.PI) / segments.length;
+            const winningIndex = Math.floor(relativeAngle / anglePerSegment);
+
+            const winner = segments[winningIndex];
+
+            showResult(winner);
         }
     });
 }
 
-function showResult() {
-    const resultText = 'Kazanan: BİZİZ! 💕';
-
+function showResult(winner) {
     if (wheelResultDiv) {
         wheelResultDiv.innerHTML = `
             <div style="font-size: 2.5rem; margin-bottom: 20px;">🎉</div>
-            <div style="font-size: 2rem; font-weight: bold; color: var(--primary-color); margin-bottom: 15px;">
-                ${resultText}
+            <div style="font-size: 1.8rem; font-weight: bold; color: ${winner.color}; margin-bottom: 15px;">
+                ${winner.text}
             </div>
             <div style="margin-top: 15px; font-size: 1.2rem; opacity: 0.9;">
-                Çünkü gerçek kazanan her zaman birlikte olmaktır.
+                ${winner.msg}
             </div>
         `;
         wheelResultDiv.classList.remove('hidden');
@@ -393,14 +401,19 @@ function showResult() {
             ease: 'back.out(2)'
         });
 
-        // Telegram bildirimi
-        if (window.telegramNotifications) {
-            window.telegramNotifications.notifyGamePlayed('wheel', resultText);
+        // Konfeti
+        if (window.confetti) {
+            confetti({
+                particleCount: 150,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: [winner.color, '#ffffff']
+            });
         }
 
-        // Supabase Kayıt
+        // Supabase & Telegram
         if (window.supabaseHelpers) {
-            window.supabaseHelpers.saveGameScore('wheel', 1, { result: resultText });
+            window.supabaseHelpers.saveGameScore('wheel', 10, { result: winner.text });
         }
     }
 }
