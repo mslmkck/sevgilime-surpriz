@@ -23,6 +23,20 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    /* Mobil dokunma efektini kaldır */
+}
+
+/* Scrollbar Gizleme (App Hissi) */
+::-webkit-scrollbar {
+    width: 0px;
+    background: transparent;
+}
+
+html {
+    height: 100%;
+    overflow: hidden;
+    /* Genel scroll'u engelle, sadece içeriklerde izin ver */
 }
 
 body {
@@ -30,10 +44,19 @@ body {
     background-color: var(--bg-color);
     color: var(--text-color);
     line-height: 1.6;
-    overflow-x: hidden;
     width: 100%;
+    height: 100%;
     max-width: 100vw;
     -webkit-font-smoothing: antialiased;
+    overscroll-behavior: none;
+    /* Pull-to-refresh engelle */
+    user-select: none;
+    /* Metin seçimini engelle */
+    overflow-x: hidden;
+    position: fixed;
+    /* iOS bounce fix */
+    overflow-y: auto;
+    /* Gerektiğinde scroll */
 }
 
 /* HELPER CLASSES */
@@ -999,62 +1022,76 @@ body {
 /* Sohbet Kutusu Kapsayıcısı (Room Section) için Flex ayarı */
 #meeting-room {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    /* Dikey ortala */
-    justify-content: center;
-    /* Yatay ortala */
-    padding-top: 60px;
-    /* Üstteki buton için pay */
-    padding-bottom: 20px;
+    justify-content: flex-start;
+    /* Üstten başlasın */
+    padding-top: 100px;
+    /* Header için daha fazla boşluk */
+    height: 100vh;
+    /* Tam ekran sabit */
+    overflow: hidden;
+    /* Sayfa kaymasını engelle */
+    position: relative;
 }
 
-/* Sohbet Kutusu */
-/* Sohbet Kutusu */
+/* Sohbet Kutusu - ÇERÇEVELİ & SABİT */
 .chat-container {
-    width: 95%;
-    max-width: 800px;
-    /* Daha geniş alan */
-    height: 75vh;
-    /* Çok büyük ekranlarda devasa olmasın */
-    max-height: 800px;
+    width: 90%;
+    max-width: 600px;
+    height: calc(100vh - 140px);
+    /* Ekana sığdır */
+    max-height: 700px;
 
-    /* Şeffaf Arkaplan (İstek üzerine) */
-    background: transparent;
-    backdrop-filter: none;
-    border-radius: 0;
-    border: none;
-    box-shadow: none;
+    /* Çerçeve Görünümü */
+    background: rgba(0, 0, 0, 0.4);
+    /* Koyu şeffaf zemin */
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    /* İçerik taşmasın */
     position: relative;
-    top: auto;
-    left: auto;
-    transform: none;
-    margin: 0 auto;
+    margin: 0 auto 50px auto;
+    /* Alttan boşluk bırak (Müzik butonu çakışmasın) */
+    z-index: 10;
+}
+
+/* Mobilde Müzik Butonu Çakışmasını Önle */
+@media (max-width: 768px) {
+    .chat-container {
+        height: calc(100vh - 180px);
+        /* Daha kısa */
+        margin-bottom: 70px;
+    }
 }
 
 /* Mobilde klavye açılınca veya küçük ekranda düzenleme */
 @media (max-height: 700px) {
     .chat-container {
-        height: 70vh;
+        height: calc(100vh - 120px);
         margin-top: 10px;
     }
 }
 
 .chat-header {
     background: transparent;
-    /* Şeffaf */
-    padding: 10px;
+    padding: 15px;
+    /* Biraz daha padding */
     text-align: center;
-    border-bottom: none;
-    /* Çizgiyi kaldır */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    /* Hafif çizgi */
     display: flex;
     justify-content: space-between;
     align-items: center;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
     /* Yazı okunurluğu için gölge */
+    margin-top: 10px;
+    /* Başlığı biraz aşağı it */
 }
 
 

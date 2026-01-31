@@ -26,70 +26,87 @@
     pointer-events: none;
 }
 
+/* Fix Back Button Position in Game Room */
+#game-room .back-btn {
+    position: absolute;
+    top: 30px;
+    left: 20px;
+    z-index: 200;
+    margin: 0;
+    /* Override default margins */
+}
+
 /* Oyun Menüsü */
 .games-menu {
     text-align: center;
-    padding: 100px 20px 40px;
+    padding: 120px 20px 40px;
+    /* Üst boşluk artırıldı (Geri butonu için) */
     position: relative;
     z-index: 10;
     min-height: 100%;
-    /* vh yerine % */
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
+    /* İçerik yukarıdan başlasın */
     width: 100%;
+    transform: translateZ(0);
+    /* Donanım hızlandırma */
 }
 
 .games-title {
     font-family: var(--font-heading);
-    font-size: clamp(2rem, 5vw, 3rem);
+    font-size: clamp(1.8rem, 5vw, 2.5rem);
+    /* Mobil için biraz küçültüldü */
     color: #fff;
-    margin-bottom: 3rem;
-    text-shadow: 0 0 30px rgba(255, 255, 255, 0.6),
-        0 0 60px rgba(102, 126, 234, 0.5);
-    animation: pulse 3s ease-in-out infinite;
-}
-
-@keyframes pulse {
-
-    0%,
-    100% {
-        transform: scale(1);
-    }
-
-    50% {
-        transform: scale(1.02);
-    }
+    margin-bottom: 2rem;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+    /* Pulse animasyonu kaldırıldı (Performans ve netlik için) */
 }
 
 .game-buttons {
     display: flex;
-    gap: 1.5rem;
+    gap: 15px;
     justify-content: center;
     flex-wrap: wrap;
-    max-width: 1000px;
-    width: 90%;
+    max-width: 800px;
+    width: 100%;
+    padding-bottom: 50px;
 }
 
 .game-select-btn {
     background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    padding: 30px 40px;
-    font-size: clamp(1.2rem, 4vw, 1.5rem);
+    backdrop-filter: blur(10px);
+    /* Blur azaltıldı */
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 20px 25px;
+    /* Padding azaltıldı */
+    font-size: 1.1rem;
     color: #fff;
-    border-radius: 20px;
+    border-radius: 15px;
     cursor: pointer;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 0.2s ease, background 0.2s ease;
     font-family: var(--font-body);
     font-weight: 600;
     position: relative;
     overflow: hidden;
-    min-width: 280px;
-    flex: 1 1 300px;
-    /* Responsive sizing */
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    /* İkon ve yazı arası boşluk */
+
+    min-width: 200px;
+    /* Küçültüldü */
+    flex: 1 1 250px;
+    /* Esnek yapı */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.game-select-btn:active {
+    transform: scale(0.98);
 }
 
 /* ... middle content ... */
