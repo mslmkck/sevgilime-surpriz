@@ -10,14 +10,19 @@ const gamesMenu = document.querySelector('.games-menu');
 // Oyun Seçim Butonları
 const btnWheelGame = document.getElementById('btn-wheel-game');
 const btnWordsGame = document.getElementById('btn-words-game');
+const btnQuizGame = document.getElementById('btn-quiz-game');
+const btnTriviaGame = document.getElementById('btn-trivia-game'); // YENİ
 
 // Oyun Containerları
 const wheelGameContainer = document.getElementById('wheel-game-container');
 const wordsGameContainer = document.getElementById('words-game-container');
+const quizGameContainer = document.getElementById('quiz-game-container');
+const triviaGameContainer = document.getElementById('trivia-game-container'); // YENİ
 
 // Geri Butonları
 const wheelBackBtn = document.getElementById('wheel-back-btn');
 const wordsBackBtn = document.getElementById('words-back-btn');
+const triviaBackBtn = document.getElementById('trivia-back-btn'); // YENİ
 
 // Oyun Odası Açma
 if (btnGameRoom) {
@@ -54,18 +59,24 @@ if (btnGameRoom) {
         // GSAP animasyon ile menüyü göster
         if (gamesMenu) {
             gamesMenu.classList.remove('hidden');
+            // Reset styles that might have been hidden by exit animation
+            gamesMenu.style.opacity = '1';
+            gamesMenu.style.transform = 'none'; // Clear scale/transforms
+
             gsap.from('.games-title', {
                 y: -50,
                 opacity: 0,
                 duration: 0.8,
                 ease: 'back.out(1.7)'
             });
+            // Re-select all buttons to ensure they animate
             gsap.from('.game-select-btn', {
                 scale: 0,
                 opacity: 0,
                 duration: 0.6,
                 stagger: 0.2,
-                ease: 'back.out(1.7)'
+                ease: 'back.out(1.7)',
+                clearProps: 'all' // Animation bitince inline stilleri temizle
             });
 
             if (recentScores) {
@@ -98,7 +109,7 @@ if (btnWheelGame) {
                     ease: 'power2.out'
                 });
 
-                initWheel();
+                if (typeof initWheel === 'function') initWheel();
             }
         });
     });
@@ -121,14 +132,11 @@ if (btnWordsGame) {
                     ease: 'power2.out'
                 });
 
-                initWordsGame();
+                if (typeof initWordsGame === 'function') initWordsGame();
             }
         });
     });
 }
-
-const btnQuizGame = document.getElementById('btn-quiz-game');
-const quizGameContainer = document.getElementById('quiz-game-container');
 
 if (btnQuizGame) {
     btnQuizGame.addEventListener('click', () => {
@@ -152,6 +160,37 @@ if (btnQuizGame) {
         });
     });
 }
+// YENİ: Bilgi Yarışması Buton Click
+if (btnTriviaGame) {
+    btnTriviaGame.addEventListener('click', () => {
+        gsap.to(gamesMenu, {
+            opacity: 0,
+            scale: 0.9,
+            duration: 0.3,
+            onComplete: () => {
+                gamesMenu.classList.add('hidden');
+                triviaGameContainer.classList.remove('hidden');
+
+                gsap.from(triviaGameContainer, {
+                    opacity: 0,
+                    y: 50,
+                    duration: 0.5,
+                    ease: 'power2.out'
+                });
+
+                if (window.initTriviaGame) {
+                    window.initTriviaGame();
+                } else {
+                    console.error("initTriviaGame bulunamadı!");
+                    // Fallback: Belki henüz yüklenmedi, 100ms sonra dene
+                    setTimeout(() => {
+                        if (window.initTriviaGame) window.initTriviaGame();
+                    }, 500);
+                }
+            }
+        });
+    });
+}
 
 // Oyunlardan Menüye Dönme
 if (wheelBackBtn) {
@@ -163,8 +202,9 @@ if (wheelBackBtn) {
             onComplete: () => {
                 wheelGameContainer.classList.add('hidden');
                 gamesMenu.classList.remove('hidden');
-                gamesMenu.style.opacity = 1;
-                gamesMenu.style.transform = 'scale(1)';
+                gamesMenu.style.opacity = '1';
+                gamesMenu.style.transform = 'none';
+                gsap.set('.game-select-btn', { opacity: 1, scale: 1, clearProps: 'all' });
 
                 const wheelResult = document.getElementById('wheel-result');
                 if (wheelResult) wheelResult.classList.add('hidden');
@@ -184,12 +224,14 @@ if (quizBackBtn) {
             onComplete: () => {
                 quizGameContainer.classList.add('hidden');
                 gamesMenu.classList.remove('hidden');
-                gamesMenu.style.opacity = 1;
-                gamesMenu.style.transform = 'scale(1)';
+                gamesMenu.style.opacity = '1';
+                gamesMenu.style.transform = 'none';
+                gsap.set('.game-select-btn', { opacity: 1, scale: 1, clearProps: 'all' });
             }
         });
     });
 }
+
 if (wordsBackBtn) {
     wordsBackBtn.addEventListener('click', () => {
         gsap.to(wordsGameContainer, {
@@ -199,13 +241,35 @@ if (wordsBackBtn) {
             onComplete: () => {
                 wordsGameContainer.classList.add('hidden');
                 gamesMenu.classList.remove('hidden');
-                gamesMenu.style.opacity = 1;
-                gamesMenu.style.transform = 'scale(1)';
+                gamesMenu.style.opacity = '1';
+                gamesMenu.style.transform = 'none';
+                gsap.set('.game-select-btn', { opacity: 1, scale: 1, clearProps: 'all' });
 
                 const playground = document.getElementById('words-playground');
                 if (playground) playground.innerHTML = '';
                 const wordsResult = document.getElementById('words-result');
                 if (wordsResult) wordsResult.classList.add('hidden');
+            }
+        });
+    });
+}
+
+// YENİ: Bilgi Yarışması Geri
+if (triviaBackBtn) {
+    triviaBackBtn.addEventListener('click', () => {
+        gsap.to(triviaGameContainer, {
+            opacity: 0,
+            y: 30,
+            duration: 0.3,
+            onComplete: () => {
+                triviaGameContainer.classList.add('hidden');
+                gamesMenu.classList.remove('hidden');
+                gamesMenu.style.opacity = '1';
+                gamesMenu.style.transform = 'none';
+                gsap.set('.game-select-btn', { opacity: 1, scale: 1, clearProps: 'all' });
+
+                // Timer temizle
+                if (window.triviaTimerInterval) clearInterval(window.triviaTimerInterval);
             }
         });
     });

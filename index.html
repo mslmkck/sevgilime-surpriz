@@ -88,10 +88,19 @@
 
                 <!-- Oyun Odası Kartı (YENİ) -->
                 <div class="room-card" id="btn-game" data-aos="fade-up">
-                    <div class="room-img" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"></div>
+                    <div class="room-img" style="background-image: url('assets/img/game_room.png');"></div>
                     <div class="room-info">
                         <h3>🎮 Oyun Odası</h3>
                         <p>Eğlence zamanı!</p>
+                    </div>
+                </div>
+
+                <!-- Çalışma Odası Kartı (YENİ) -->
+                <div class="room-card" id="btn-working" data-aos="fade-up">
+                    <div class="room-img" style="background-image: url('assets/img/working_room.png');"></div>
+                    <div class="room-info">
+                        <h3>💼 Çalışma Odası</h3>
+                        <p>İşler güçler...</p>
                     </div>
                 </div>
             </div>
@@ -174,57 +183,63 @@
             <!-- 3x3 Resim Çerçevesi Galeri -->
             <div class="frame-container" data-aos="zoom-in">
                 <div class="grid-3x3">
-                    <!-- 9 Adet Slot -->
-                    <!-- Slot 1 -->
-                    <div class="frame-slot" onclick="triggerUpload(1)">
+                    <!-- 9 Adet Slot - JS ile kontrol edilecek -->
+                    <div class="frame-slot" id="slot-1">
                         <img id="img-1"
                             src="https://images.unsplash.com/photo-1516961642265-531546e84af2?q=80&w=1000&auto=format&fit=crop"
                             alt="Memory">
                     </div>
-                    <!-- Slot 2 -->
-                    <div class="frame-slot" onclick="triggerUpload(2)">
+                    <div class="frame-slot" id="slot-2">
                         <img id="img-2"
                             src="https://images.unsplash.com/photo-1529619768328-e37af76c6fe5?q=80&w=1000&auto=format&fit=crop"
                             alt="Memory">
                     </div>
-                    <!-- Slot 3 -->
-                    <div class="frame-slot" onclick="triggerUpload(3)">
-                        <div class="empty-placeholder"><i class="fas fa-plus"></i><br>Ekle</div>
+                    <div class="frame-slot" id="slot-3">
+                        <div class="empty-placeholder"><i class="fas fa-image"></i><br>Boş</div>
                         <img id="img-3" class="hidden" src="" alt="Memory">
                     </div>
-
-                    <!-- Slot 4 -->
-                    <div class="frame-slot" onclick="triggerUpload(4)">
-                        <div class="empty-placeholder"><i class="fas fa-plus"></i><br>Ekle</div>
+                    <div class="frame-slot" id="slot-4">
+                        <div class="empty-placeholder"><i class="fas fa-image"></i><br>Boş</div>
                         <img id="img-4" class="hidden" src="" alt="Memory">
                     </div>
-                    <!-- Slot 5 (Merkez) -->
-                    <div class="frame-slot" onclick="triggerUpload(5)">
-                        <div class="empty-placeholder"><i class="fas fa-plus"></i><br>Ekle</div>
+                    <div class="frame-slot" id="slot-5">
+                        <div class="empty-placeholder"><i class="fas fa-image"></i><br>Boş</div>
                         <img id="img-5" class="hidden" src="" alt="Memory">
                     </div>
-                    <!-- Slot 6 -->
-                    <div class="frame-slot" onclick="triggerUpload(6)">
-                        <div class="empty-placeholder"><i class="fas fa-plus"></i><br>Ekle</div>
+                    <div class="frame-slot" id="slot-6">
+                        <div class="empty-placeholder"><i class="fas fa-image"></i><br>Boş</div>
                         <img id="img-6" class="hidden" src="" alt="Memory">
                     </div>
-
-                    <!-- Slot 7 -->
-                    <div class="frame-slot" onclick="triggerUpload(7)">
-                        <div class="empty-placeholder"><i class="fas fa-plus"></i><br>Ekle</div>
+                    <div class="frame-slot" id="slot-7">
+                        <div class="empty-placeholder"><i class="fas fa-image"></i><br>Boş</div>
                         <img id="img-7" class="hidden" src="" alt="Memory">
                     </div>
-                    <!-- Slot 8 -->
-                    <div class="frame-slot" onclick="triggerUpload(8)">
-                        <div class="empty-placeholder"><i class="fas fa-plus"></i><br>Ekle</div>
+                    <div class="frame-slot" id="slot-8">
+                        <div class="empty-placeholder"><i class="fas fa-image"></i><br>Boş</div>
                         <img id="img-8" class="hidden" src="" alt="Memory">
                     </div>
-                    <!-- Slot 9 -->
-                    <div class="frame-slot" onclick="triggerUpload(9)">
-                        <div class="empty-placeholder"><i class="fas fa-plus"></i><br>Ekle</div>
+                    <div class="frame-slot" id="slot-9">
+                        <div class="empty-placeholder"><i class="fas fa-image"></i><br>Boş</div>
                         <img id="img-9" class="hidden" src="" alt="Memory">
                     </div>
                 </div>
+            </div>
+
+            <!-- Yeni Anı Ekleme Butonu (FAB) -->
+            <button id="add-memory-btn" onclick="openAddMemoryMenu()">
+                <i class="fas fa-plus"></i> Anı Ekle
+            </button>
+
+            <!-- Lightbox (Resim Büyütme) -->
+            <div id="lightbox-modal" class="hidden" onclick="closeLightbox(event)">
+                <button class="lightbox-close" onclick="closeLightbox(event)"><i class="fas fa-times"></i></button>
+                <button class="lightbox-nav prev" onclick="changeLightboxImage(-1, event)"><i
+                        class="fas fa-chevron-left"></i></button>
+
+                <img id="lightbox-img" src="" alt="Full Memory">
+
+                <button class="lightbox-nav next" onclick="changeLightboxImage(1, event)"><i
+                        class="fas fa-chevron-right"></i></button>
             </div>
 
             <!-- Gizli Dosya Yükleme Inputu -->
@@ -278,6 +293,9 @@
                     <button class="game-select-btn" id="btn-quiz-game">
                         <i class="fas fa-heart"></i> Aşk Testi
                     </button>
+                    <button class="game-select-btn" id="btn-trivia-game">
+                        <i class="fas fa-brain"></i> Bilgi Yarışması
+                    </button>
                 </div>
 
                 <!-- SON OYNANAN OYUNLAR (PERSISTENCE CHECK) -->
@@ -292,9 +310,10 @@
                 <button class="game-back-btn" id="wheel-back-btn">◀ Geri</button>
                 <h2 class="game-title">🎡 Kader Çarkı</h2>
                 <div class="wheel-wrapper">
-                    <canvas id="wheelCanvas" width="400" height="400"></canvas>
-                    <button class="spin-btn" id="spin-btn">ÇEVİR!</button>
+                    <canvas id="wheelCanvas" width="500" height="500"></canvas>
+                    <div class="wheel-pointer"></div>
                 </div>
+                <button class="spin-btn" id="spin-btn">ÇEVİR</button>
                 <div class="wheel-result hidden" id="wheel-result"></div>
             </div>
 
@@ -302,7 +321,7 @@
             <div class="game-container hidden" id="words-game-container">
                 <button class="game-back-btn" id="words-back-btn">◀ Geri</button>
                 <h2 class="game-title">🚫 Yasak Kelimeler</h2>
-                <p class="words-instruction">💡 Negatif kelimeleri tıklayıp patlatın!</p>
+                <p class="words-instruction">Balonlara tıkla ama yasaklı olanı patlatma!</p>
                 <div class="words-playground" id="words-playground">
                     <!-- Kelimeler buraya JS ile gelecek -->
                 </div>
@@ -316,6 +335,31 @@
                 <div class="quiz-container" id="quiz-container">
                     <!-- Soru buraya gelecek -->
                 </div>
+            </div>
+
+            <!-- BİLGİ YARIŞMASI OYUNU (YENİ) -->
+            <div class="game-container hidden" id="trivia-game-container">
+                <button class="game-back-btn" id="trivia-back-btn">◀ Geri</button>
+                <h2 class="game-title">🧠 Bilgi Yarışması</h2>
+                <div class="quiz-container" id="trivia-container">
+                    <!-- JS ile dolacak -->
+                </div>
+            </div>
+            </div>
+        </section>
+
+        <!-- ÇALIŞMA ODASI (YENİ) -->
+        <section id="working-room" class="room-section hidden">
+            <div class="overlay"></div>
+
+            <button class="back-btn" onclick="goBackToHall()">
+                <i class="fas fa-arrow-left"></i> Hol'e Dön
+            </button>
+
+            <div class="working-content">
+                <i class="fas fa-hard-hat" style="font-size: 5rem; color: #ffd700; margin-bottom: 20px;"></i>
+                <h1>Çok Yakında</h1>
+                <p>Burada harika işler başarılacak...</p>
             </div>
         </section>
     </main>
@@ -357,9 +401,10 @@
     <script src="js/telegram-notifications.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase-client.js"></script>
-    <script src="js/main.js"></script>
-    <script src="js/quiz-game.js"></script>
-    <script src="js/games.js"></script>
+    <script src="js/main.js?v=2"></script>
+    <script src="js/quiz-game.js?v=2"></script>
+    <script src="js/trivia-game.js?v=2"></script> <!-- YENİ -->
+    <script src="js/games.js?v=2"></script>
 </body>
 
 </html>

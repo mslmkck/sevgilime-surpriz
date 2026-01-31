@@ -65,10 +65,20 @@ async function sendTelegramNotification(message, options = {}) {
 // BİLDİRİM FONKSİYONLARI
 // =============================================
 
+// YARDIMCI: Sadece Tavşan ise gönder
+function isRabbit() {
+    // Özel durum: notifyProfileSelection içinde localstorage henüz set edilmemiş olabilir, 
+    // o yüzden o fonksiyona parametre ile bakacağız. Diğerleri için buradan kontrol.
+    return localStorage.getItem('userProfile') === 'rabbit';
+}
+
 // Profil seçimi bildirimi
 function notifyProfileSelection(profileType) {
-    const icon = profileType === 'rabbit' ? '🐰' : '🦊';
-    const name = profileType === 'rabbit' ? 'Tavşan' : 'Tilki';
+    // Sadece Tavşan seçildiyse bildir
+    if (profileType !== 'rabbit') return;
+
+    const icon = '🐰';
+    const name = 'Tavşan';
     const timestamp = new Date().toLocaleString('tr-TR');
 
     const message = `
@@ -84,6 +94,8 @@ ${icon} <b>${name}</b> karakteri seçildi!
 
 // Şiir yazma bildirimi
 function notifyPoemCreated(title, content) {
+    if (!isRabbit()) return;
+
     const timestamp = new Date().toLocaleString('tr-TR');
     const preview = content.length > 100 ? content.substring(0, 100) + '...' : content;
 
@@ -102,9 +114,12 @@ function notifyPoemCreated(title, content) {
 
 // Mesaj gönderme bildirimi
 function notifyChatMessage(sender, messageText) {
+    // Sender 'rabbit' ise gönder
+    if (sender !== 'rabbit') return;
+
     const timestamp = new Date().toLocaleString('tr-TR');
-    const senderName = sender === 'user' ? 'Kullanıcı' : 'Partner';
-    const icon = sender === 'user' ? '💬' : '💕';
+    const senderName = 'Tavşan';
+    const icon = '🐰';
     const preview = messageText.length > 150 ? messageText.substring(0, 150) + '...' : messageText;
 
     const message = `
@@ -122,6 +137,8 @@ function notifyChatMessage(sender, messageText) {
 
 // Oda girişi bildirimi
 function notifyRoomEntered(roomName) {
+    if (!isRabbit()) return;
+
     const timestamp = new Date().toLocaleString('tr-TR');
 
     const roomEmojis = {
@@ -154,6 +171,8 @@ function notifyRoomEntered(roomName) {
 
 // Oyun oynama bildirimi
 function notifyGamePlayed(gameType, result) {
+    if (!isRabbit()) return;
+
     const timestamp = new Date().toLocaleString('tr-TR');
 
     const gameNames = {
@@ -177,6 +196,8 @@ function notifyGamePlayed(gameType, result) {
 
 // Anı ekleme bildirimi
 function notifyMemoryAdded(slotNumber) {
+    if (!isRabbit()) return;
+
     const timestamp = new Date().toLocaleString('tr-TR');
 
     const message = `
@@ -192,6 +213,8 @@ Slot ${slotNumber}'a fotoğraf yüklendi 💝
 
 // Müzik çalma bildirimi
 function notifyMusicPlayed(trackName) {
+    if (!isRabbit()) return;
+
     const timestamp = new Date().toLocaleString('tr-TR');
 
     const message = `
@@ -207,12 +230,20 @@ function notifyMusicPlayed(trackName) {
 
 // Site açılışı bildirimi
 function notifyWebsiteOpened() {
+    // Burada kimin açtığını henüz bilemeyebiliriz, ancak localStorage varsa kontrol edelim.
+    // Eğer localStorage yoksa (ilk giriş) veya 'rabbit' ise gönder. 'fox' ise gönderme.
+    // Kullanıcı talebi: "sadece tavşan hareketleri".
+    // Eğer kim olduğunu bilmiyorsak (yeni cihaz), varsayılan olarak göndermeyelim veya gönderelim?
+    // Güvenli taraf: Sadece 'rabbit' kayıtlıysa gönder.
+
+    if (!isRabbit()) return;
+
     const timestamp = new Date().toLocaleString('tr-TR');
 
     const message = `
 <b>🌟 Web Sitesi Açıldı</b>
 
-Birisi siteye girdi! 💕
+Tavşan siteye girdi! 🐰
 
 🕐 ${timestamp}
     `.trim();

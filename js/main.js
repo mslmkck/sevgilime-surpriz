@@ -26,19 +26,32 @@ document.addEventListener('DOMContentLoaded', () => {
     window.siteAudio = audio;
 
     // Giriş Butonuna Tıklanınca
+    const savedProfile = localStorage.getItem('userProfile');
+
+    // Hızlı Başlangıç (Eğer daha önce girildiyse)
+    if (savedProfile) {
+        // Login'i atla
+        loginScreen.style.display = 'none';
+
+        // Profil seçimini atla
+        const profileScreen = document.getElementById('profile-selection-screen');
+        if (profileScreen) profileScreen.style.display = 'none';
+
+        // Ana içeriği (Hol) aç
+        if (mainContent) {
+            mainContent.classList.remove('hidden');
+            // AOS'u güncellemek gerekebilir
+            setTimeout(() => AOS.refresh(), 500);
+        }
+
+        // Müzik kontrolcüsünü göster
+        const musicCont = document.getElementById('music-container');
+        if (musicCont) musicCont.classList.remove('hidden');
+    }
+
     if (enterBtn) {
         const startSite = () => {
             // Müzik Başlatma İPTAL (Kullanıcı seçince başlayacak)
-            /* 
-            const playPromise = audio.play();
-            if (playPromise !== undefined) {
-                playPromise.then(() => {
-                    console.log("Müzik başladı.");
-                }).catch(error => {
-                    console.error("Müzik başlatılamadı:", error);
-                });
-            }
-            */
 
             // Ekran Geçişi: Login -> Profil Seçimi
             loginScreen.style.opacity = '0';
@@ -75,36 +88,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // Profili kaydet
         localStorage.setItem('userProfile', profileType);
 
-        // Müzik Başlat + Bildirim
-        const playPromise = audio.play();
-        if (playPromise !== undefined) {
-            playPromise.catch(error => { console.log('Oto-oynatma engellendi, kullanıcı etkileşimi bekleniyor.'); });
-        }
-
-        // Müzik kontrolcüsünü göster
+        // Müzik kontrolcüsünü göster (Kullanıcı isterse buradan başlatır)
         const musicCont = document.getElementById('music-container');
         if (musicCont) musicCont.classList.remove('hidden');
-
-        // Ufak Bilgi Mesajı (Toast)
-        const toast = document.createElement('div');
-        toast.innerText = "🎵 Müzik Başladı";
-        toast.style.position = "fixed";
-        toast.style.bottom = "20px";
-        toast.style.left = "50%";
-        toast.style.transform = "translateX(-50%)";
-        toast.style.background = "rgba(0,0,0,0.7)";
-        toast.style.color = "#fff";
-        toast.style.padding = "10px 20px";
-        toast.style.borderRadius = "20px";
-        toast.style.zIndex = "1000";
-        toast.style.transition = "opacity 0.5s";
-        document.body.appendChild(toast);
-
-        setTimeout(() => {
-            toast.style.opacity = "0";
-            setTimeout(() => toast.remove(), 500);
-        }, 3000);
-
 
         // Supabase'e kaydet
         if (window.supabaseHelpers) {
@@ -136,7 +122,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const sectionPoetry = document.getElementById('poetry-room');
     const sectionMemory = document.getElementById('memory-room');
     const btnMeeting = document.getElementById('btn-meeting');
+
     const sectionMeeting = document.getElementById('meeting-room');
+    const btnWorking = document.getElementById('btn-working'); // YENİ
+    const workingRoom = document.getElementById('working-room'); // YENİ
 
     window.openRoom = function (roomSection) {
         if (!roomSelection || !roomSection) return;
@@ -167,7 +156,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // Tüm oda içeriklerini gizle
         sectionPoetry.classList.add('hidden');
         sectionMemory.classList.add('hidden');
+        sectionMemory.classList.add('hidden');
         if (sectionMeeting) sectionMeeting.classList.add('hidden');
+        if (workingRoom) workingRoom.classList.add('hidden'); // YENİ
 
         // Oyun Odası varsa onu da gizle
         const gameRoom = document.getElementById('game-room');
@@ -200,87 +191,170 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (btnMemory) btnMemory.addEventListener('click', async () => {
         openRoom(sectionMemory);
-        // Anıları yükle
-        if (window.supabaseHelpers) {
-            const memories = await window.supabaseHelpers.getMemories();
-            // Mevcut resimleri temizle veya güncelle
-            // Her slotu tek tek kontrol et
-            for (let i = 1; i <= 9; i++) {
-                const imgElement = document.getElementById(`img-${i}`);
-                if (!imgElement) continue;
-
-                const foundMem = memories.find(m => m.slot_number === i);
-                const slot = imgElement.parentElement;
-                const placeholder = slot.querySelector('.empty-placeholder');
-
-                if (foundMem) {
-                    // Resim var
-                    imgElement.src = foundMem.image_url;
-                    // Cache sorunu olursa: foundMem.image_url + '?' + new Date().getTime();
-                    imgElement.classList.remove('hidden');
-                    if (placeholder) placeholder.style.display = 'none';
-                } else {
-                    // Resim yok - Varsayılanları koru (ilk 2 slot unsplash linkiydi, onları db yoksa bozmayalım)
-                    // Ancak DB boşsa ve bu slotlar dinamikse gizlenmeli.
-                    // Kodun orjinalinde slot 1 ve 2 statik src'ye sahipti HTML'de.
-                    // Eğer veritabanında kayıt yoksa HTML'deki src kalır.
-
-                    // Slot 3 ve sonrası için:
-                    if (i > 2) {
-                        imgElement.classList.add('hidden');
-                        imgElement.src = "";
-                        if (placeholder) placeholder.style.display = 'block';
-                    }
-                }
-            }
-        }
+        renderMemories();
     });
 
     if (btnMeeting) btnMeeting.addEventListener('click', () => openRoom(sectionMeeting));
 
-    // RESİM YÜKLEME MANTIĞI
-    const imageInput = document.getElementById('image-upload');
-    let currentSlotId = null;
+    if (btnWorking) { // YENİ
+        btnWorking.addEventListener('click', () => {
+            openRoom(workingRoom);
+        });
+    }
 
-    // HTML'den çağrılacak fonksiyon (window'a ata)
-    window.triggerUpload = (slotId) => {
-        currentSlotId = slotId;
+    // ======================================
+    // 4.1 ANI ODASI: RENDER & LIGHTBOX
+    // ======================================
+
+    let currentMemories = [];
+    let lightboxIndex = 0; // Şu an lightbox'ta hangi slot açık (1-9)
+
+    async function renderMemories() {
+        if (!window.supabaseHelpers) return;
+
+        // 1. Temizle
+        for (let i = 1; i <= 9; i++) {
+            const slot = document.getElementById(`slot-${i}`);
+            const img = document.getElementById(`img-${i}`);
+            // Reset state
+            if (img) img.classList.add('hidden');
+            if (slot) {
+                const ph = slot.querySelector('.empty-placeholder');
+                if (ph) ph.style.display = 'flex';
+                // Tıklama eventlerini temizle (cloneNode ile hack) veya direkt ata
+                slot.onclick = null;
+            }
+        }
+
+        // 2. Yükle
+        currentMemories = await window.supabaseHelpers.getMemories();
+        console.log(`Anılar yüklendi: ${currentMemories.length} adet.`);
+
+        // 3. Yerleştir
+        currentMemories.forEach(mem => {
+            const i = mem.slot_number;
+            if (i < 1 || i > 9) return;
+
+            const slot = document.getElementById(`slot-${i}`);
+            const img = document.getElementById(`img-${i}`);
+
+            if (img && slot) {
+                img.src = mem.image_url + '?t=' + new Date().getTime(); // Cache-bust
+                img.classList.remove('hidden');
+
+                const ph = slot.querySelector('.empty-placeholder');
+                if (ph) ph.style.display = 'none';
+
+                // Tıklayınca Lightbox Aç
+                slot.onclick = () => openLightbox(i);
+            }
+        });
+
+        // Boş slotlara tıklanınca bir şey yapmasın (veya kullanıcı isterse oraya da ekleme açılabilir)
+        // Kullanıcı "Büyütüp bakmak istediğimde yeni resim ekleme açılıyor" dediği için
+        // SADECE dolu olanlara lightbox atadık. Boş olanlar tepkisiz kalsın veya "Ekle" butonuna yönlendirsin.
+    }
+
+    // ======================================
+    // 4.2 LIGHTBOX MANTIĞI
+    // ======================================
+    const lightboxModal = document.getElementById('lightbox-modal');
+    const lightboxImg = document.getElementById('lightbox-img');
+
+    window.openLightbox = (slotNumber) => {
+        const mem = currentMemories.find(m => m.slot_number === slotNumber);
+        if (!mem) return; // Resim yoksa açma
+
+        lightboxIndex = slotNumber;
+        lightboxImg.src = mem.image_url; // Cache-bust olmadan net resim
+        lightboxModal.classList.remove('hidden');
+    };
+
+    window.closeLightbox = (e) => {
+        // Sadece backgrounda veya çarpıya tıklayınca kapat
+        if (e.target.id === 'lightbox-modal' || e.target.closest('.lightbox-close')) {
+            lightboxModal.classList.add('hidden');
+            lightboxImg.src = '';
+        }
+    };
+
+    window.changeLightboxImage = (dir, e) => {
+        if (e) e.stopPropagation();
+
+        // 1 ile 9 arasında gezin, ama BOŞ slotları atla.
+        // Basit yöntem: sıradaki dolu slotu bulana kadar dön.
+
+        let nextIndex = lightboxIndex;
+        let found = false;
+        let attempts = 0;
+
+        while (!found && attempts < 9) {
+            nextIndex += dir;
+            if (nextIndex > 9) nextIndex = 1;
+            if (nextIndex < 1) nextIndex = 9;
+
+            const mem = currentMemories.find(m => m.slot_number === nextIndex);
+            if (mem) {
+                found = true;
+                lightboxIndex = nextIndex;
+                lightboxImg.style.display = 'none';
+                setTimeout(() => {
+                    lightboxImg.src = mem.image_url;
+                    lightboxImg.style.display = 'block';
+                }, 50); // Ufak bir blink efekti
+            }
+            attempts++;
+        }
+    };
+
+
+    // ======================================
+    // 4.3 YENİ ANI EKLEME (FAB)
+    // ======================================
+    const imageInput = document.getElementById('image-upload');
+    let targetUploadSlot = null;
+
+    window.openAddMemoryMenu = () => {
+        // Basit bir prompt ile hangi kutuya ekleneceğini soralım
+        // Veya daha şık: İlk boş kutuyu bulsun?
+        // Kullanıcı "Hangi kutu" seçmek isteyebilir.
+
+        // Basit Yöntem: Prompt
+        const choice = prompt("Hangi çerçeveye fotoğraf koymak istersin? (1-9 arası bir sayı gir)");
+        if (!choice) return;
+
+        const slotNum = parseInt(choice);
+        if (isNaN(slotNum) || slotNum < 1 || slotNum > 9) {
+            alert("Lütfen 1 ile 9 arasında bir sayı gir.");
+            return;
+        }
+
+        // Slot dolu mu kontrol et
+        const existing = currentMemories.find(m => m.slot_number === slotNum);
+        if (existing) {
+            if (!confirm(`Slot ${slotNum} zaten dolu. Üzerine kaydetmek ister misin?`)) {
+                return;
+            }
+        }
+
+        // Upload Tetikle
+        targetUploadSlot = slotNum;
         if (imageInput) imageInput.click();
     };
 
     if (imageInput) {
         imageInput.addEventListener('change', async function (e) {
-            if (this.files && this.files[0] && currentSlotId) {
+            if (this.files && this.files[0] && targetUploadSlot) {
                 const file = this.files[0];
-                const reader = new FileReader();
 
-                // Önizleme göster
-                reader.onload = function (e) {
-                    const imgElement = document.getElementById(`img-${currentSlotId}`);
-                    const slot = imgElement.parentElement;
-                    const placeholder = slot.querySelector('.empty-placeholder');
-
-                    if (imgElement) {
-                        imgElement.src = e.target.result;
-                        imgElement.classList.remove('hidden');
-                    }
-
-                    if (placeholder) {
-                        placeholder.style.display = 'none';
-                    }
-                }
-                reader.readAsDataURL(file);
-
-                // Supabase'e yükle
+                // Supabase Yükle
                 if (window.supabaseHelpers) {
-                    // Upload start notification or spinner could go here
-                    const publicUrl = await window.supabaseHelpers.uploadMemoryPhoto(currentSlotId, file);
-                    if (publicUrl) {
-                        console.log("Memory uploaded successfully:", publicUrl);
-                    }
+                    await window.supabaseHelpers.uploadMemoryPhoto(targetUploadSlot, file);
+                    // Upload fonksiyonu kendi içinde reload yapıyor (biz eklemiştik previous stepte)
+                    // Ama yapmıyorsa renderMemories() çağırmak lazım.
+                    // Bizim kodda location.reload() var, o yüzden burası durur.
                 }
             }
-            // Aynı dosyayı tekrar seçebilmek için input'u sıfırla
             this.value = '';
         });
     }
@@ -419,25 +493,85 @@ document.addEventListener('DOMContentLoaded', () => {
     // Şimdilik boş başlatıyoruz, odaya girince dolacak.
 
     // Şiirleri Uçuşur Hale Getir
+    // Şiirleri Uçuşur Hale Getir
     function renderFloatingPoems() {
         if (!floatingArea) return;
         floatingArea.innerHTML = '';
+
+        const placedPoems = []; // Yerleştirilen şiirlerin konumlarını tutacağız
 
         poems.forEach(poem => {
             const el = document.createElement('div');
             el.classList.add('floating-poem');
             el.innerText = poem.title;
 
-            // Rastgele Konum (Sayfa sınırları içinde kalsın)
-            // %10 ile %80 arası güvenli bölge
-            const randomTop = Math.floor(Math.random() * 70) + 10;
-            const randomLeft = Math.floor(Math.random() * 70) + 10;
-            const randomDelay = Math.random() * 5;
+            // Çarpışma Önleme Mantığı - GELİŞMİŞ
+            let randomTop, randomLeft;
+            let attempts = 0;
+            let overlap = true;
+
+            // Ekran boyutunu al (hesaplama için)
+            const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
+            const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
+
+            // Tahmini balon boyutu (piksel olarak)
+            const balloonWidth = 150;
+            const balloonHeight = 60;
+
+            // En fazla 100 kere dene
+            while (overlap && attempts < 100) {
+                attempts++;
+
+                // Güvenli bölgeyi piksel olarak hesapla ve yüzdeye çevir
+                // Kenarlardan (margin) 50px içeride kalacak şekilde
+                const maxLeft = vw - balloonWidth - 50;
+                const maxTop = vh - balloonHeight - 50;
+                const minLeft = 50;
+                const minTop = 50;
+
+                const randLeftPx = Math.floor(Math.random() * (maxLeft - minLeft)) + minLeft;
+                const randTopPx = Math.floor(Math.random() * (maxTop - minTop)) + minTop;
+
+                // Yüzdeye çevir (CSS için)
+                randomLeft = (randLeftPx / vw) * 100;
+                randomTop = (randTopPx / vh) * 100;
+
+                overlap = false;
+
+                // Daha önce yerleştirilenlerle karşılaştır
+                for (const placed of placedPoems) {
+                    // Yüzde cinsinden mesafe kontrolü
+                    // X ekseni için %15, Y ekseni için %10 boşluk bırak
+                    if (!placed) continue;
+
+                    const distH = Math.abs(placed.left - randomLeft);
+                    const distV = Math.abs(placed.top - randomTop);
+
+                    // Eğer hem yatayda hem dikeyde çok yakınsa çakışma var demektir
+                    if (distH < 15 && distV < 10) {
+                        overlap = true;
+                        break;
+                    }
+                }
+            }
+
+            // Eğer uygun yer bulunamadıysa bile (attempts >= 100), yine de son hesaplanan yere koy
+            // Ama biraz kaydırarak üst üste tam binmesini engelle
+            if (overlap) {
+                randomLeft += (Math.random() * 5);
+                randomTop += (Math.random() * 5);
+            }
+
+            // Konumu kaydet
+            placedPoems.push({ top: randomTop, left: randomLeft });
 
             el.style.top = `${randomTop}%`;
             el.style.left = `${randomLeft}%`;
+
+            // Animasyon süresini ve gecikmesini çeşitlendir
+            const randomDelay = Math.random() * 5;
             el.style.animationDelay = `${randomDelay}s`;
-            el.style.animationDuration = `${15 + Math.random() * 10}s`; // 15-25sn arası sürsün
+            el.style.animationDuration = `${20 + Math.random() * 10}s`; // Daha yavaş süzülsün
 
             // Tıklayınca Aç
             el.addEventListener('click', (e) => {

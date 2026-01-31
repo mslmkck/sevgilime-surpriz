@@ -128,7 +128,11 @@ async function uploadMemoryPhoto(slotNumber, file) {
                 upsert: true
             });
 
-        if (uploadError) throw uploadError;
+        if (uploadError) {
+            console.error("Storage Upload Error:", uploadError);
+            alert("Resim yüklenirken hata oluştu (Storage): " + uploadError.message);
+            throw uploadError;
+        }
 
         // Get Public URL
         const { data: urlData } = supabaseClient.storage
@@ -147,18 +151,23 @@ async function uploadMemoryPhoto(slotNumber, file) {
             .upsert({
                 user_id: SHARED_BOARD_ID, // Use shared ID so everyone sees the same slot 1
                 slot_number: slotNumber,
-                image_url: urlData.publicUrl,
-                width: 200, // placeholder
-                height: 200 // placeholder
-                // updated_at removed because table doesn't have it
+                image_url: urlData.publicUrl
+                // width ve height kolonları tabloda yok, kaldırıldı.
             }, {
                 onConflict: 'user_id,slot_number'
             })
             .select()
             .single();
 
-        if (dbError) throw dbError;
+        if (dbError) {
+            console.error("Database Insert Error:", dbError);
+            alert("Resim veritabanına kaydedilemedi: " + dbError.message);
+            throw dbError;
+        }
+
         console.log('✅ Fotoğraf yüklendi');
+        alert("Fotoğraf başarıyla yüklendi! Sayfa yenileniyor...");
+        location.reload(); // Değişikliği görmek için yenile
         return urlData.publicUrl;
     } catch (error) {
         console.error('❌ Fotoğraf yükleme hatası:', error);
@@ -174,7 +183,7 @@ async function getMemories() {
         const { data, error } = await supabaseClient
             .from('memories')
             .select('*')
-            .eq('user_id', SHARED_BOARD_ID) // Only get the shared board memories
+            // .eq('user_id', SHARED_BOARD_ID) // Filtreyi kaldırdık: Tüm yüklenenleri görelim
             .order('slot_number');
 
         if (error) throw error;

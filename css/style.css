@@ -435,8 +435,8 @@ body {
 }
 
 .poem-body {
-    font-family: 'Dancing Script', cursive;
-    font-size: 1.5rem;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
     color: #2c241b;
     line-height: 1.8;
     white-space: pre-line;
@@ -695,6 +695,107 @@ body {
     margin-bottom: 5px;
 }
 
+/* =========================================
+   ANI ODASI YENİLİKLERİ
+   ========================================= */
+
+/* SABİT EKLEME BUTONU (FAB) */
+#add-memory-btn {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #FFD700;
+    color: #000;
+    font-size: 1.1rem;
+    font-weight: bold;
+    padding: 15px 30px;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 5px 20px rgba(255, 215, 0, 0.4);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s;
+}
+
+#add-memory-btn:hover {
+    transform: translateX(-50%) scale(1.05);
+    background: #fff;
+}
+
+/* LIGHTBOX (FULLSCREEN RESİM) */
+#lightbox-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 30000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(5px);
+}
+
+#lightbox-img {
+    max-width: 90%;
+    max-height: 80vh;
+    border: 5px solid #fff;
+    border-radius: 5px;
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
+    transition: transform 0.3s;
+}
+
+/* Navigasyon Okları */
+.lightbox-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 3rem;
+    cursor: pointer;
+    padding: 20px;
+    transition: color 0.3s;
+    user-select: none;
+    z-index: 30001;
+}
+
+.lightbox-nav:hover {
+    color: #FFD700;
+}
+
+.lightbox-nav.prev {
+    left: 10px;
+}
+
+.lightbox-nav.next {
+    right: 10px;
+}
+
+/* Kapat Butonu */
+.lightbox-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 2.5rem;
+    cursor: pointer;
+    z-index: 30002;
+    padding: 10px;
+}
+
+.lightbox-close:hover {
+    color: #FF6B6B;
+}
+
 /* Mobilde Düzenleme */
 @media (max-width: 600px) {
     .frame-container {
@@ -908,47 +1009,54 @@ body {
 }
 
 /* Sohbet Kutusu */
+/* Sohbet Kutusu */
 .chat-container {
-    width: 90%;
-    max-width: 500px;
-    height: 70vh;
-    /* Ekranın %60'ını kaplasın */
-    max-height: 600px;
+    width: 95%;
+    max-width: 800px;
+    /* Daha geniş alan */
+    height: 75vh;
     /* Çok büyük ekranlarda devasa olmasın */
-    background: rgba(20, 20, 25, 0.85);
-    backdrop-filter: blur(10px);
-    border-radius: 20px;
+    max-height: 800px;
+
+    /* Şeffaf Arkaplan (İstek üzerine) */
+    background: transparent;
+    backdrop-filter: none;
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
+
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
     position: relative;
-    /* Absolute yerine Relative */
     top: auto;
     left: auto;
     transform: none;
     margin: 0 auto;
-    /* Güvenlik için */
 }
 
 /* Mobilde klavye açılınca veya küçük ekranda düzenleme */
 @media (max-height: 700px) {
     .chat-container {
-        height: 65vh;
-        margin-top: 20px;
+        height: 70vh;
+        margin-top: 10px;
     }
 }
 
 .chat-header {
-    background: rgba(255, 215, 0, 0.1);
-    padding: 15px;
+    background: transparent;
+    /* Şeffaf */
+    padding: 10px;
     text-align: center;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: none;
+    /* Çizgiyi kaldır */
     display: flex;
     justify-content: space-between;
     align-items: center;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+    /* Yazı okunurluğu için gölge */
 }
+
 
 .chat-header h2 {
     font-family: var(--font-heading);
@@ -956,11 +1064,13 @@ body {
     font-size: 1.1rem;
     margin: 0;
     flex-grow: 1;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+    /* Parlama */
 }
 
 /* Kullanıcı Değiştirme Butonu */
 .user-toggle-btn {
-    background: transparent;
+    background: rgba(0, 0, 0, 0.4);
     border: 1px solid var(--primary-color);
     color: var(--primary-color);
     padding: 5px 10px;
@@ -974,26 +1084,64 @@ body {
 .user-toggle-btn.active {
     background: var(--primary-color);
     color: #1a1a20;
+    font-weight: bold;
 }
 
 .chat-messages {
     flex: 1;
-    padding: 20px;
+    padding: 10px;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 10px;
+    /* Scrollbarı gizle veya incelt - Opsiyonel */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
 }
 
 /* Mesaj Balonları */
 .message {
     padding: 10px 15px;
     border-radius: 15px;
-    max-width: 80%;
-    font-size: 0.95rem;
+    max-width: 85%;
+    /* Biraz daha geniş */
+    font-size: 1rem;
     line-height: 1.4;
     position: relative;
     animation: fadeInMessage 0.3s ease;
+
+    /* Okunabilirlik için yarı saydam arka plan */
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(2px);
+    color: #fff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.message.sent {
+    align-self: flex-end;
+    background: rgba(255, 215, 0, 0.2);
+    /* SARI TONLU (Primary) ŞEFFAF */
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    border-bottom-right-radius: 2px;
+}
+
+.message.received {
+    align-self: flex-start;
+    background: rgba(255, 255, 255, 0.15);
+    /* BEYAZ TONLU ŞEFFAF */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom-left-radius: 2px;
+}
+
+.message.system-message {
+    align-self: center;
+    background: rgba(0, 0, 0, 0.4);
+    font-size: 0.85rem;
+    padding: 5px 15px;
+    border-radius: 20px;
+    opacity: 0.8;
+    max-width: 90%;
+    text-align: center;
 }
 
 @keyframes fadeInMessage {
@@ -1008,50 +1156,32 @@ body {
     }
 }
 
-.message.sent {
-    background: var(--primary-color);
-    color: #1a1a20;
-    align-self: flex-end;
-    /* Sağ tarafa yasla */
-    border-bottom-right-radius: 2px;
-    box-shadow: -2px 2px 5px rgba(0, 0, 0, 0.2);
-}
-
-.message.received {
-    background: #444;
-    color: #fff;
-    align-self: flex-start;
-    /* Sol tarafa yasla */
-    border-bottom-left-radius: 2px;
-    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
-}
-
-.message.system-message {
-    background: rgba(255, 255, 255, 0.1);
-    color: #aaa;
-    font-size: 0.8rem;
-    align-self: center;
-    text-align: center;
-    border-radius: 20px;
-    font-style: italic;
-}
-
 /* Input Alanı */
 .chat-input-area {
     padding: 15px;
-    background: rgba(0, 0, 0, 0.3);
+    background: transparent;
+    /* Bar görünümünü kaldır */
     display: flex;
     gap: 10px;
+    align-items: center;
 }
 
 .chat-input-area input {
     flex: 1;
-    background: rgba(255, 255, 255, 0.1);
-    border: none;
-    padding: 12px;
+    background: rgba(0, 0, 0, 0.5);
+    /* Daha koyu arka plan */
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 12px 20px;
     border-radius: 25px;
     color: #fff;
     font-family: var(--font-body);
+    transition: all 0.3s;
+}
+
+.chat-input-area input:focus {
+    background: rgba(0, 0, 0, 0.7);
+    border-color: var(--primary-color);
 }
 
 .chat-input-area button {
@@ -1316,4 +1446,46 @@ body {
         justify-content: center;
         padding: 14px;
     }
+}
+
+/* =========================================
+   ÇALIŞMA ODASI TASARIMI
+   ========================================= */
+#working-room {
+    position: relative;
+    /* Eğer görsel yoksa koyu şık bir gradient */
+    background: linear-gradient(135deg, #1f2a36 0%, #2c3e50 100%);
+    background-size: cover;
+    background-attachment: fixed;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.working-content {
+    z-index: 2;
+    background: rgba(255, 255, 255, 0.05);
+    /* Çok hafif bir kutu */
+    backdrop-filter: blur(10px);
+    padding: 50px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    color: #fff;
+    max-width: 500px;
+    width: 90%;
+    animation: fadeIn 1s ease;
+}
+
+.working-content h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 3rem;
+    margin-bottom: 10px;
+    color: #ffd700;
+}
+
+.working-content p {
+    font-size: 1.2rem;
+    opacity: 0.8;
 }
