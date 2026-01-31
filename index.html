@@ -19,6 +19,9 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/games.css">
+
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body>
@@ -272,6 +275,15 @@
                     <button class="game-select-btn" id="btn-words-game">
                         <i class="fas fa-times-circle"></i> Yasak Kelimeler
                     </button>
+                    <button class="game-select-btn" id="btn-quiz-game">
+                        <i class="fas fa-heart"></i> Aşk Testi
+                    </button>
+                </div>
+
+                <!-- SON OYNANAN OYUNLAR (PERSISTENCE CHECK) -->
+                <div id="recent-scores"
+                    style="margin-top: 50px; color: white; background: rgba(0,0,0,0.3); padding: 20px; border-radius: 15px; width: 90%; max-width: 500px;">
+                    <!-- JS ile dolacak -->
                 </div>
             </div>
 
@@ -295,6 +307,15 @@
                     <!-- Kelimeler buraya JS ile gelecek -->
                 </div>
                 <div class="words-result hidden" id="words-result"></div>
+            </div>
+
+            <!-- AŞK TESTİ OYUNU -->
+            <div class="game-container hidden" id="quiz-game-container">
+                <button class="game-back-btn" id="quiz-back-btn">◀ Geri</button>
+                <h2 class="game-title">❤️ Aşk Testi</h2>
+                <div class="quiz-container" id="quiz-container">
+                    <!-- Soru buraya gelecek -->
+                </div>
             </div>
         </section>
     </main>
@@ -334,7 +355,10 @@
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="js/telegram-notifications.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
     <script src="js/main.js"></script>
+    <script src="js/quiz-game.js"></script>
     <script src="js/games.js"></script>
 </body>
 

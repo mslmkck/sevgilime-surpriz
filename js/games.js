@@ -21,8 +21,35 @@ const wordsBackBtn = document.getElementById('words-back-btn');
 
 // Oyun Odası Açma
 if (btnGameRoom) {
-    btnGameRoom.addEventListener('click', () => {
+    btnGameRoom.addEventListener('click', async () => {
         window.openRoom(gameRoom);
+
+        // Son Oynanan Oyunları Yükle (Supabase)
+        const recentScores = document.getElementById('recent-scores');
+        if (recentScores && window.supabaseHelpers) {
+            recentScores.innerHTML = '<p>Yükleniyor...</p>';
+            const scores = await window.supabaseHelpers.getGameScores();
+
+            if (scores && scores.length > 0) {
+                let html = '<h3>🏆 Son Oyunlar</h3><ul style="list-style:none; padding:0;">';
+                scores.forEach(s => {
+                    const date = new Date(s.created_at).toLocaleDateString('tr-TR');
+                    let icon = '🎮';
+                    if (s.game_type === 'wheel') icon = '🎡';
+                    if (s.game_type === 'words') icon = '🚫';
+                    if (s.game_type === 'quiz') icon = '❤️';
+
+                    html += `<li style="margin: 5px 0; background:rgba(255,255,255,0.1); padding:8px; border-radius:10px;">
+                        ${icon} ${s.game_type.toUpperCase()} - Skor: ${s.score} <small>(${date})</small>
+                    </li>`;
+                });
+                html += '</ul>';
+                recentScores.innerHTML = html;
+                recentScores.classList.remove('hidden');
+            } else {
+                recentScores.innerHTML = '<p>Henüz oyun oynanmadı.</p>';
+            }
+        }
 
         // GSAP animasyon ile menüyü göster
         if (gamesMenu) {
@@ -40,6 +67,15 @@ if (btnGameRoom) {
                 stagger: 0.2,
                 ease: 'back.out(1.7)'
             });
+
+            if (recentScores) {
+                gsap.from(recentScores, {
+                    y: 50,
+                    opacity: 0,
+                    duration: 0.8,
+                    delay: 0.3
+                });
+            }
         }
     });
 }
@@ -91,6 +127,32 @@ if (btnWordsGame) {
     });
 }
 
+const btnQuizGame = document.getElementById('btn-quiz-game');
+const quizGameContainer = document.getElementById('quiz-game-container');
+
+if (btnQuizGame) {
+    btnQuizGame.addEventListener('click', () => {
+        gsap.to(gamesMenu, {
+            opacity: 0,
+            scale: 0.9,
+            duration: 0.3,
+            onComplete: () => {
+                gamesMenu.classList.add('hidden');
+                quizGameContainer.classList.remove('hidden');
+
+                gsap.from(quizGameContainer, {
+                    opacity: 0,
+                    y: 50,
+                    duration: 0.5,
+                    ease: 'power2.out'
+                });
+
+                if (typeof initQuizGame === 'function') initQuizGame();
+            }
+        });
+    });
+}
+
 // Oyunlardan Menüye Dönme
 if (wheelBackBtn) {
     wheelBackBtn.addEventListener('click', () => {
@@ -111,6 +173,23 @@ if (wheelBackBtn) {
     });
 }
 
+const quizBackBtn = document.getElementById('quiz-back-btn');
+
+if (quizBackBtn) {
+    quizBackBtn.addEventListener('click', () => {
+        gsap.to(quizGameContainer, {
+            opacity: 0,
+            y: 30,
+            duration: 0.3,
+            onComplete: () => {
+                quizGameContainer.classList.add('hidden');
+                gamesMenu.classList.remove('hidden');
+                gamesMenu.style.opacity = 1;
+                gamesMenu.style.transform = 'scale(1)';
+            }
+        });
+    });
+}
 if (wordsBackBtn) {
     wordsBackBtn.addEventListener('click', () => {
         gsap.to(wordsGameContainer, {
@@ -318,6 +397,11 @@ function showResult() {
         if (window.telegramNotifications) {
             window.telegramNotifications.notifyGamePlayed('wheel', resultText);
         }
+
+        // Supabase Kayıt
+        if (window.supabaseHelpers) {
+            window.supabaseHelpers.saveGameScore('wheel', 1, { result: resultText });
+        }
     }
 }
 
@@ -476,6 +560,11 @@ function showWordsResult() {
         // Telegram bildirimi
         if (window.telegramNotifications) {
             window.telegramNotifications.notifyGamePlayed('words', resultText);
+        }
+
+        // Supabase Kayıt
+        if (window.supabaseHelpers) {
+            window.supabaseHelpers.saveGameScore('words', 100, { result: 'cleared_all' });
         }
     }
 }

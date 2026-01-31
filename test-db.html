@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Supabase Bağlantı Testi</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body {
+            background: #1a1a1a;
+            color: #fff;
+            font-family: sans-serif;
+            padding: 20px;
+        }
+
+        .success {
+            color: #4caf50;
+        }
+
+        .error {
+            color: #f44336;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        pre {
+            background: #333;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🛠️ Supabase Bağlantı Testi</h1>
+    <p>Bu sayfa veritabanı bağlantısını ve tablo izinlerini kontrol eder.</p>
+    <button onclick="runTest()">Testi Başlat</button>
+    <div id="results" style="margin-top: 20px;"></div>
+
+    <script src="js/supabase-client.js"></script>
+    <script>
+        async function runTest() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = 'Test başlıyor...<br>';
+
+            // 1. Client Kontrolü
+            if (!window.supabase) {
+                resultsDiv.innerHTML += '<span class="error">❌ Supabase kütüphanesi yüklenemedi!</span><br>';
+                return;
+            }
+            if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+                resultsDiv.innerHTML += '<span class="error">❌ URL veya Key eksik! (js/supabase-client.js)</span><br>';
+                return;
+            }
+            resultsDiv.innerHTML += '<span class="success">✅ İstemci ayarları bulundu.</span><br>';
+
+            // 2. Bağlantı Testi (Basit Select)
+            try {
+                const { data, error } = await supabase.from('user_profiles').select('count', { count: 'exact', head: true });
+                if (error) {
+                    throw error;
+                }
+                resultsDiv.innerHTML += `<span class="success">✅ Veritabanına bağlanıldı! (Tablo erişimi başarılı)</span><br>`;
+            } catch (err) {
+                resultsDiv.innerHTML += `<span class="error">❌ Bağlantı Hatası: ${err.message} (${err.code || 'Kod yok'})</span><br>`;
+                resultsDiv.innerHTML += `Detay: Tablo adı 'user_profiles' olmayabilir veya RLS politikası engelliyor.<br>`;
+                console.error(err);
+                return;
+            }
+
+            // 3. Yazma Testi (Insert)
+            try {
+                const testId = 'test_' + Date.now();
+                const { data, error } = await supabase
+                    .from('user_profiles')
+                    .insert({ user_id: testId, profile_type: 'test_user' })
+                    .select();
+
+                if (error) throw error;
+                resultsDiv.innerHTML += `<span class="success">✅ Yazma izni (Insert) başarılı!</span><br>`;
+
+                // Temizlik (Opsiyonel)
+                await supabase.from('user_profiles').delete().eq('user_id', testId);
+
+            } catch (err) {
+                resultsDiv.innerHTML += `<span class="error">❌ Yazma Hatası: ${err.message}</span><br>`;
+                resultsDiv.innerHTML += `Olası sebep: RLS politikaları 'INSERT' izni vermiyor olabilir.<br>`;
+            }
+
+            resultsDiv.innerHTML += '<hr>Test Tamamlandı.';
+        }
+    </script>
+</body>
+
+</html>
