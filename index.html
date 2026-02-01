@@ -22,6 +22,13 @@
 
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- PWA / iOS Web App Settings -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="assets/img/icon.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Home">
 </head>
 
 <body>
@@ -59,6 +66,15 @@
         <div id="room-selection">
             <h2 class="room-title" data-aos="fade-down">Nereye Gitmek İstersin?</h2>
             <div class="rooms-container">
+                <!-- Buluşma Odası Kartı (YENİ) -->
+                <div class="room-card" id="btn-meeting" data-aos="fade-up">
+                    <div class="room-img" style="background-image: url('assets/img/meeting_room.png');"></div>
+                    <div class="room-info">
+                        <h3>Buluşma Odası</h3>
+                        <p>Şömine başında sohbet...</p>
+                    </div>
+                </div>
+
                 <!-- Şiir Odası Kartı -->
                 <div class="room-card" id="btn-poetry" data-aos="fade-right">
                     <div class="room-img" style="background-image: url('assets/img/poetry_room.png');"></div>
@@ -74,15 +90,6 @@
                     <div class="room-info">
                         <h3>Anı Odası</h3>
                         <p>Geçmişin tatlı izleri...</p>
-                    </div>
-                </div>
-
-                <!-- Buluşma Odası Kartı (YENİ) -->
-                <div class="room-card" id="btn-meeting" data-aos="fade-up">
-                    <div class="room-img" style="background-image: url('assets/img/meeting_room.png');"></div>
-                    <div class="room-info">
-                        <h3>Buluşma Odası</h3>
-                        <p>Şömine başında sohbet...</p>
                     </div>
                 </div>
 
@@ -105,21 +112,7 @@
                 </div>
             </div>
 
-            <!-- Görüş ve Öneri Kutusu -->
-            <div class="feedback-section" data-aos="fade-up" data-aos-delay="200">
-                <div class="feedback-card">
-                    <h3>💌 Görüş ve Önerileriniz</h3>
-                    <p>Siteyi nasıl buldun? Ne eklememi istersin? Fikirlerini benimle paylaş! 💕</p>
-                    <div class="feedback-form">
-                        <textarea id="feedback-message" placeholder="Düşüncelerini buraya yaz... 💭"
-                            rows="4"></textarea>
-                        <button id="send-feedback-btn" onclick="sendFeedback()">
-                            <i class="fas fa-paper-plane"></i> Gönder
-                        </button>
-                    </div>
-                    <div id="feedback-status" class="feedback-status hidden"></div>
-                </div>
-            </div>
+
         </div>
 
         <!-- ODA İÇERİKLERİ -->

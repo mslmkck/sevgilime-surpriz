@@ -102,6 +102,156 @@ const triviaPool = [
         question: "Avustralya'nın başkenti neresidir?",
         options: ["Sidney", "Melbourne", "Canberra", "Perth"],
         correct: 2
+    },
+    {
+        question: "Hangi elementin kimyasal sembolü 'Ag'dir?",
+        options: ["Altın", "Gümüş", "Argon", "Alüminyum"],
+        correct: 1
+    },
+    {
+        question: "İlk Dünya Savaşı hangi yıl başlamıştır?",
+        options: ["1912", "1914", "1918", "1923"],
+        correct: 1
+    },
+    {
+        question: "Picasso hangi sanat akımının öncüsüdür?",
+        options: ["Sürrealizm", "Kübizm", "Empresyonizm", "Dadaizm"],
+        correct: 1
+    },
+    {
+        question: "Dünyanın en derin noktası neresidir?",
+        options: ["Mariana Çukuru", "Porto Riko Çukuru", "Tonga Çukuru", "Kermadec Çukuru"],
+        correct: 0
+    },
+    {
+        question: "Hangi ülke hem Asya hem de Avrupa kıtasında yer alır?",
+        options: ["Yunanistan", "Bulgaristan", "Rusya", "İran"],
+        correct: 2
+    },
+    {
+        question: "Nobel ödülleri hangi ülkede verilir (Barış ödülü hariç)?",
+        options: ["İsviçre", "İsveç", "Norveç", "Almanya"],
+        correct: 1
+    },
+    {
+        question: "DNA'nın açılımı nedir?",
+        options: ["Deoksiribo Nükleik Asit", "Dinitro Asit", "Doğal Nükleik Asit", "Dinamik Nötron Atomu"],
+        correct: 0
+    },
+    {
+        question: "Fatih Sultan Mehmet İstanbul'u kaç yılında fethetmiştir?",
+        options: ["1071", "1299", "1453", "1923"],
+        correct: 2
+    },
+    {
+        question: "Hangi gezegenin halkaları en belirgindir?",
+        options: ["Jüpiter", "Uranüs", "Satürn", "Neptün"],
+        correct: 2
+    },
+    {
+        question: "İstiklal Marşı'mızın şairi kimdir?",
+        options: ["Namık Kemal", "Orhan Veli", "Mehmet Akif Ersoy", "Ziya Gökalp"],
+        correct: 2
+    },
+    {
+        question: "Bir yıl kaç haftadır?",
+        options: ["50", "52", "54", "48"],
+        correct: 1
+    },
+    {
+        question: "Hangi renk ana renk değildir?",
+        options: ["Kırmızı", "Mavi", "Yeşil", "Sarı"],
+        correct: 2
+    },
+    {
+        question: "Roma rakamlarında 'X' neyi ifade eder?",
+        options: ["5", "10", "50", "100"],
+        correct: 1
+    },
+    {
+        question: "Dünyanın en büyük okyanusu hangisidir?",
+        options: ["Atlas Okyanusu", "Hint Okyanusu", "Büyük Okyanus", "Arktik Okyanusu"],
+        correct: 2
+    },
+    {
+        question: "Hangi meyve C vitamini açısından en zengindir?",
+        options: ["Elma", "Muz", "Kuşburnu", "Armut"],
+        correct: 2
+    },
+    {
+        question: "Türkiye'nin plaka kodu 06 olan ili hangisidir?",
+        options: ["İstanbul", "İzmir", "Adana", "Ankara"],
+        correct: 3
+    },
+    {
+        question: "Hangi icat Thomas Edison'a ait değildir?",
+        options: ["Ampul", "Fonograf", "Radyo", "Hareketli Film Kamerası"],
+        correct: 2
+    },
+    {
+        question: "Spider-Man'in gerçek adı nedir?",
+        options: ["Bruce Wayne", "Clark Kent", "Peter Parker", "Tony Stark"],
+        correct: 2
+    },
+    {
+        question: "Hangisi bir programlama dili değildir?",
+        options: ["Python", "Java", "HTML", "C++"],
+        correct: 2
+    },
+    {
+        question: "Basketbolda her takım sahada kaç kişiyle oynar?",
+        options: ["5", "6", "7", "11"],
+        correct: 0
+    },
+    {
+        question: "Eyfel Kulesi hangi şehirdedir?",
+        options: ["Londra", "Berlin", "Roma", "Paris"],
+        correct: 3
+    },
+    {
+        question: "İnsan vücudunda kaç tane kromozom vardır?",
+        options: ["23", "46", "48", "42"],
+        correct: 1
+    },
+    {
+        question: "Hangi ülkenin bayrağında 'Ay ve Yıldız' yoktur?",
+        options: ["Türkiye", "Pakistan", "Japonya", "Azerbaycan"],
+        correct: 2
+    },
+    {
+        question: "Suyun kimyasal formülü nedir?",
+        options: ["CO2", "H2O", "O2", "NaCl"],
+        correct: 1
+    },
+    {
+        question: "Hangi hayvan memeli değildir?",
+        options: ["Yunus", "Yarasa", "Penguen", "Balina"],
+        correct: 2
+    },
+    {
+        question: "Satranç tahtasında kaç kare vardır?",
+        options: ["32", "64", "100", "50"],
+        correct: 1
+    },
+    {
+        question: "Harry Potter serisindeki büyücülük okulunun adı nedir?",
+        options: ["Durmstrang", "Beauxbatons", "Hogwarts", "Ilvermorny"],
+        correct: 2
+    },
+    {
+        question: "Türkiye'de kaç coğrafi bölge vardır?",
+        options: ["5", "6", "7", "8"],
+        correct: 2
+    },
+    {
+        question: "Hangisi dünyanın yedi harikasından biri kabul edilir (Antik)?",
+        options: ["Kolezyum", "Keops Piramidi", "Tac Mahal", "Çin Seddi"],
+        correct: 1
+    },
+    {
+        question: "Piyanoda kaç tuş vardır (standart)?",
+        options: ["66", "72", "88", "96"],
+        correct: 2
     }
 ];
 

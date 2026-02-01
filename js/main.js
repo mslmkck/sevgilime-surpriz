@@ -109,6 +109,24 @@ document.addEventListener('DOMContentLoaded', () => {
         if (mainContent) {
             mainContent.classList.remove('hidden');
             AOS.refresh();
+
+            // Kayıtlı oda var mı kontrol et
+            const savedRoomId = localStorage.getItem('activeRoomId');
+            if (savedRoomId) {
+                const savedRoom = document.getElementById(savedRoomId);
+                if (savedRoom) {
+                    // Odayı aç ama buton click simüle etmek daha iyi çünkü fetch logicleri orada
+                    if (savedRoomId === 'poetry-room' && btnPoetry) btnPoetry.click();
+                    else if (savedRoomId === 'memory-room' && btnMemory) btnMemory.click();
+                    else if (savedRoomId === 'meeting-room' && btnMeeting) btnMeeting.click();
+                    else if (savedRoomId === 'working-room' && btnWorking) btnWorking.click();
+                    else if (savedRoomId === 'game-room') {
+                        // Oyun odası butonu main.js içinde tanımlı olmayabilir ama ona ulaşalım
+                        const btnGame = document.getElementById('btn-game');
+                        if (btnGame) btnGame.click();
+                    }
+                }
+            }
         }
     }
 
@@ -138,6 +156,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Scroll başa al
         window.scrollTo(0, 0);
+
+        // Odayı kaydet (Persistence)
+        localStorage.setItem('activeRoomId', roomSection.id);
 
         // Telegram bildirimi
         if (window.telegramNotifications) {
@@ -175,6 +196,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Seçim ekranını geri getir
         roomSelection.classList.remove('hidden');
+
+        // Aktif odayı temizle
+        localStorage.removeItem('activeRoomId');
     };
 
     if (btnPoetry) btnPoetry.addEventListener('click', async () => {
@@ -498,84 +522,29 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!floatingArea) return;
         floatingArea.innerHTML = '';
 
-        const placedPoems = []; // Yerleştirilen şiirlerin konumlarını tutacağız
+        if (poems.length === 0) {
+            floatingArea.innerHTML = '<p style="color: white; font-style: italic; opacity: 0.7;">Henüz hiç şiir eklenmemiş...</p>';
+            return;
+        }
 
-        poems.forEach(poem => {
+        poems.forEach((poem, index) => {
             const el = document.createElement('div');
             el.classList.add('floating-poem');
             el.innerText = poem.title;
 
-            // Çarpışma Önleme Mantığı - GELİŞMİŞ
-            let randomTop, randomLeft;
-            let attempts = 0;
-            let overlap = true;
+            // Animasyon: Giriş animasyonu (Fade In & Slide Up)
+            // Sadece ilk yüklemede sırayla gelsinler
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
 
-            // Ekran boyutunu al (hesaplama için)
-            const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
-            const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
-
-            // Tahmini balon boyutu (piksel olarak)
-            const balloonWidth = 150;
-            const balloonHeight = 60;
-
-            // En fazla 100 kere dene
-            while (overlap && attempts < 100) {
-                attempts++;
-
-                // Güvenli bölgeyi piksel olarak hesapla ve yüzdeye çevir
-                // Kenarlardan (margin) 50px içeride kalacak şekilde
-                const maxLeft = vw - balloonWidth - 50;
-                const maxTop = vh - balloonHeight - 50;
-                const minLeft = 50;
-                const minTop = 50;
-
-                const randLeftPx = Math.floor(Math.random() * (maxLeft - minLeft)) + minLeft;
-                const randTopPx = Math.floor(Math.random() * (maxTop - minTop)) + minTop;
-
-                // Yüzdeye çevir (CSS için)
-                randomLeft = (randLeftPx / vw) * 100;
-                randomTop = (randTopPx / vh) * 100;
-
-                overlap = false;
-
-                // Daha önce yerleştirilenlerle karşılaştır
-                for (const placed of placedPoems) {
-                    // Yüzde cinsinden mesafe kontrolü
-                    // X ekseni için %15, Y ekseni için %10 boşluk bırak
-                    if (!placed) continue;
-
-                    const distH = Math.abs(placed.left - randomLeft);
-                    const distV = Math.abs(placed.top - randomTop);
-
-                    // Eğer hem yatayda hem dikeyde çok yakınsa çakışma var demektir
-                    if (distH < 15 && distV < 10) {
-                        overlap = true;
-                        break;
-                    }
-                }
-            }
-
-            // Eğer uygun yer bulunamadıysa bile (attempts >= 100), yine de son hesaplanan yere koy
-            // Ama biraz kaydırarak üst üste tam binmesini engelle
-            if (overlap) {
-                randomLeft += (Math.random() * 5);
-                randomTop += (Math.random() * 5);
-            }
-
-            // Konumu kaydet
-            placedPoems.push({ top: randomTop, left: randomLeft });
-
-            el.style.top = `${randomTop}%`;
-            el.style.left = `${randomLeft}%`;
-
-            // Animasyon süresini ve gecikmesini çeşitlendir
-            const randomDelay = Math.random() * 5;
-            el.style.animationDelay = `${randomDelay}s`;
-            el.style.animationDuration = `${20 + Math.random() * 10}s`; // Daha yavaş süzülsün
+            setTimeout(() => {
+                el.style.opacity = '1';
+                el.style.transform = 'translateY(0)';
+            }, index * 100); // Her kart arasında 100ms gecikme
 
             // Tıklayınca Aç
             el.addEventListener('click', (e) => {
-                e.stopPropagation(); // Arka plana tıklamayı engelle
+                e.preventDefault(); // Varsayılan davranışı engelle
                 openPoemModal(poem);
             });
 
@@ -680,67 +649,136 @@ document.addEventListener('DOMContentLoaded', () => {
         'user': '👤' // Fallback
     };
 
-    // Mesajları Ekrana Bas
-    function renderMessages() {
-        if (!chatMessages) return;
+    let lastRenderedMessageId = null; // En son ekrana basılan mesajın ID'si
+    let isInitialLoad = true; // İlk yükleme kontrolü
 
-        // Emojileri tekrar kontrol et
-        const currentMyProfile = localStorage.getItem('userProfile') || 'rabbit';
-        const partnerProfile = currentMyProfile === 'rabbit' ? 'fox' : 'rabbit';
-        const myEmoji = emojis[currentMyProfile];
-        const partnerEmoji = emojis[partnerProfile];
+    // Tek bir mesajı ekrana basan yardımcı fonksiyon
+    function appendSingleMessage(msg, container, isMyProfile, currentMyProfile, animate = false) {
+        const div = document.createElement('div');
+        div.classList.add('message');
+        div.classList.add(isMyProfile ? 'sent' : 'received');
+        if (animate) div.classList.add('animate-message'); // Sadece yeni mesajlarda animasyon
 
-        // Mesajları temizle
-        chatMessages.innerHTML = `
-            <div class="message system-message">
-                Buluşma odasına hoş geldin... Şömine çok güzel yanıyor. 🔥
-            </div>
-        `;
+        div.dataset.id = msg.id || 'temp'; // Tekrarları önlemek için ID kullanımı
 
-        // Supabase'den gelen mesaj objesi yapısı: { sender: 'rabbit', message: '...', created_at: '...' }
-        // Local yapı: { sender: 'user', text: '...', time: ... }
-        // Adapter logic:
+        const msgEmoji = emojis[msg.sender] || '👤';
 
-        messages.forEach(msg => {
-            // Mesajın kimden geldiğini belirle
-            // sender: 'rabbit' veya 'fox' olmalı.
-            const senderProfile = msg.sender;
+        const date = new Date(msg.created_at || msg.time);
+        const timeStr = isNaN(date.getTime()) ? '' : date.getHours().toString().padStart(2, '0') + ':' + date.getMinutes().toString().padStart(2, '0');
+        const textContent = msg.message || msg.text;
 
-            // Benim profilim ne?
-            const isSentByMe = (senderProfile === currentMyProfile);
+        if (isMyProfile) {
+            div.innerHTML = `
+                <div class="msg-content">${textContent} <span class="emoji-icon" style="font-size:1.2rem; margin-left:5px;">${msgEmoji}</span></div>
+                <div class="msg-time">${timeStr}</div>
+            `;
+        } else {
+            div.innerHTML = `
+                <div class="msg-content"><span class="emoji-icon" style="font-size:1.2rem; margin-right:5px;">${msgEmoji}</span> ${textContent}</div>
+                <div class="msg-time">${timeStr}</div>
+            `;
+        }
 
-            const div = document.createElement('div');
-            div.classList.add('message');
-            div.classList.add(isSentByMe ? 'sent' : 'received');
-
-            // Emoji seçimi: Gönderen profiline göre
-            // Eğer gönderen 'rabbit' ise rabbit emojisi, 'fox' ise fox emojisi. 
-            // Kendim gönderdiysem myEmoji, karşı tarafsa partnerEmoji mantığı yerine direkt gonderen-bazlı emoji.
-            const msgEmoji = emojis[senderProfile] || '👤';
-
-            // Saat
-            const date = new Date(msg.created_at || msg.time);
-            const timeStr = isNaN(date.getTime()) ? '' : date.getHours().toString().padStart(2, '0') + ':' + date.getMinutes().toString().padStart(2, '0');
-            const textContent = msg.message || msg.text;
-
-            if (isSentByMe) {
-                div.innerHTML = `
-                    <div class="msg-content">${textContent} <span class="emoji-icon" style="font-size:1.2rem; margin-left:5px;">${msgEmoji}</span></div>
-                    <div class="msg-time" style="text-align: right; font-size: 0.7rem; opacity: 0.7; margin-top: 2px;">${timeStr}</div>
-                `;
-            } else {
-                div.innerHTML = `
-                    <div class="msg-content"><span class="emoji-icon" style="font-size:1.2rem; margin-right:5px;">${msgEmoji}</span> ${textContent}</div>
-                    <div class="msg-time" style="text-align: left; font-size: 0.7rem; opacity: 0.7; margin-top: 2px;">${timeStr}</div>
-                `;
-            }
-            chatMessages.appendChild(div);
-        });
-
-        // En alta kaydır
-        chatMessages.scrollTop = chatMessages.scrollHeight;
+        container.appendChild(div);
     }
 
+    // Mesajları Ekrana Bas (Akıllı Rendering)
+    function renderMessages(isFullRebuild = false) {
+        if (!chatMessages) return;
+
+        const currentMyProfile = localStorage.getItem('userProfile') || 'rabbit';
+
+        // Eğer tam yeniden oluşturma isteniyorsa veya hiç mesaj yoksa sıfırla
+        if (isFullRebuild || chatMessages.children.length <= 1) { // 1 because system message might be there
+            chatMessages.innerHTML = `
+                <div class="message system-message">
+                    Buluşma odasına hoş geldin... Şömine çok güzel yanıyor. 🔥
+                </div>
+            `;
+            // Sıfırladığımız için tüm listeyi baştan sona ekle
+            // Sıfırladığımız için tüm listeyi baştan sona ekle
+            messages.forEach(msg => {
+                appendSingleMessage(msg, chatMessages, msg.sender === currentMyProfile, currentMyProfile, false); // initial -> no animation
+            });
+
+            // İlk kez yükleniyorsa
+            if (isInitialLoad) {
+                // Kaydedilmiş pozisyon var mı?
+                const savedScroll = localStorage.getItem('chat_scroll_pos');
+
+                // Animasyonsuz kaydırma için style ayarı
+                chatMessages.style.scrollBehavior = 'auto';
+
+                if (savedScroll && parseInt(savedScroll) > 0) {
+                    chatMessages.scrollTop = parseInt(savedScroll);
+                } else {
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }
+
+                // Hemen ardından smooth'a geri dön (Yeni mesajlar için)
+                setTimeout(() => {
+                    chatMessages.style.scrollBehavior = 'smooth';
+                }, 100);
+
+                isInitialLoad = false;
+            } else {
+                // Rebuild ama ilk load değilse
+                if (shouldScrollToBottom) {
+                    chatMessages.style.scrollBehavior = 'auto';
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                    setTimeout(() => { chatMessages.style.scrollBehavior = 'smooth'; }, 100);
+                }
+            }
+
+        } else {
+            // Sadece YENİ mesajları ekle (Incremental Update)
+            // Mevcut DOM'daki son mesajın ID'sini veya indexini kontrol etmeye gerek yok, 
+            // messages array'inin sonundakileri ekleyeceğiz.
+            // Basitlik için: messages array'indeki son elemanı alıp ekleyelim.
+            // Ancak birden fazla yeni gelmiş olabilir.
+
+            // Burada basit bir diff yapalım:
+            // DOM'da zaten var olan ID'leri atla.
+
+            // Mevcut DOM ID'lerini topla
+            const existingIds = new Set();
+            document.querySelectorAll('.message[data-id]').forEach(el => existingIds.add(el.dataset.id));
+
+            messages.forEach(msg => {
+                if (!existingIds.has(msg.id) && !existingIds.has(msg.id?.toString())) {
+                    appendSingleMessage(msg, chatMessages, msg.sender === currentMyProfile, currentMyProfile, true); // update -> animate
+                }
+            });
+
+            // Kaydırma mantığı
+            if (shouldScrollToBottom) {
+                // Smooth scroll ile en alta
+                chatMessages.scrollTo({ top: chatMessages.scrollHeight, behavior: 'smooth' });
+            }
+        }
+    }
+
+    // Scroll pozisyonunu hatırla
+    let shouldScrollToBottom = true; // Varsayılan: En altta başla
+
+    if (chatMessages) {
+        chatMessages.addEventListener('scroll', () => {
+            const threshold = 50; // Alttan 50px tolerans
+            const position = chatMessages.scrollTop + chatMessages.offsetHeight;
+            const height = chatMessages.scrollHeight;
+
+            // Eğer kullanıcı yukarı çıktıysa, otomatik kaydırmayı kapat
+            if (height - position > threshold) {
+                shouldScrollToBottom = false;
+            } else {
+                shouldScrollToBottom = true;
+            }
+            // Pozisyonu kaydet
+            localStorage.setItem('chat_scroll_pos', chatMessages.scrollTop);
+        });
+    }
+
+    // Mesaj Gönder
     // Mesaj Gönder
     // Mesaj Gönder
     async function sendMessage() {
@@ -751,14 +789,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const currentProfile = localStorage.getItem('userProfile') || 'rabbit';
 
-        // 1. Önce EKRAANDA GÖSTER (Optimistic Update) - Beklemeden!
+        // 1. Önce EKRAANDA GÖSTER (Optimistic Update)
+        // Geçici bir ID veriyoruz ki bunu subscription'da tanıyabilelim
+        const tempId = 'opt_' + Date.now();
+
         const optimisticMsg = {
+            id: tempId,
             sender: currentProfile,
             message: text,
             created_at: new Date().toISOString(),
-            is_optimistic: true // Henüz gitmedi
+            is_optimistic: true
         };
+
         messages.push(optimisticMsg);
+        shouldScrollToBottom = true; // Biz yazdığımızda kesinlikle aşağı in
         renderMessages();
 
         // Input'u hemen temizle
@@ -767,12 +811,21 @@ document.addEventListener('DOMContentLoaded', () => {
         // 2. Sonra Supabase'e gönder
         if (window.supabaseHelpers) {
             try {
+                // Return data'yı alalım ama listeyi tamamen yenilemeyelim,
+                // Subscription gelince oradan düzelir.
                 await window.supabaseHelpers.saveChatMessage(text);
-                // Başarılı olduğunda bir şey yapmaya gerek yok, realtime veya refresh ile düzelir.
-                // Optimistic mesajı gerçek mesajla değiştirebiliriz ama şimdilik kalsın.
+
+                // Başarılı :)
             } catch (err) {
                 console.error("Mesaj gönderilemedi:", err);
+
+                // Hata durumunda mesajı görsel olarak uyarılı hale getirebiliriz
+                // Şimdilik basitçe alert
                 alert("Mesaj gönderilemedi, internet bağlantını kontrol et.");
+
+                // Optimistic mesajı kaldır
+                messages = messages.filter(m => m.id !== tempId);
+                renderMessages();
             }
         } else {
             console.warn("Supabase yüklü değil, mesaj sadece yerel olarak eklendi.");
@@ -801,20 +854,61 @@ document.addEventListener('DOMContentLoaded', () => {
         btnMeeting.addEventListener('click', async () => {
             // Mesajları çek
             if (window.supabaseHelpers) {
+                // İlk yükleme olduğunu belirtelim
+                isInitialLoad = true;
+
                 const msgs = await window.supabaseHelpers.getChatMessages();
                 if (msgs) messages = msgs;
+
+                // Tam yeniden oluştur
+                renderMessages(true);
 
                 // Abonelik başlat
                 if (!isSubscribed) {
                     window.supabaseHelpers.subscribeToChatMessages((newMsg) => {
-                        messages.push(newMsg);
-                        renderMessages();
+                        // Gelen mesaj zaten listede var mı? (ID kontrolü)
+                        const exists = messages.some(m => m.id === newMsg.id);
+                        if (exists) return; // Zaten var, ekleme.
+
+                        // Optimistic mesaj kontrolü
+                        const myOptimisticIndex = messages.findIndex(m =>
+                            m.is_optimistic &&
+                            m.sender === newMsg.sender &&
+                            m.message === newMsg.message
+                        );
+
+                        if (myOptimisticIndex !== -1) {
+                            // Varolan optimistic mesajı güncelle
+                            messages[myOptimisticIndex] = newMsg;
+
+                            // DOM'dan eski optimistic mesajı kaldır (ID değiştiği için)
+                            // "is_optimistic" olan ve içeriği uyanı bulabilsek iyi ama
+                            // Basitçe: temp id ile eklenen elementi bulup silelim
+                            // messages array'de update ettik ama DOM'daki ID hala 'opt_...' olabilir.
+                            // renderMessages(false) çağırınca yeni ID ile ekler.
+                            // Eskisini silmeliyiz.
+
+                            // Optimistic mesajları bulup temizleyelim (Basit yaklaşım)
+                            // En doğrusu: tempId'yi biliyor olsaydık onu silerdik.
+                            // Ama render system'i full rebuild yapmıyor.
+                            // Çözüm: data-id'si 'opt_' ile başlayıp içeriği eşleşeni sil.
+                            const optElements = document.querySelectorAll('.message[data-id^="opt_"]');
+                            optElements.forEach(el => {
+                                if (el.textContent.includes(newMsg.message)) {
+                                    el.remove();
+                                }
+                            });
+
+                        } else {
+                            // Yepyeni mesaj, ekle
+                            messages.push(newMsg);
+                        }
+
+                        renderMessages(false); // Incremental update
                     });
                     isSubscribed = true;
                 }
             }
-
-            setTimeout(renderMessages, 100);
         });
     }
 
