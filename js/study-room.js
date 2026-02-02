@@ -52,6 +52,19 @@ async function initializeStudyData() {
     } catch (e) {
         console.error("Signs load error:", e);
     }
+
+    // 3. Hız Limitlerini Yükle
+    try {
+        if (window.supabaseHelpers.getSpeedLimits) {
+            const remoteLimits = await window.supabaseHelpers.getSpeedLimits();
+            if (remoteLimits && remoteLimits.length > 0) {
+                console.log("✅ Hız Limitleri Supabase'den yüklendi:", remoteLimits.length);
+                studyData.speedLimits = remoteLimits; // Veriyi güncelle
+            }
+        }
+    } catch (e) {
+        console.error("Speed limits load error:", e);
+    }
 }
 
 // TOGGLE FORMS
@@ -181,7 +194,113 @@ function hideAllStudySections() {
     if (notesSection) notesSection.classList.add('hidden');
 }
 
-// ... (Existing Functions) ...
+// =========================================
+// RESTORED CORE FUNCTIONS
+// =========================================
+
+function loadFlashcard(index) {
+    if (!studyData.flashcards || studyData.flashcards.length === 0) return;
+
+    // Boundary checks
+    if (index < 0) index = 0;
+    if (index >= studyData.flashcards.length) index = studyData.flashcards.length - 1;
+
+    currentCardIndex = index;
+    const card = studyData.flashcards[currentCardIndex];
+
+    // Update content
+    const frontEl = document.getElementById('card-front');
+    const backEl = document.getElementById('card-back');
+    const counterEl = document.getElementById('card-counter');
+
+    if (frontEl) frontEl.textContent = card.term;
+    if (backEl) backEl.textContent = card.definition;
+    if (counterEl) counterEl.textContent = `${currentCardIndex + 1} / ${studyData.flashcards.length}`;
+
+    // Reset flip
+    isFlipped = false;
+    const flashcard = document.querySelector('.flashcard');
+    if (flashcard) flashcard.classList.remove('flipped');
+}
+
+function flipCard() {
+    isFlipped = !isFlipped;
+    const flashcard = document.querySelector('.flashcard');
+    if (flashcard) flashcard.classList.toggle('flipped');
+}
+
+function prevCard() {
+    if (currentCardIndex > 0) {
+        currentCardIndex--;
+    } else {
+        currentCardIndex = studyData.flashcards.length - 1; // Loop back
+    }
+    loadFlashcard(currentCardIndex);
+}
+
+function nextCard() {
+    if (currentCardIndex < studyData.flashcards.length - 1) {
+        currentCardIndex++;
+    } else {
+        currentCardIndex = 0; // Loop start
+    }
+    loadFlashcard(currentCardIndex);
+}
+
+function renderSpeedLimits() {
+    const container = document.getElementById('speed-limits-container');
+    if (!container) return;
+    container.innerHTML = '';
+
+    if (!studyData.speedLimits) return;
+
+    studyData.speedLimits.forEach(limit => {
+        const div = document.createElement('div');
+        div.className = 'speed-card';
+        div.innerHTML = `
+            <div class="limit-circle">${limit.limit}</div>
+            <p>${limit.type}</p>
+        `;
+        container.appendChild(div);
+    });
+}
+
+function renderSigns() {
+    const container = document.getElementById('signs-grid');
+    if (!container) return;
+    container.innerHTML = '';
+
+    if (!studyData.signs) return;
+
+    studyData.signs.forEach(sign => {
+        const div = document.createElement('div');
+        div.className = 'sign-card';
+        div.innerHTML = `
+            <div class="sign-icon">${sign.icon}</div>
+            <h4>${sign.name}</h4>
+            <p>${sign.description}</p>
+        `;
+        container.appendChild(div);
+    });
+}
+
+// Swipe Logic (Touch Handling)
+let touchStartX = 0;
+let touchEndX = 0;
+
+function handleTouchStart(e) {
+    touchStartX = e.changedTouches[0].screenX;
+}
+
+function handleTouchEnd(e) {
+    touchEndX = e.changedTouches[0].screenX;
+    handleSwipe();
+}
+
+function handleSwipe() {
+    if (touchEndX < touchStartX - 50) nextCard();
+    if (touchEndX > touchStartX + 50) prevCard();
+}
 
 // =========================================
 // NOTE TAKING LOGIC
