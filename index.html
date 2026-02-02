@@ -396,6 +396,14 @@
                     <h3>Ezber Kartları</h3>
                 </div>
 
+                <!-- Admin / Add New Card Toggle -->
+                <button class="toggle-add-btn" onclick="toggleAddCardForm()">+ Yeni Kart Ekle</button>
+                <div id="add-card-form" class="add-data-form hidden">
+                    <input type="text" id="new-card-term" placeholder="Terim / Madde (Örn: Madde 51)">
+                    <input type="text" id="new-card-def" placeholder="Açıklama">
+                    <button onclick="addNewFlashcard()">Kaydet</button>
+                </div>
+
                 <div class="flashcard-wrapper">
                     <div class="flashcard" onclick="flipCard()">
                         <div class="card-face card-front">
@@ -437,6 +445,16 @@
                         Geri</button>
                     <h3>İşaret Levhaları</h3>
                 </div>
+
+                <!-- Admin / Add New Sign Toggle -->
+                <button class="toggle-add-btn" onclick="toggleAddSignForm()">+ Yeni Levha Ekle</button>
+                <div id="add-sign-form" class="add-data-form hidden">
+                    <input type="text" id="new-sign-name" placeholder="Levha Adı">
+                    <input type="text" id="new-sign-icon" placeholder="İkon / Emoji (Örn: 🛑)">
+                    <input type="text" id="new-sign-desc" placeholder="Açıklama">
+                    <button onclick="addNewSign()">Kaydet</button>
+                </div>
+
                 <div id="signs-grid" class="signs-grid">
                     <!-- JS ile dolacak -->
                 </div>

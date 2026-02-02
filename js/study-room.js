@@ -21,20 +21,108 @@ let studyData = {
 };
 
 async function initializeStudyData() {
-    if (window.supabaseHelpers && window.supabaseHelpers.getFlashcards) {
-        try {
+    if (!window.supabaseHelpers) return;
+
+    // 1. Flashcards Yükle
+    try {
+        if (window.supabaseHelpers.getFlashcards) {
             const remoteCards = await window.supabaseHelpers.getFlashcards();
             if (remoteCards && remoteCards.length > 0) {
                 console.log("✅ Ezber kartları Supabase'den yüklendi:", remoteCards.length);
                 studyData.flashcards = remoteCards;
-                // Eğer şu an kartlar görüntüleniyorsa yenile
-                if (!flashcardSection.classList.contains('hidden')) {
-                    loadFlashcard(currentCardIndex);
-                }
+                // Eğer section görünüyorsa güncelle
+                if (!flashcardSection.classList.contains('hidden')) loadFlashcard(currentCardIndex);
             }
-        } catch (error) {
-            console.error("Kart verisi çekilemedi, varsayılanlar kullanılıyor.", error);
         }
+    } catch (e) {
+        console.error("Flashcards load error:", e);
+    }
+
+    // 2. Levhaları Yükle
+    try {
+        if (window.supabaseHelpers.getSigns) {
+            const remoteSigns = await window.supabaseHelpers.getSigns();
+            if (remoteSigns && remoteSigns.length > 0) {
+                console.log("✅ Levhalar Supabase'den yüklendi:", remoteSigns.length);
+                studyData.signs = remoteSigns;
+                // Eğer section görünüyorsa güncelle
+                if (!signsSection.classList.contains('hidden')) renderSigns();
+            }
+        }
+    } catch (e) {
+        console.error("Signs load error:", e);
+    }
+}
+
+// TOGGLE FORMS
+function toggleAddCardForm() {
+    const form = document.getElementById('add-card-form');
+    if (form) form.classList.toggle('hidden');
+}
+
+function toggleAddSignForm() {
+    const form = document.getElementById('add-sign-form');
+    if (form) form.classList.toggle('hidden');
+}
+
+// ADD NEW ITEMS LOGIC
+async function addNewFlashcard() {
+    const termInput = document.getElementById('new-card-term');
+    const defInput = document.getElementById('new-card-def');
+    const term = termInput.value.trim();
+    const def = defInput.value.trim();
+
+    if (!term || !def) {
+        alert("Lütfen tüm alanları doldurun.");
+        return;
+    }
+
+    if (window.supabaseHelpers && window.supabaseHelpers.saveFlashcard) {
+        const saved = await window.supabaseHelpers.saveFlashcard(term, def);
+        if (saved) {
+            alert("Kart başarıyla eklendi!");
+            studyData.flashcards.push(saved); // Local arraye ekle
+            termInput.value = '';
+            defInput.value = '';
+            loadFlashcard(studyData.flashcards.length - 1); // Son eklenene git
+            toggleAddCardForm();
+        } else {
+            alert("Kaydederken bir hata oluştu.");
+        }
+    } else {
+        alert("Bağlantı hatası: Supabase helper bulunamadı.");
+    }
+}
+
+async function addNewSign() {
+    const nameInput = document.getElementById('new-sign-name');
+    const iconInput = document.getElementById('new-sign-icon');
+    const descInput = document.getElementById('new-sign-desc');
+
+    const name = nameInput.value.trim();
+    const icon = iconInput.value.trim();
+    const desc = descInput.value.trim();
+
+    if (!name || !icon || !desc) {
+        alert("Lütfen tüm alanları doldurun.");
+        return;
+    }
+
+    if (window.supabaseHelpers && window.supabaseHelpers.saveSign) {
+        const saved = await window.supabaseHelpers.saveSign(name, icon, desc);
+        if (saved) {
+            alert("Levha başarıyla eklendi!");
+            studyData.signs.push(saved);
+            nameInput.value = '';
+            iconInput.value = '';
+            descInput.value = '';
+            renderSigns();
+            toggleAddSignForm();
+        } else {
+            alert("Kaydederken bir hata oluştu.");
+        }
+    } else {
+        alert("Bağlantı hatası: Supabase helper bulunamadı.");
     }
 }
 

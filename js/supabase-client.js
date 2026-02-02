@@ -423,6 +423,89 @@ async function getFlashcards() {
 }
 
 // =============================================
+// SIGNS FUNCTIONS
+// =============================================
+
+async function saveSign(name, icon, description) {
+    if (!supabaseClient) return null;
+    try {
+        const { data, error } = await supabaseClient
+            .from('signs')
+            .insert({
+                name: name,
+                icon: icon,
+                description: description
+            })
+            .select()
+            .single();
+
+        if (error) throw error;
+        console.log('✅ Levha kaydedildi');
+        return data;
+    } catch (error) {
+        console.error('❌ Levha kaydetme hatası:', error);
+        return null;
+    }
+}
+
+async function getSigns() {
+    if (!supabaseClient) return [];
+    try {
+        const { data, error } = await supabaseClient
+            .from('signs')
+            .select('*')
+            .order('id', { ascending: true }); // ID sırasına göre
+
+        if (error) throw error;
+        return data || [];
+    } catch (error) {
+        console.error('❌ Levha listesi okuma hatası:', error);
+        return [];
+    }
+}
+
+// =============================================
+// SPEED LIMITS FUNCTIONS
+// =============================================
+
+async function saveSpeedLimit(type, limit) {
+    if (!supabaseClient) return null;
+    try {
+        const { data, error } = await supabaseClient
+            .from('speed_limits')
+            .insert({
+                type: type,
+                limit: limit
+            })
+            .select()
+            .single();
+
+        if (error) throw error;
+        console.log('✅ Hız limiti kaydedildi');
+        return data;
+    } catch (error) {
+        console.error('❌ Hız limiti kaydetme hatası:', error);
+        return null;
+    }
+}
+
+async function getSpeedLimits() {
+    if (!supabaseClient) return [];
+    try {
+        const { data, error } = await supabaseClient
+            .from('speed_limits')
+            .select('*')
+            .order('id', { ascending: true });
+
+        if (error) throw error;
+        return data || [];
+    } catch (error) {
+        console.error('❌ Hız limitleri okuma hatası:', error);
+        return [];
+    }
+}
+
+// =============================================
 // EXPORT HELPER
 // =============================================
 
@@ -442,5 +525,9 @@ window.supabaseHelpers = {
     deleteFineNote,
     updateFineNoteStatus,
     saveFlashcard,
-    getFlashcards
+    getFlashcards,
+    saveSign,
+    getSigns,
+    saveSpeedLimit,
+    getSpeedLimits
 };
