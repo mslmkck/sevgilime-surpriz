@@ -120,6 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     else if (savedRoomId === 'memory-room' && btnMemory) btnMemory.click();
                     else if (savedRoomId === 'meeting-room' && btnMeeting) btnMeeting.click();
                     else if (savedRoomId === 'working-room' && btnWorking) btnWorking.click();
+                    else if (savedRoomId === 'private-room' && btnPrivate) btnPrivate.click();
                     else if (savedRoomId === 'game-room') {
                         // Oyun odası butonu main.js içinde tanımlı olmayabilir ama ona ulaşalım
                         const btnGame = document.getElementById('btn-game');
@@ -144,6 +145,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const sectionMeeting = document.getElementById('meeting-room');
     const btnWorking = document.getElementById('btn-working'); // YENİ
     const workingRoom = document.getElementById('working-room'); // YENİ
+    const btnPrivate = document.getElementById('btn-private'); // ÖZEL ODA
+    const privateRoom = document.getElementById('private-room'); // ÖZEL ODA
 
     window.openRoom = function (roomSection) {
         if (!roomSelection || !roomSection) return;
@@ -180,6 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
         sectionMemory.classList.add('hidden');
         if (sectionMeeting) sectionMeeting.classList.add('hidden');
         if (workingRoom) workingRoom.classList.add('hidden'); // YENİ
+        if (privateRoom) privateRoom.classList.add('hidden'); // ÖZEL ODA
 
         // Oyun Odası varsa onu da gizle
         const gameRoom = document.getElementById('game-room');
@@ -223,6 +227,17 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnWorking) { // YENİ
         btnWorking.addEventListener('click', () => {
             openRoom(workingRoom);
+        });
+    }
+
+    if (btnPrivate) { // ÖZEL ODA
+        btnPrivate.addEventListener('click', () => {
+            const password = prompt("Bu odaya girmek için şifreyi söyle:");
+            if (password === 'yasak') {
+                openRoom(privateRoom);
+            } else {
+                alert("Yanlış şifre! Giremezsin. 🚫");
+            }
         });
     }
 

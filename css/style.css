@@ -1534,43 +1534,503 @@ textarea {
 }
 
 /* =========================================
-   ÇALIŞMA ODASI TASARIMI
+   5. ÇALIŞMA ODASI TASARIMI
    ========================================= */
 #working-room {
     position: relative;
-    /* Eğer görsel yoksa koyu şık bir gradient */
-    background: linear-gradient(135deg, #1f2a36 0%, #2c3e50 100%);
+    background: url('../assets/img/working_room.png') no-repeat center center;
     background-size: cover;
     background-attachment: fixed;
+    /* Remove flex centering to allow scrolling for content */
+    display: block;
+}
+
+#working-room .overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    /* Daha koyu örtü okunabilirlik için */
+    z-index: 0;
+}
+
+#working-room .back-btn {
+    position: relative;
+    z-index: 10;
+}
+
+/* STUDY MENU */
+.study-menu-container {
+    width: 100%;
+    max-width: 1000px;
+    z-index: 2;
+    text-align: center;
+    position: relative;
+    margin: 0 auto;
+}
+
+.study-options {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    flex-wrap: wrap;
+    margin-top: 2rem;
+}
+
+.study-option-card {
+    background: rgba(44, 62, 80, 0.6);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 2rem;
+    width: 250px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.study-option-card:hover {
+    transform: translateY(-10px);
+    background: rgba(212, 165, 165, 0.2);
+    border-color: var(--primary-color);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.study-option-card .icon-box {
+    font-size: 3rem;
+    color: var(--primary-color);
+    margin-bottom: 10px;
+}
+
+.study-option-card h3 {
+    color: #fff;
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+}
+
+.study-option-card p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+/* STUDY SUB-SECTIONS (COMMON) */
+.study-sub-section {
+    width: 100%;
+    max-width: 800px;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: fadeIn 0.5s ease;
+    position: relative;
+    margin: 0 auto;
+}
+
+.sub-header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sub-header h3 {
+    color: var(--primary-color);
+    font-family: var(--font-heading);
+    font-size: 1.8rem;
+}
+
+.sub-back-btn {
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 1.1rem;
+    cursor: pointer;
     display: flex;
     align-items: center;
-    justify-content: center;
-    text-align: center;
+    gap: 5px;
 }
 
-.working-content {
-    z-index: 2;
-    background: rgba(255, 255, 255, 0.05);
-    /* Çok hafif bir kutu */
-    backdrop-filter: blur(10px);
-    padding: 50px;
-    border-radius: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-    color: #fff;
+.sub-back-btn:hover {
+    color: var(--primary-color);
+}
+
+/* FLASHCARDS */
+.flashcard-wrapper {
+    perspective: 1000px;
+    width: 100%;
     max-width: 500px;
-    width: 90%;
-    animation: fadeIn 1s ease;
+    height: 350px;
+    margin-bottom: 2rem;
 }
 
-.working-content h1 {
-    font-family: 'Playfair Display', serif;
-    font-size: 3rem;
-    margin-bottom: 10px;
-    color: #ffd700;
+.flashcard {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+    cursor: pointer;
 }
 
-.working-content p {
-    font-size: 1.2rem;
+.flashcard.flipped {
+    transform: rotateY(180deg);
+}
+
+.card-face {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.card-front {
+    background: linear-gradient(135deg, #2c3e50, #1a252f);
+    color: #fff;
+}
+
+.card-back {
+    background: linear-gradient(135deg, #d4a5a5, #8e6e6e);
+    color: #fff;
+    transform: rotateY(180deg);
+}
+
+.card-content {
+    font-size: 1.5rem;
+    font-weight: 500;
+    line-height: 1.5;
+}
+
+.card-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
     opacity: 0.8;
+}
+
+.tap-hint {
+    margin-top: 2rem;
+    font-size: 0.8rem;
+    opacity: 0.6;
+    animation: pulse 2s infinite;
+}
+
+.flashcard-controls {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 1rem;
+}
+
+.control-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: #fff;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.control-btn:hover {
+    background: var(--primary-color);
+    color: #000;
+}
+
+#card-counter {
+    font-size: 1.2rem;
+    color: var(--text-muted);
+}
+
+.swipe-hint {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    opacity: 0.7;
+}
+
+/* SPEED LIMITS GRID */
+.speed-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    /* Responsive grid */
+    gap: 20px;
+    width: 100%;
+}
+
+.speed-item {
+    background: rgba(30, 30, 35, 0.9);
+    border-left: 5px solid var(--primary-color);
+    padding: 20px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    transition: transform 0.3s;
+}
+
+.speed-item:hover {
+    transform: translateY(-5px);
+    background: rgba(50, 50, 55, 0.9);
+    box-shadow: 0 5px 15px rgba(212, 165, 165, 0.2);
+}
+
+.speed-type {
+    font-size: 1rem;
+    color: #ccc;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.speed-value {
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+    color: #fff;
+}
+
+.speed-value span {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+}
+
+.speed-item:nth-child(even) .speed-value span {
+    color: var(--primary-color);
+}
+
+/* SIGNS GRID */
+.signs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 20px;
+    width: 100%;
+}
+
+.sign-card {
+    background: #fff;
+    /* Sign backgrounds are usually white for visibility */
+    color: #000;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    transition: transform 0.3s;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.sign-card:hover {
+    transform: scale(1.05);
+}
+
+.sign-icon {
+    font-size: 4rem;
+    line-height: 1;
+    margin-bottom: 5px;
+}
+
+.sign-name {
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-bottom: 5px;
+}
+
+.sign-desc {
+    font-size: 0.85rem;
+    color: #555;
+    line-height: 1.3;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .study-options {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .flashcard-wrapper {
+        height: 400px;
+    }
+}
+
+/* NOTE TAKING SECTION */
+.note-form-card {
+    background: rgba(30, 30, 35, 0.9);
+    padding: 20px;
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    width: 100%;
+    margin-bottom: 30px;
+    text-align: left;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.note-form-card h4 {
+    color: var(--primary-color);
+    margin-bottom: 15px;
+    font-family: var(--font-heading);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 10px;
+}
+
+.note-inputs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+@media (max-width: 600px) {
+    .note-inputs {
+        grid-template-columns: 1fr;
+    }
+}
+
+.note-inputs input {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 12px;
+    border-radius: 8px;
+    color: #fff;
+    font-family: var(--font-body);
+}
+
+.note-inputs input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.add-note-btn {
+    width: 100%;
+    padding: 12px;
+    background: var(--primary-color);
+    color: #000;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.add-note-btn:hover {
+    background: #fff;
+}
+
+.notes-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.note-card {
+    background: rgba(255, 255, 255, 0.05);
+    border-left: 5px solid #e74c3c;
+    /* Default: Kırmızı (İşlem Yapılmadı) */
+    padding: 15px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: 0.3s;
+}
+
+.note-card.processed {
+    border-left-color: #2ecc71;
+    /* Yeşil (İşlem Tamam) */
+    background: rgba(46, 204, 113, 0.1);
+}
+
+.note-info {
+    flex: 1;
+    text-align: left;
+}
+
+.note-plate {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 5px;
+}
+
+.note-details {
+    font-size: 0.9rem;
+    color: #ccc;
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.note-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.check-btn {
+    background: transparent;
+    border: 2px solid #555;
+    color: #555;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: 0.3s;
+    font-size: 1.2rem;
+}
+
+.check-btn:hover {
+    border-color: #2ecc71;
+    color: #2ecc71;
+}
+
+.note-card.processed .check-btn {
+    background: #2ecc71;
+    border-color: #2ecc71;
+    color: #fff;
+}
+
+.delete-note-btn {
+    background: transparent;
+    border: none;
+    color: #e74c3c;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 10px;
+    opacity: 0.7;
+    transition: 0.3s;
+}
+
+.delete-note-btn:hover {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+.empty-notes {
+    color: rgba(255, 255, 255, 0.5);
+    font-style: italic;
+    margin-top: 20px;
 }

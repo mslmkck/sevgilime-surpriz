@@ -298,6 +298,131 @@ async function getGameScores() {
 
 
 // =============================================
+// FINE NOTES FUNCTIONS
+// =============================================
+
+async function saveFineNote(noteObj) {
+    if (!supabaseClient) return null;
+    const profile = getCurrentProfile();
+
+    try {
+        const { data, error } = await supabaseClient
+            .from('fine_notes')
+            .insert({
+                user_profile: profile,
+                plate: noteObj.plate,
+                article: noteObj.article,
+                location: noteObj.location,
+                date: noteObj.date,
+                processed: noteObj.processed
+            })
+            .select()
+            .single();
+
+        if (error) throw error;
+        console.log('✅ Ceza notu kaydedildi');
+        return data;
+    } catch (error) {
+        console.error('❌ Ceza notu kaydetme hatası:', error);
+        return null;
+    }
+}
+
+async function getFineNotes() {
+    if (!supabaseClient) return [];
+    const profile = getCurrentProfile();
+
+    try {
+        // PRIVATE: Only get notes for the current user profile
+        const { data, error } = await supabaseClient
+            .from('fine_notes')
+            .select('*')
+            .eq('user_profile', profile)
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        return data || [];
+    } catch (error) {
+        console.error('❌ Ceza notları okuma hatası:', error);
+        return [];
+    }
+}
+
+async function deleteFineNote(id) {
+    if (!supabaseClient) return false;
+    try {
+        const { error } = await supabaseClient
+            .from('fine_notes')
+            .delete()
+            .eq('id', id);
+
+        if (error) throw error;
+        return true;
+    } catch (error) {
+        console.error('❌ Ceza notu silme hatası:', error);
+        return false;
+    }
+}
+
+async function updateFineNoteStatus(id, status) {
+    if (!supabaseClient) return false;
+    try {
+        const { error } = await supabaseClient
+            .from('fine_notes')
+            .update({ processed: status })
+            .eq('id', id);
+
+        if (error) throw error;
+        return true;
+    } catch (error) {
+        console.error('❌ Ceza notu güncelleme hatası:', error);
+        return false;
+    }
+}
+
+// =============================================
+// FLASHCARDS FUNCTIONS (STUDY ROOM)
+// =============================================
+
+async function saveFlashcard(term, definition) {
+    if (!supabaseClient) return null;
+    try {
+        const { data, error } = await supabaseClient
+            .from('flashcards')
+            .insert({
+                term: term,
+                definition: definition
+            })
+            .select()
+            .single();
+
+        if (error) throw error;
+        console.log('✅ Ezber kartı kaydedildi');
+        return data;
+    } catch (error) {
+        console.error('❌ Kart kaydetme hatası:', error);
+        return null;
+    }
+}
+
+async function getFlashcards() {
+    if (!supabaseClient) return [];
+    try {
+        // PUBLIC: Everyone sees the same flashcards
+        const { data, error } = await supabaseClient
+            .from('flashcards')
+            .select('*')
+            .order('id', { ascending: true }); // ID sırasına göre gelsin (Manuel ekleme sırası)
+
+        if (error) throw error;
+        return data || [];
+    } catch (error) {
+        console.error('❌ Kart listesi okuma hatası:', error);
+        return [];
+    }
+}
+
+// =============================================
 // EXPORT HELPER
 // =============================================
 
@@ -311,5 +436,11 @@ window.supabaseHelpers = {
     getChatMessages,
     subscribeToChatMessages,
     saveGameScore,
-    getGameScores
+    getGameScores,
+    saveFineNote,
+    getFineNotes,
+    deleteFineNote,
+    updateFineNoteStatus,
+    saveFlashcard,
+    getFlashcards
 };

@@ -1,0 +1,262 @@
+// Initial Default Data (Fallback)
+let studyData = {
+    flashcards: [
+        { term: "Madde 51/2-a", definition: "Hız sınırlarını %10 - %30 oranında aşmak." },
+        { term: "Madde 47/1-b", definition: "Kırmızı ışık kuralına uymamak." },
+        // ... (Diğer varsayılanlar buraya eklenebilir veya boş bırakılabilir, yüklenince değişecek)
+    ],
+    speedLimits: [
+        { type: "Yerleşim Yeri İçinde", limit: "50" },
+        { type: "Şehirlerarası Çift Yönlü", limit: "90" },
+        { type: "Bölünmüş Yollar", limit: "110" },
+        { type: "Otoyollar", limit: "120" },
+        { type: "Okul Bölgesi", limit: "30" }
+    ],
+    signs: [
+        { name: "DUR", icon: "🛑", description: "Kavşaklarda durarak kontrol etmeniz gerektiğini belirtir." },
+        { name: "Girişi Olmayan Yol", icon: "⛔", description: "Bu yönden araç girişinin yasak olduğunu belirtir." },
+        { name: "Dikkat", icon: "⚠️", description: "Tehlike uyarısı. Hızınızı azaltın." },
+        { name: "Park Yapılmaz", icon: "🚫", description: "Belirtilen alana park etmek yasaktır." }
+    ]
+};
+
+async function initializeStudyData() {
+    if (window.supabaseHelpers && window.supabaseHelpers.getFlashcards) {
+        try {
+            const remoteCards = await window.supabaseHelpers.getFlashcards();
+            if (remoteCards && remoteCards.length > 0) {
+                console.log("✅ Ezber kartları Supabase'den yüklendi:", remoteCards.length);
+                studyData.flashcards = remoteCards;
+                // Eğer şu an kartlar görüntüleniyorsa yenile
+                if (!flashcardSection.classList.contains('hidden')) {
+                    loadFlashcard(currentCardIndex);
+                }
+            }
+        } catch (error) {
+            console.error("Kart verisi çekilemedi, varsayılanlar kullanılıyor.", error);
+        }
+    }
+}
+
+// State
+let currentCardIndex = 0;
+let isFlipped = false;
+
+// DOM Elements
+const studyMenu = document.getElementById('study-menu');
+const flashcardSection = document.getElementById('flashcard-section');
+const speedLimitSection = document.getElementById('speed-limit-section');
+const signsSection = document.getElementById('signs-section');
+
+const flashcardContainer = document.getElementById('flashcard-container');
+const cardFront = document.getElementById('card-front');
+const cardBack = document.getElementById('card-back');
+const cardCounter = document.getElementById('card-counter');
+
+// Navigation Functions
+function showStudyMenu() {
+    hideAllStudySections();
+    studyMenu.classList.remove('hidden');
+}
+
+function showFlashcards() {
+    hideAllStudySections();
+    flashcardSection.classList.remove('hidden');
+    loadFlashcard(0);
+}
+
+function showSpeedLimits() {
+    hideAllStudySections();
+    speedLimitSection.classList.remove('hidden');
+    renderSpeedLimits();
+}
+
+function showSigns() {
+    hideAllStudySections();
+    signsSection.classList.remove('hidden');
+    renderSigns();
+}
+
+const notesSection = document.getElementById('notes-section');
+
+function showNotes() {
+    hideAllStudySections();
+    if (notesSection) notesSection.classList.remove('hidden');
+    renderNotes();
+}
+
+function hideAllStudySections() {
+    studyMenu.classList.add('hidden');
+    if (flashcardSection) flashcardSection.classList.add('hidden');
+    if (speedLimitSection) speedLimitSection.classList.add('hidden');
+    if (signsSection) signsSection.classList.add('hidden');
+    if (notesSection) notesSection.classList.add('hidden');
+}
+
+// ... (Existing Functions) ...
+
+// =========================================
+// NOTE TAKING LOGIC
+// =========================================
+let fineNotes = [];
+
+async function loadNotes() {
+    if (window.supabaseHelpers) {
+        // Supabase'den çek
+        fineNotes = await window.supabaseHelpers.getFineNotes();
+    } else {
+        // Fallback: LocalStorage
+        const saved = localStorage.getItem('fine_notes_storage');
+        if (saved) {
+            try {
+                fineNotes = JSON.parse(saved);
+            } catch (e) {
+                console.error("Notlar yüklenirken hata:", e);
+                fineNotes = [];
+            }
+        }
+    }
+    renderNotesUI(); // UI'ı ayrı render et
+}
+
+async function addNote() {
+    const plateInput = document.getElementById('note-plate');
+    const articleInput = document.getElementById('note-article');
+    const locationInput = document.getElementById('note-location');
+    const dateInput = document.getElementById('note-date');
+
+    const plate = plateInput.value.trim();
+    const article = articleInput.value.trim();
+    const location = locationInput.value.trim();
+    const date = dateInput.value;
+
+    if (!plate || !article) {
+        alert("Lütfen en azından Plaka ve Ceza Maddesini giriniz.");
+        return;
+    }
+
+    const newNoteObj = {
+        plate: plate.toUpperCase(),
+        article: article,
+        location: location,
+        date: date,
+        processed: false
+    };
+
+    if (window.supabaseHelpers) {
+        // Supabase Kayıt
+        const savedNote = await window.supabaseHelpers.saveFineNote(newNoteObj);
+        if (savedNote) {
+            fineNotes.unshift(savedNote);
+        } else {
+            alert("Kaydedilemedi (Veritabanı Tablosu Eksik Olabilir)");
+            // Yine de locale ekle ki veri kaybolmasın (opsiyonel)
+        }
+    } else {
+        // LocalStorage Kayıt
+        newNoteObj.id = Date.now();
+        fineNotes.unshift(newNoteObj);
+        localStorage.setItem('fine_notes_storage', JSON.stringify(fineNotes));
+    }
+
+    // Reset inputs
+    plateInput.value = '';
+    articleInput.value = '';
+    locationInput.value = '';
+
+    renderNotesUI();
+}
+
+async function deleteNote(id) {
+    if (confirm("Bu notu silmek istediğine emin misin?")) {
+        if (window.supabaseHelpers) {
+            const success = await window.supabaseHelpers.deleteFineNote(id);
+            if (success) {
+                fineNotes = fineNotes.filter(note => note.id !== id);
+            } else {
+                alert("Silinemedi.");
+            }
+        } else {
+            fineNotes = fineNotes.filter(note => note.id !== id);
+            localStorage.setItem('fine_notes_storage', JSON.stringify(fineNotes));
+        }
+        renderNotesUI();
+    }
+}
+
+async function toggleNoteStatus(id) {
+    const note = fineNotes.find(n => n.id === id);
+    if (note) {
+        const newStatus = !note.processed;
+
+        if (window.supabaseHelpers) {
+            const success = await window.supabaseHelpers.updateFineNoteStatus(id, newStatus);
+            if (success) {
+                note.processed = newStatus;
+            }
+        } else {
+            note.processed = newStatus;
+            localStorage.setItem('fine_notes_storage', JSON.stringify(fineNotes));
+        }
+        renderNotesUI();
+    }
+}
+
+function renderNotes() {
+    loadNotes(); // Async yüklemeyi başlat
+}
+
+function renderNotesUI() {
+    const container = document.getElementById('notes-list');
+    if (!container) return;
+
+    container.innerHTML = '';
+
+    if (fineNotes.length === 0) {
+        container.innerHTML = '<p class="empty-notes">Henüz kaydedilmiş bir ceza notu yok.</p>';
+        return;
+    }
+
+    fineNotes.forEach(note => {
+        const dateObj = new Date(note.date || note.created_at); // created_at Supabase'den gelir
+        const dateStr = (note.date || note.created_at) ? dateObj.toLocaleString('tr-TR') : 'Tarih Belirtilmedi';
+
+        const noteEl = document.createElement('div');
+        noteEl.className = `note-card ${note.processed ? 'processed' : ''}`;
+
+        noteEl.innerHTML = `
+            <div class="note-info">
+                <div class="note-plate">${note.plate}</div>
+                <div class="note-details">
+                    <span><i class="fas fa-file-contract"></i> ${note.article}</span>
+                    <span><i class="fas fa-map-marker-alt"></i> ${note.location || '-'}</span>
+                    <span><i class="far fa-clock"></i> ${dateStr}</span>
+                </div>
+            </div>
+            <div class="note-actions">
+                <button class="check-btn" onclick="toggleNoteStatus(${note.id})" title="${note.processed ? 'İşlemi Geri Al' : 'Ceza Yazıldı Olarak İşaretle'}">
+                    <i class="fas fa-check"></i>
+                </button>
+                <button class="delete-note-btn" onclick="deleteNote(${note.id})">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        `;
+        container.appendChild(noteEl);
+    });
+}
+
+
+// Initialize
+document.addEventListener('DOMContentLoaded', () => {
+    // Add touch listeners to flashcard container
+    const cardContainer = document.querySelector('.flashcard-wrapper');
+    if (cardContainer) {
+        cardContainer.addEventListener('touchstart', handleTouchStart);
+        cardContainer.addEventListener('touchend', handleTouchEnd);
+    }
+
+    // Load initial data
+    loadNotes();
+    initializeStudyData();
+});
