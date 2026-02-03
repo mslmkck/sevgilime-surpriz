@@ -184,6 +184,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (sectionMeeting) sectionMeeting.classList.add('hidden');
         if (workingRoom) workingRoom.classList.add('hidden'); // YENİ
         if (privateRoom) privateRoom.classList.add('hidden'); // ÖZEL ODA
+        const calikusuRoom = document.getElementById('calikusu-room');
+        if (calikusuRoom) calikusuRoom.classList.add('hidden');
+        const englishRoom = document.getElementById('english-room');
+        if (englishRoom) englishRoom.classList.add('hidden');
 
         // Oyun Odası varsa onu da gizle
         const gameRoom = document.getElementById('game-room');
@@ -238,6 +242,27 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 alert("Yanlış şifre! Giremezsin. 🚫");
             }
+        });
+    }
+
+    const btnCalikusu = document.getElementById('btn-calikusu');
+    const calikusuRoom = document.getElementById('calikusu-room');
+
+    if (btnCalikusu) {
+        btnCalikusu.addEventListener('click', () => {
+            openRoom(calikusuRoom);
+            loadTodos();
+            loadDiary();
+        });
+    }
+
+    const btnEnglish = document.getElementById('btn-english');
+    const englishRoom = document.getElementById('english-room');
+
+    if (btnEnglish) {
+        btnEnglish.addEventListener('click', () => {
+            openRoom(englishRoom);
+            checkDailyEnglish();
         });
     }
 
@@ -1042,3 +1067,366 @@ window.sendFeedback = function () {
             sendBtn.disabled = false;
         });
 };
+
+// ======================================
+// 8. ÇALIKUŞU ODASI FONKSİYONLARI
+// ======================================
+
+// Tab Değiştirme
+window.openCmTab = (tabName) => {
+    const tabs = document.querySelectorAll('.tab-content');
+    const btns = document.querySelectorAll('.tab-btn');
+
+    tabs.forEach(t => t.classList.remove('active'));
+    btns.forEach(b => b.classList.remove('active'));
+
+    document.getElementById(`tab-${tabName}`).classList.add('active');
+    // Find button
+    const btn = Array.from(btns).find(b => b.getAttribute('onclick').includes(tabName));
+    if (btn) btn.classList.add('active');
+};
+
+// --- TODO LIST ---
+window.loadTodos = () => {
+    const list = document.getElementById('todo-list');
+    if (!list) return;
+
+    const todos = JSON.parse(localStorage.getItem('cm_todos') || '[]');
+    list.innerHTML = '';
+
+    todos.forEach((todo, index) => {
+        const li = document.createElement('li');
+        if (todo.completed) li.classList.add('completed');
+        li.innerHTML = `
+                <span onclick="toggleTodo(${index})">${todo.text}</span>
+                <button class="delete-task-btn" onclick="deleteTodo(${index})">
+                    <i class="fas fa-trash"></i>
+                </button>
+            `;
+        list.appendChild(li);
+    });
+};
+
+window.addTodo = () => {
+    const input = document.getElementById('todo-input');
+    const text = input.value.trim();
+    if (!text) return;
+
+    const todos = JSON.parse(localStorage.getItem('cm_todos') || '[]');
+    todos.push({ text: text, completed: false });
+    localStorage.setItem('cm_todos', JSON.stringify(todos));
+
+    input.value = '';
+    loadTodos();
+};
+
+window.toggleTodo = (index) => {
+    const todos = JSON.parse(localStorage.getItem('cm_todos') || '[]');
+    if (todos[index]) {
+        todos[index].completed = !todos[index].completed;
+        localStorage.setItem('cm_todos', JSON.stringify(todos));
+        loadTodos();
+    }
+};
+
+window.deleteTodo = (index) => {
+    const todos = JSON.parse(localStorage.getItem('cm_todos') || '[]');
+    todos.splice(index, 1);
+    localStorage.setItem('cm_todos', JSON.stringify(todos));
+    loadTodos();
+};
+
+// --- DIARY ---
+window.loadDiary = () => {
+    const container = document.getElementById('diary-entries');
+    if (!container) return;
+
+    let entries = JSON.parse(localStorage.getItem('cm_diary') || '[]');
+    container.innerHTML = '';
+
+    // Tarihe göre sırala (En yeni en üstte)
+    entries.sort((a, b) => b.date - a.date);
+
+    entries.forEach(entry => {
+        const div = document.createElement('div');
+        div.className = 'diary-card collapsed'; // Varsayılan kapalı
+
+        // Tarih formatı (Örn: 3 Şubat 2026, Salı 23:30)
+        let dateStr;
+        try {
+            dateStr = new Date(entry.date).toLocaleDateString('tr-TR', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+                weekday: 'long',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        } catch (e) {
+            dateStr = new Date(entry.date).toLocaleString();
+        }
+
+        // Accordion yapısı
+        div.innerHTML = `
+            <div class="diary-header" onclick="this.parentElement.classList.toggle('expanded')">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fas fa-book-open" style="color: #ff9aa2;"></i>
+                    <span class="diary-date-label">${dateStr}</span>
+                </div>
+                <i class="fas fa-chevron-down toggle-icon"></i>
+            </div>
+            <div class="diary-body">
+                <div class="diary-content-text">${entry.text.replace(/\n/g, '<br>')}</div>
+            </div>
+        `;
+        container.appendChild(div);
+    });
+};
+
+window.saveDiaryEntry = () => {
+    const input = document.getElementById('diary-text');
+    const dateInput = document.getElementById('diary-date-picker');
+
+    const text = input.value.trim();
+    if (!text) {
+        alert('Lütfen bir şeyler yaz...');
+        return;
+    }
+
+    // Use selected date or current time if empty
+    let entryDate;
+    if (dateInput && dateInput.value) {
+        entryDate = new Date(dateInput.value).getTime(); // Use selected date
+    } else {
+        entryDate = Date.now(); // Fallback to now
+    }
+
+    const entries = JSON.parse(localStorage.getItem('cm_diary') || '[]');
+    entries.push({
+        text: text,
+        date: entryDate
+    });
+
+    // Sort by date (newest first)
+    entries.sort((a, b) => b.date - a.date);
+
+    localStorage.setItem('cm_diary', JSON.stringify(entries));
+
+    input.value = '';
+    if (dateInput) dateInput.value = ''; // Reset date picker
+    loadDiary();
+    alert('Günlüğün kaydedildi 📒');
+};
+
+// ======================================
+// 9. İNGİLİZCE ODASI FONKSİYONLARI (GEMINI API)
+// ======================================
+window.checkDailyEnglish = () => {
+    const today = new Date().toDateString();
+    const storedData = JSON.parse(localStorage.getItem('english_daily') || '{}');
+
+    const welcomeScreen = document.getElementById('english-welcome');
+    const contentScreen = document.getElementById('english-content');
+    const topicLabel = document.getElementById('daily-topic-date');
+
+    // Eğer bugünün verisi varsa direkt göster
+    if (storedData.date === today && storedData.words && storedData.words.length > 0) {
+        welcomeScreen.classList.add('hidden');
+        contentScreen.classList.remove('hidden');
+        topicLabel.textContent = `Bugünün Kelimeleri (${new Date().toLocaleDateString('tr-TR')})`;
+        renderEnglishWords(storedData.words);
+    } else {
+        // Veri yoksa karşılama ekranını göster
+        contentScreen.classList.add('hidden');
+        welcomeScreen.classList.remove('hidden');
+    }
+};
+
+window.startDailyEnglish = async () => {
+    const welcomeScreen = document.getElementById('english-welcome');
+    const loadingScreen = document.getElementById('english-loading');
+    const btn = document.querySelector('.start-english-btn');
+
+    btn.classList.add('hidden');
+    loadingScreen.classList.remove('hidden');
+
+    try {
+        const words = await fetchWordsFromGemini();
+
+        // LocalStorage Kaydet
+        const dataToStore = {
+            date: new Date().toDateString(),
+            words: words
+        };
+        localStorage.setItem('english_daily', JSON.stringify(dataToStore));
+
+        // Ekranı güncelle
+        loadingScreen.classList.add('hidden');
+        welcomeScreen.classList.add('hidden');
+        document.getElementById('english-content').classList.remove('hidden');
+        document.getElementById('daily-topic-date').textContent = `Bugünün Kelimeleri (${new Date().toLocaleDateString('tr-TR')})`;
+
+        renderEnglishWords(words);
+
+    } catch (error) {
+        console.error("Gemini Error:", error);
+        alert("Üzgünüm, şu an kelimeleri getiremiyorum. Lütfen daha sonra tekrar dene. 😔");
+        loadingScreen.classList.add('hidden');
+        btn.classList.remove('hidden');
+    }
+};
+
+window.refreshEnglishWords = () => {
+    if (confirm("Bugünün kelimelerini yenilemek istiyor musun?")) {
+        // LocalStorage temizle ve restart
+        localStorage.removeItem('english_daily');
+        const contentScreen = document.getElementById('english-content');
+        const welcomeScreen = document.getElementById('english-welcome');
+        const btn = document.querySelector('.start-english-btn');
+
+        contentScreen.classList.add('hidden');
+        welcomeScreen.classList.remove('hidden');
+        btn.classList.remove('hidden');
+        startDailyEnglish();
+    }
+};
+
+async function fetchWordsFromGemini() {
+    // Not: Bu key client-side'da görünür durumdadır. Production için backend proxy kullanılmalıdır.
+    const API_KEY = 'AIzaSyCzuhjjQdK-QkR2gBoA1mzBbF5kEIUdriI';
+
+    // API Denemesi
+    try {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+
+        const prompt = `
+            Bana B1 seviyesinde 20 adet İngilizce kelime ver. 
+            Her kelime için:
+            1. İngilizce kelime (word)
+            2. Türkçe anlamı (meaning)
+            3. İngilizce örnek cümle (exampleEn)
+            4. Örnek cümlenin Türkçe çevirisi (exampleTr)
+            
+            Lütfen SADECE JSON formatında bir dizi (array) döndür. Başka hiçbir metin yazma.
+            Format şöyle olsun:
+            [
+                { "word": "Apple", "meaning": "Elma", "exampleEn": "I ate an apple.", "exampleTr": "Bir elma yedim." }
+            ]
+        `;
+
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: prompt }] }]
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`API Error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        let text = data.candidates[0].content.parts[0].text;
+        text = text.replace(/```json/g, '').replace(/```/g, '').trim();
+        return JSON.parse(text);
+
+    } catch (error) {
+        console.warn("Gemini API çalışmadı, yedek liste (Offline Mode) devreye giriyor...", error);
+
+        // --- FALLBACK (YEDEK) LİSTE ---
+        // API kotası dolduğunda veya hata verdiğinde kullanıcıyı mağdur etmemek için
+        // hazır bir B1 kelime listesi döndürüyoruz.
+        return [
+            { "word": "Achieve", "meaning": "Başarmak", "exampleEn": "She worked hard to achieve her goals.", "exampleTr": "Hedeflerine ulaşmak için çok çalıştı." },
+            { "word": "Benefit", "meaning": "Fayda / Yarar", "exampleEn": "Regular exercise has many benefits.", "exampleTr": "Düzenli egzersizin birçok faydası vardır." },
+            { "word": "Challenge", "meaning": "Zorluk / Meydan Okuma", "exampleEn": "This puzzle is a real challenge.", "exampleTr": "Bu bulmaca gerçek bir zorluk." },
+            { "word": "Decide", "meaning": "Karar Vermek", "exampleEn": "I cannot decide what to wear.", "exampleTr": "Ne giyeceğime karar veremiyorum." },
+            { "word": "Encourage", "meaning": "Cesaretlendirmek", "exampleEn": "My parents always encourage me.", "exampleTr": "Ailem beni her zaman cesaretlendirir." },
+            { "word": "Feature", "meaning": "Özellik", "exampleEn": "This phone has many new features.", "exampleTr": "Bu telefonun birçok yeni özelliği var." },
+            { "word": "Goal", "meaning": "Hedef", "exampleEn": "His goal is to become a doctor.", "exampleTr": "Onun hedefi doktor olmak." },
+            { "word": "Habit", "meaning": "Alışkanlık", "exampleEn": "Eating late is a bad habit.", "exampleTr": "Geç yemek yemek kötü bir alışkanlıktır." },
+            { "word": "Improve", "meaning": "Geliştirmek", "exampleEn": "I want to improve my English.", "exampleTr": "İngilizcemi geliştirmek istiyorum." },
+            { "word": "Journey", "meaning": "Yolculuk", "exampleEn": "Life is a long journey.", "exampleTr": "Hayat uzun bir yolculuktur." },
+            { "word": "Knowledge", "meaning": "Bilgi", "exampleEn": "Knowledge is power.", "exampleTr": "Bilgi güçtür." },
+            { "word": "Limit", "meaning": "Sınır", "exampleEn": "There is a limit to my patience.", "exampleTr": "Sabrımın bir sınırı var." },
+            { "word": "Manage", "meaning": "Yönetmek / Başarmak", "exampleEn": "Can you manage the project?", "exampleTr": "Projeyi yönetebilir misin?" },
+            { "word": "Notice", "meaning": "Fark Etmek", "exampleEn": "Did you notice his new haircut?", "exampleTr": "Yeni saç kesimini fark ettin mi?" },
+            { "word": "Opportunity", "meaning": "Fırsat", "exampleEn": "Don't miss this opportunity.", "exampleTr": "Bu fırsatı kaçırma." },
+            { "word": "Protect", "meaning": "Korumak", "exampleEn": "We must protect the environment.", "exampleTr": "Çevreyi korumalıyız." },
+            { "word": "Quality", "meaning": "Kalite", "exampleEn": "The quality of this fabric is high.", "exampleTr": "Bu kumaşın kalitesi yüksek." },
+            { "word": "Realize", "meaning": "Farkına Varmak / Gerçekleştirmek", "exampleEn": "I didn't realize it was so late.", "exampleTr": "Saatin bu kadar geç olduğunun farkına varmadım." },
+            { "word": "Solution", "meaning": "Çözüm", "exampleEn": "We need to find a solution quickly.", "exampleTr": "Hızlıca bir çözüm bulmalıyız." },
+            { "word": "Talent", "meaning": "Yetenek", "exampleEn": "She has a talent for music.", "exampleTr": "Onun müziğe yeteneği var." }
+        ];
+    }
+}
+
+// Global variables for English Room navigation
+let currentEnglishWords = [];
+let currentWordIndex = 0;
+
+function renderEnglishWords(words) {
+    currentEnglishWords = words;
+    currentWordIndex = 0;
+
+    // Reset Views
+    document.getElementById('english-completion').classList.add('hidden');
+    document.getElementById('card-controls').classList.remove('hidden');
+    document.getElementById('single-card-container').classList.remove('hidden');
+
+    showEnglishWord(currentWordIndex);
+}
+
+function showEnglishWord(index) {
+    const container = document.getElementById('single-card-container');
+    const progressText = document.getElementById('word-progress-text');
+
+    if (index >= currentEnglishWords.length) {
+        // End of list
+        container.classList.add('hidden');
+        document.getElementById('card-controls').classList.add('hidden');
+        document.getElementById('english-completion').classList.remove('hidden');
+        progressText.textContent = `${currentEnglishWords.length} / ${currentEnglishWords.length}`;
+        return;
+    }
+
+    const item = currentEnglishWords[index];
+    progressText.textContent = `${index + 1} / ${currentEnglishWords.length}`;
+
+    // Clear previous content
+    container.innerHTML = '';
+
+    const card = document.createElement('div');
+    card.className = 'single-word-card';
+    card.innerHTML = `
+        <div class="word-main">
+            <span class="en-word-large">${item.word}</span>
+            <span class="tr-word-large">${item.meaning}</span>
+        </div>
+        <div class="word-sentences">
+            <p class="example-en-large">"${item.exampleEn}"</p>
+            <p class="example-tr-large">(${item.exampleTr})</p>
+        </div>
+    `;
+    container.appendChild(card);
+}
+
+window.nextEnglishWord = () => {
+    currentWordIndex++;
+    showEnglishWord(currentWordIndex);
+};
+
+window.restartDailyEnglish = () => {
+    currentWordIndex = 0;
+
+    document.getElementById('english-completion').classList.add('hidden');
+    document.getElementById('card-controls').classList.remove('hidden');
+    document.getElementById('single-card-container').classList.remove('hidden');
+
+    showEnglishWord(currentWordIndex);
+};
+
+
+
+

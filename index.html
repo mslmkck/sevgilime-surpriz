@@ -71,7 +71,6 @@
                     <div class="room-img" style="background-image: url('assets/img/meeting_room.png');"></div>
                     <div class="room-info">
                         <h3>Buluşma Odası</h3>
-                        <p>Şömine başında sohbet...</p>
                     </div>
                 </div>
 
@@ -80,7 +79,6 @@
                     <div class="room-img" style="background-image: url('assets/img/poetry_room.png');"></div>
                     <div class="room-info">
                         <h3>Şiir Odası</h3>
-                        <p>Kelimelerin büyülü dünyası...</p>
                     </div>
                 </div>
 
@@ -89,7 +87,6 @@
                     <div class="room-img" style="background-image: url('assets/img/memory_room.png');"></div>
                     <div class="room-info">
                         <h3>Anı Odası</h3>
-                        <p>Geçmişin tatlı izleri...</p>
                     </div>
                 </div>
 
@@ -98,7 +95,6 @@
                     <div class="room-img" style="background-image: url('assets/img/game_room.png');"></div>
                     <div class="room-info">
                         <h3>🎮 Oyun Odası</h3>
-                        <p>Eğlence zamanı!</p>
                     </div>
                 </div>
 
@@ -107,7 +103,6 @@
                     <div class="room-img" style="background-image: url('assets/img/working_room.png');"></div>
                     <div class="room-info">
                         <h3>💼 Çalışma Odası</h3>
-                        <p>İşler güçler...</p>
                     </div>
                 </div>
 
@@ -119,7 +114,28 @@
                     </div>
                     <div class="room-info">
                         <h3>🔒 Özel Oda</h3>
-                        <p>Gizli Bölge...</p>
+                    </div>
+                </div>
+
+                <!-- Çalıkuşu Odası Kartı (YENİ) -->
+                <div class="room-card" id="btn-calikusu" data-aos="fade-up">
+                    <div class="room-img"
+                        style="background-image: linear-gradient(135deg, #FFB7B2 0%, #FF9AA2 100%); display: flex; justify-content: center; align-items: center;">
+                        <span style="font-size: 4rem;">🐦</span>
+                    </div>
+                    <div class="room-info">
+                        <h3>Çalıkuşunun Dünyası</h3>
+                    </div>
+                </div>
+
+                <!-- İngilizce Odası Kartı (YENİ) -->
+                <div class="room-card" id="btn-english" data-aos="fade-up">
+                    <div class="room-img"
+                        style="background-image: linear-gradient(135deg, #3498db 0%, #2980b9 100%); display: flex; justify-content: center; align-items: center;">
+                        <span style="font-size: 4rem;">🇬🇧</span>
+                    </div>
+                    <div class="room-info">
+                        <h3>English Academy</h3>
                     </div>
                 </div>
             </div>
@@ -501,6 +517,108 @@
                 <h1>Özel Oda</h1>
                 <p>Buraya sadece şifreyi bilenler girebilir...</p>
                 <p style="margin-top: 20px; font-size: 1.2rem;">🤫</p>
+            </div>
+        </section>
+        <!-- ÇALIKUŞU ODASI (YENİ) -->
+        <section id="calikusu-room" class="room-section hidden">
+            <div class="overlay"></div>
+
+            <button class="back-btn" onclick="goBackToHall()">
+                <i class="fas fa-arrow-left"></i> Hol'e Dön
+            </button>
+
+            <h2 class="room-title" style="margin-bottom: 20px;"> Çalıkuşunun Dünyası 🐦</h2>
+
+            <div class="calikusu-container">
+                <!-- Tab Başlıkları -->
+                <div class="calikusu-tabs">
+                    <button class="tab-btn active" onclick="openCmTab('todo')">Yapılacaklar</button>
+                    <button class="tab-btn" onclick="openCmTab('diary')">Günlük</button>
+                </div>
+
+                <!-- Yapılacaklar Sekmesi -->
+                <div id="tab-todo" class="tab-content active">
+                    <div class="input-group">
+                        <input type="text" id="todo-input" placeholder="Bugün ne yapmalıyız?">
+                        <button onclick="addTodo()" class="add-btn"><i class="fas fa-plus"></i></button>
+                    </div>
+                    <ul id="todo-list" class="styled-list">
+                        <!-- JS ile dolacak -->
+                    </ul>
+                </div>
+
+                <!-- Günlük Sekmesi -->
+                <div id="tab-diary" class="tab-content">
+                    <div class="diary-input-area">
+                        <div class="date-picker-container" style="margin-bottom: 10px;">
+                            <input type="date" id="diary-date-picker" class="styled-date-input">
+                        </div>
+                        <textarea id="diary-text" placeholder="Sevgili günlük, bugün..."></textarea>
+                        <button onclick="saveDiaryEntry()" class="save-diary-btn">Kaydet</button>
+                    </div>
+                    <div id="diary-entries" class="entries-container">
+                        <!-- Günlükler buraya -->
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- İNGİLİZCE ODASI (YENİ) -->
+        <section id="english-room" class="room-section hidden">
+            <div class="overlay"></div>
+
+            <button class="back-btn" onclick="goBackToHall()">
+                <i class="fas fa-arrow-left"></i> Hol'e Dön
+            </button>
+
+            <h2 class="room-title" style="margin-bottom: 20px;">English Academy 🇬🇧</h2>
+
+            <div class="english-container">
+                <!-- Başlangıç / İstek Ekranı -->
+                <div id="english-welcome" class="english-welcome">
+                    <i class="fas fa-graduation-cap" style="font-size: 5rem; color: #3498db; margin-bottom: 20px;"></i>
+                    <h3>Hazır mısın?</h3>
+                    <p>Senin için günlük 20 adet B1 seviye kelime hazırlayabilirim.</p>
+                    <button onclick="startDailyEnglish()" class="start-english-btn">
+                        <i class="fas fa-magic"></i> Kelime Öğrenmek İstiyorum
+                    </button>
+                    <!-- Yükleniyor Göstergesi -->
+                    <div id="english-loading" class="hidden" style="margin-top: 20px;">
+                        <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #fff;"></i>
+                        <p style="margin-top: 10px;">Sihirli kelimeler hazırlanıyor...</p>
+                    </div>
+                </div>
+
+                <!-- Kelime Listesi / Kart Görünümü -->
+                <div id="english-content" class="english-content hidden">
+                    <div class="english-header">
+                        <span id="daily-topic-date">Bugünün Kelimeleri</span>
+                        <div style="display: flex; gap: 15px; align-items: center;">
+                            <span id="word-progress-text" style="color: #fff; font-weight: bold;">1 / 20</span>
+                            <button onclick="refreshEnglishWords()" class="refresh-btn" title="Yenile"><i
+                                    class="fas fa-sync-alt"></i></button>
+                        </div>
+                    </div>
+
+                    <div id="single-card-container" class="single-card-container">
+                        <!-- JS ile tek kart dolacak -->
+                    </div>
+
+                    <div class="card-controls" id="card-controls">
+                        <button onclick="nextEnglishWord()" class="learn-btn">
+                            <i class="fas fa-check"></i> Öğrendim (Sıradaki)
+                        </button>
+                    </div>
+
+                    <!-- Bitiş Ekranı -->
+                    <div id="english-completion" class="hidden" style="text-align: center; padding: 20px;">
+                        <i class="fas fa-trophy" style="font-size: 4rem; color: #f1c40f; margin-bottom: 20px;"></i>
+                        <h3>Tebrikler! 🎉</h3>
+                        <p>Bugünün hedeflediğin 20 kelimesini tamamladın.</p>
+                        <button onclick="restartDailyEnglish()" class="start-english-btn" style="margin-top: 15px;">
+                            <i class="fas fa-redo"></i> Tekrar Et
+                        </button>
+                    </div>
+                </div>
             </div>
         </section>
     </main>

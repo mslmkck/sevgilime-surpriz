@@ -147,13 +147,10 @@ textarea {
     color: #fff;
     font-family: var(--font-heading);
     font-size: 1.5rem;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0;
 }
 
-.room-info p {
-    color: var(--text-muted);
-    font-size: 0.9rem;
-}
+
 
 /* ODA İÇERİK ALANLARI (GENEL) */
 .room-section {
@@ -2093,4 +2090,463 @@ textarea {
 
 .add-data-form button:hover {
     background: #fff;
+}
+
+/* Mobile adjustments for Room Selection (User Request: 2 columns, square/oval shape) */
+@media (max-width: 768px) {
+    .room-title {
+        font-size: 1.8rem;
+        /* Smaller title for mobile */
+        margin-bottom: 1.5rem;
+        padding: 0 1rem;
+        text-align: center;
+    }
+
+    .rooms-container {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        /* 2 columns side by side */
+        gap: 15px;
+        padding: 0 10px;
+        width: 100%;
+        max-width: 100%;
+        justify-content: center;
+    }
+
+    .room-card {
+        width: 100%;
+        /* Fill grid cell */
+        height: auto;
+        aspect-ratio: 1 / 1;
+        /* Square shape */
+        border-radius: 25px;
+        /* Rounded corners */
+        margin: 0;
+    }
+
+    .room-img {
+        height: 75%;
+    }
+
+    .room-info {
+        height: 25%;
+        padding: 0.5rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .room-info h3 {
+        font-size: 0.95rem;
+        margin: 0;
+        white-space: normal;
+        text-align: center;
+        line-height: 1.1;
+        max-width: 100%;
+    }
+}
+
+/* =========================================
+   6. ÇALIKUŞU ODASI TASARIMI
+   ========================================= */
+#calikusu-room {
+    position: relative;
+    /* Soft Dreamy Background */
+    background: linear-gradient(135deg, #1e1e24 0%, #2a1b2e 100%);
+    overflow-y: auto;
+}
+
+#calikusu-room .overlay {
+    background: rgba(0, 0, 0, 0.4);
+}
+
+.calikusu-container {
+    width: 100%;
+    max-width: 600px;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 2;
+}
+
+/* TABS */
+.calikusu-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 15px;
+}
+
+.tab-btn {
+    background: transparent;
+    border: none;
+    color: #aaa;
+    font-size: 1.1rem;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 30px;
+    transition: all 0.3s;
+    font-family: var(--font-heading);
+}
+
+.tab-btn.active {
+    background: rgba(255, 182, 193, 0.3);
+    color: #ffb7b2;
+    font-weight: bold;
+}
+
+.tab-content {
+    display: none;
+    animation: fadeIn 0.4s ease;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* TODO LIST STYLE */
+.input-group {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.input-group input {
+    flex: 1;
+    padding: 12px;
+    border-radius: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(0, 0, 0, 0.3);
+    color: #fff;
+    font-family: var(--font-body);
+}
+
+.input-group .add-btn {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    border: none;
+    background: #ff9aa2;
+    color: #fff;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.styled-list {
+    list-style: none;
+    padding: 0;
+}
+
+.styled-list li {
+    background: rgba(255, 255, 255, 0.08);
+    margin-bottom: 10px;
+    padding: 12px 15px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: 0.2s;
+}
+
+.styled-list li.completed span {
+    text-decoration: line-through;
+    opacity: 0.5;
+}
+
+.delete-task-btn {
+    background: transparent;
+    border: none;
+    color: #e74c3c;
+    cursor: pointer;
+    font-size: 1rem;
+    opacity: 0.7;
+}
+
+.delete-task-btn:hover {
+    opacity: 1;
+}
+
+/* DIARY STYLE */
+.diary-input-area textarea {
+    width: 100%;
+    height: 120px;
+    border-radius: 10px;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    resize: none;
+    font-family: var(--font-body);
+    margin-bottom: 10px;
+}
+
+.save-diary-btn {
+    width: 100%;
+    padding: 10px;
+    background: #ffb7b2;
+    border: none;
+    border-radius: 10px;
+    color: #2a1b2e;
+    font-weight: bold;
+    cursor: pointer;
+    margin-bottom: 20px;
+}
+
+.entries-container {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.diary-card {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    margin-bottom: 10px;
+    border-left: 4px solid #ff9aa2;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.diary-header {
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.diary-header:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.diary-date-label {
+    font-size: 0.95rem;
+    color: #fff;
+    font-weight: 600;
+    /* Optional: Ensure long dates don't break layout on tiny screens */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.toggle-icon {
+    color: #ff9aa2;
+    transition: transform 0.3s ease;
+}
+
+.diary-card.expanded .toggle-icon {
+    transform: rotate(180deg);
+}
+
+.diary-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, padding 0.3s ease;
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.diary-card.expanded .diary-body {
+    max-height: 500px;
+    /* Arbitrary large height or use JS for precise calculation */
+    padding: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    overflow-y: auto;
+}
+
+.diary-content-text {
+    font-size: 0.95rem;
+    color: #eee;
+    line-height: 1.5;
+}
+
+.styled-date-input {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 10px;
+    border-radius: 10px;
+    color: #fff;
+    font-family: var(--font-body);
+}
+
+/* =========================================
+   7. İNGİLİZCE ODASI TASARIMI
+   ========================================= */
+/* =========================================
+   7. İNGİLİZCE ODASI TASARIMI - COMPACT MOBILE LAYOUT
+   ========================================= */
+#english-room {
+    position: relative;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    overflow: hidden;
+    /* Taşmayı engelle */
+    font-family: 'Poppins', sans-serif;
+    height: 100dvh;
+    /* Tüm mobil ekran yüksekliği */
+    display: flex;
+    flex-direction: column;
+}
+
+#english-room .overlay {
+    background: radial-gradient(circle at center, rgba(52, 152, 219, 0.1) 0%, rgba(0, 0, 0, 0.6) 100%);
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+/* Geri Dön Butonu ve Başlık Alanı Düzenlemesi */
+#english-room .back-btn {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    z-index: 10;
+    margin: 0;
+    padding: 8px 15px;
+    font-size: 0.9rem;
+    backdrop-filter: blur(5px);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.room-title {
+    margin: 15px 0 10px 0 !important;
+    font-size: 1.5rem !important;
+    text-align: center;
+    width: 100%;
+    padding-top: 50px;
+    /* Butonla çakışmaması için */
+    z-index: 5;
+    flex-shrink: 0;
+}
+
+.english-container {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 10px 20px 20px 20px;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-grow: 1;
+    /* Kalan alanı doldur */
+    justify-content: center;
+    /* Dikeyde ortala */
+    height: auto;
+    min-height: 0;
+    /* Flexbox taşma fix */
+}
+
+.english-content {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    justify-content: center;
+}
+
+.english-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    flex-shrink: 0;
+    /* Küçülmesin */
+}
+
+/* KART TASARIMI - COMPACT */
+.single-card-container {
+    perspective: 1500px;
+    /* Sabit yükseklik yerine esnek yükseklik */
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    min-height: 0;
+    /* Flexbox içinde taşmayı önlemek için kritik */
+}
+
+.single-word-card {
+    background: linear-gradient(145deg, rgba(40, 44, 52, 0.95), rgba(23, 23, 23, 0.98));
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 25px;
+    padding: 25px;
+    width: 100%;
+    max-height: 100%;
+    /* Konteyneri aşma */
+    overflow-y: auto;
+    /* İçerik çok uzunsa kart içinde kaydır */
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+    animation: fadeUp 0.5s ease-out;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.word-main {
+    margin-bottom: 20px;
+    flex-shrink: 0;
+}
+
+.en-word-large {
+    font-size: clamp(2rem, 10vw, 3rem);
+    /* Mobilde biraz daha küçük başlayabilir */
+    margin-bottom: 5px;
+}
+
+.tr-word-large {
+    font-size: clamp(1.2rem, 5vw, 1.5rem);
+}
+
+.word-sentences {
+    padding: 15px;
+    margin-bottom: 15px;
+    flex-shrink: 1;
+    /* Gerekirse küçülsün */
+}
+
+.example-en-large {
+    font-size: clamp(0.95rem, 4vw, 1.1rem);
+    margin-bottom: 5px;
+}
+
+.example-tr-large {
+    font-size: clamp(0.85rem, 3.5vw, 0.95rem);
+}
+
+.card-controls {
+    margin-top: 10px;
+    /* Boşluk azaltıldı */
+    flex-shrink: 0;
+}
+
+.learn-btn {
+    padding: 12px 30px;
+    font-size: 1rem;
+    white-space: nowrap;
+    /* Buton yazısı kırılmasın */
+}
+
+.learn-btn:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 15px 35px rgba(255, 255, 255, 0.3);
+    background: #f1f1f1;
+}
+
 }
