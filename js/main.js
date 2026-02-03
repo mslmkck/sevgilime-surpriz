@@ -1337,7 +1337,7 @@ async function fetchWordsFromGemini() {
         // --- FALLBACK (YEDEK) LİSTE ---
         // API kotası dolduğunda veya hata verdiğinde kullanıcıyı mağdur etmemek için
         // hazır bir B1 kelime listesi döndürüyoruz.
-        return [
+        const fallbackPool = [
             { "word": "Achieve", "meaning": "Başarmak", "exampleEn": "She worked hard to achieve her goals.", "exampleTr": "Hedeflerine ulaşmak için çok çalıştı." },
             { "word": "Benefit", "meaning": "Fayda / Yarar", "exampleEn": "Regular exercise has many benefits.", "exampleTr": "Düzenli egzersizin birçok faydası vardır." },
             { "word": "Challenge", "meaning": "Zorluk / Meydan Okuma", "exampleEn": "This puzzle is a real challenge.", "exampleTr": "Bu bulmaca gerçek bir zorluk." },
@@ -1357,8 +1357,47 @@ async function fetchWordsFromGemini() {
             { "word": "Quality", "meaning": "Kalite", "exampleEn": "The quality of this fabric is high.", "exampleTr": "Bu kumaşın kalitesi yüksek." },
             { "word": "Realize", "meaning": "Farkına Varmak / Gerçekleştirmek", "exampleEn": "I didn't realize it was so late.", "exampleTr": "Saatin bu kadar geç olduğunun farkına varmadım." },
             { "word": "Solution", "meaning": "Çözüm", "exampleEn": "We need to find a solution quickly.", "exampleTr": "Hızlıca bir çözüm bulmalıyız." },
-            { "word": "Talent", "meaning": "Yetenek", "exampleEn": "She has a talent for music.", "exampleTr": "Onun müziğe yeteneği var." }
+            { "word": "Talent", "meaning": "Yetenek", "exampleEn": "She has a talent for music.", "exampleTr": "Onun müziğe yeteneği var." },
+            { "word": "Advice", "meaning": "Tavsiye", "exampleEn": "Can I give you a piece of advice?", "exampleTr": "Sana bir tavsiye verebilir miyim?" },
+            { "word": "Complaint", "meaning": "Şikayet", "exampleEn": "I have a complaint about the service.", "exampleTr": "Hizmetle ilgili bir şikayetim var." },
+            { "word": "Disappoint", "meaning": "Hayal Kırıklığına Uğratmak", "exampleEn": "I don't want to disappoint you.", "exampleTr": "Seni hayal kırıklığına uğratmak istemiyorum." },
+            { "word": "Efficient", "meaning": "Verimli", "exampleEn": "This new machine is very efficient.", "exampleTr": "Bu yeni makine çok verimli." },
+            { "word": "Forecast", "meaning": "Tahmin (Hava vb.)", "exampleEn": "The weather forecast predicts rain.", "exampleTr": "Hava durumu tahmini yağmur öngörüyor." },
+            { "word": "Generous", "meaning": "Cömert", "exampleEn": "He is very generous with his time.", "exampleTr": "O, zamanı konusunda çok cömerttir." },
+            { "word": "Hesitate", "meaning": "Tereddüt Etmek", "exampleEn": "Don't hesitate to call me.", "exampleTr": "Beni aramaktan çekinme." },
+            { "word": "Ignore", "meaning": "Görmezden Gelmek", "exampleEn": "You shouldn't ignore the warning signs.", "exampleTr": "Uyarı işaretlerini görmezden gelmemelisin." },
+            { "word": "Justify", "meaning": "Haklı Çıkarmak", "exampleEn": "How can you justify your actions?", "exampleTr": "Davranışlarını nasıl haklı çıkarabilirsin?" },
+            { "word": "Keen", "meaning": "Hevesli / Keskin", "exampleEn": "She is keen to learn new things.", "exampleTr": "Yeni şeyler öğrenmeye hevesli." },
+            { "word": "Loyal", "meaning": "Sadık", "exampleEn": "Dogs are very loyal animals.", "exampleTr": "Köpekler çok sadık hayvanlardır." },
+            { "word": "Maintain", "meaning": "Sürdürmek / Bakım Yapmak", "exampleEn": "It's important to maintain a healthy lifestyle.", "exampleTr": "Sağlıklı bir yaşam tarzını sürdürmek önemlidir." },
+            { "word": "Nervous", "meaning": "Gergin", "exampleEn": "I felt nervous before the interview.", "exampleTr": "Mülakattan önce gergin hissettim." },
+            { "word": "Object", "meaning": "İtiraz Etmek / Nesne", "exampleEn": "I object to this decision.", "exampleTr": "Bu karara itiraz ediyorum." },
+            { "word": "Participate", "meaning": "Katılmak", "exampleEn": "Everyone should participate in the discussion.", "exampleTr": "Herkes tartışmaya katılmalı." },
+            { "word": "Qualifications", "meaning": "Nitelikler", "exampleEn": "She has excellent qualifications for the job.", "exampleTr": "İş için mükemmel niteliklere sahip." },
+            { "word": "Recommend", "meaning": "Tavsiye Etmek", "exampleEn": "Can you recommend a good restaurant?", "exampleTr": "İyi bir restoran tavsiye edebilir misin?" },
+            { "word": "Satisfy", "meaning": "Tatmin Etmek", "exampleEn": "Nothing seems to satisfy him.", "exampleTr": "Hiçbir şey onu tatmin etmiyor gibi görünüyor." },
+            { "word": "Threaten", "meaning": "Tehdit Etmek", "exampleEn": "The clouds threaten rain.", "exampleTr": "Bulutlar yağmur tehdidi oluşturuyor (yağmur yağacak gibi)." },
+            { "word": "Urgent", "meaning": "Acil", "exampleEn": "This is an urgent matter.", "exampleTr": "Bu acil bir mesele." },
+            { "word": "Valuable", "meaning": "Değerli", "exampleEn": "Time is our most valuable resource.", "exampleTr": "Zaman en değerli kaynağımızdır." },
+            { "word": "Warn", "meaning": "Uyarmak", "exampleEn": "I warned him about the danger.", "exampleTr": "Onu tehlike konusunda uyardım." },
+            { "word": "Yield", "meaning": "Ürün Vermek / Yol Vermek", "exampleEn": "The investment yielded high returns.", "exampleTr": "Yatırım yüksek getiri sağladı." },
+            { "word": "Zone", "meaning": "Bölge", "exampleEn": "We entered a no-parking zone.", "exampleTr": "Park yapılmaz bölgesine girdik." },
+            { "word": "Ambition", "meaning": "Hırs", "exampleEn": "Her ambition is to travel the world.", "exampleTr": "Hırsı dünyayı gezmek." },
+            { "word": "Brave", "meaning": "Cesur", "exampleEn": "He was brave enough to speak up.", "exampleTr": "Konuşacak kadar cesurdu." },
+            { "word": "Candidate", "meaning": "Aday", "exampleEn": "He is the best candidate for the job.", "exampleTr": "O iş için en iyi aday." },
+            { "word": "Detect", "meaning": "Tespit Etmek", "exampleEn": "The sensor detected movement.", "exampleTr": "Sensör hareket tespit etti." },
+            { "word": "Evaluate", "meaning": "Değerlendirmek", "exampleEn": "Teachers evaluate student performance.", "exampleTr": "Öğretmenler öğrenci performansını değerlendirir." },
+            { "word": "Flexible", "meaning": "Esnek", "exampleEn": "I have a flexible schedule.", "exampleTr": "Esnek bir programım var." }
         ];
+
+        // Listeyi karıştır (Shuffle)
+        for (let i = fallbackPool.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [fallbackPool[i], fallbackPool[j]] = [fallbackPool[j], fallbackPool[i]];
+        }
+
+        // İlk 20 taneyi döndür
+        return fallbackPool.slice(0, 20);
     }
 }
 

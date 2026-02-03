@@ -2148,17 +2148,49 @@ textarea {
 }
 
 /* =========================================
-   6. ÇALIKUŞU ODASI TASARIMI
+   6. ÇALIKUŞU ODASI TASARIMI - RESPONSIVE FIX
    ========================================= */
 #calikusu-room {
     position: relative;
     /* Soft Dreamy Background */
     background: linear-gradient(135deg, #1e1e24 0%, #2a1b2e 100%);
-    overflow-y: auto;
+    overflow: hidden;
+    /* Sayfa kaymasın */
+    height: 100dvh;
+    /* Tam ekran */
+    display: flex;
+    flex-direction: column;
 }
 
 #calikusu-room .overlay {
     background: rgba(0, 0, 0, 0.4);
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+/* Başlık ve Geri Butonu Düzeni */
+#calikusu-room .back-btn {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    z-index: 10;
+    margin: 0;
+    padding: 8px 15px;
+    font-size: 0.9rem;
+    backdrop-filter: blur(5px);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+#calikusu-room .room-title {
+    margin: 15px 0 10px 0 !important;
+    font-size: 1.5rem !important;
+    text-align: center;
+    width: 100%;
+    padding-top: 50px;
+    z-index: 5;
+    flex-shrink: 0;
+    color: #ffb7b2;
 }
 
 .calikusu-container {
@@ -2166,10 +2198,19 @@ textarea {
     max-width: 600px;
     background: rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(10px);
-    border-radius: 20px;
+    border-radius: 20px 20px 0 0;
+    /* Alt köşe düz olsun, mobilde tam otursun */
     padding: 20px;
     border: 1px solid rgba(255, 255, 255, 0.1);
     z-index: 2;
+    margin: 0 auto;
+    flex-grow: 1;
+    /* Kalan alanı kapla */
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    /* Flex overflow fix */
+    overflow: hidden;
 }
 
 /* TABS */
@@ -2177,17 +2218,18 @@ textarea {
     display: flex;
     justify-content: center;
     gap: 10px;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    padding-bottom: 15px;
+    padding-bottom: 10px;
+    flex-shrink: 0;
 }
 
 .tab-btn {
     background: transparent;
     border: none;
     color: #aaa;
-    font-size: 1.1rem;
-    padding: 10px 20px;
+    font-size: 1rem;
+    padding: 8px 20px;
     cursor: pointer;
     border-radius: 30px;
     transition: all 0.3s;
@@ -2202,18 +2244,23 @@ textarea {
 
 .tab-content {
     display: none;
-    animation: fadeIn 0.4s ease;
+    flex-grow: 1;
+    /* İçerik alanı büyüsün */
+    overflow: hidden;
+    /* İçerik taşarsa kendi içinde scroll olsun */
+    flex-direction: column;
 }
 
 .tab-content.active {
-    display: block;
+    display: flex;
 }
 
 /* TODO LIST STYLE */
 .input-group {
     display: flex;
     gap: 10px;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
+    flex-shrink: 0;
 }
 
 .input-group input {
@@ -2239,6 +2286,14 @@ textarea {
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
+}
+
+#todo-list {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding-right: 5px;
+    /* Scrollbar payı */
 }
 
 .styled-list {
@@ -2269,16 +2324,36 @@ textarea {
     cursor: pointer;
     font-size: 1rem;
     opacity: 0.7;
-}
-
-.delete-task-btn:hover {
-    opacity: 1;
+    padding: 5px;
 }
 
 /* DIARY STYLE */
+.diary-input-area {
+    flex-shrink: 0;
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.date-picker-container {
+    margin-bottom: 0 !important;
+}
+
+.styled-date-input {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 10px;
+    border-radius: 10px;
+    color: #fff;
+    font-family: var(--font-body);
+    width: 100%;
+}
+
 .diary-input-area textarea {
     width: 100%;
-    height: 120px;
+    height: 100px;
+    /* Sabit yükseklik, fazla yer kaplamasın */
     border-radius: 10px;
     padding: 15px;
     background: rgba(0, 0, 0, 0.3);
@@ -2286,24 +2361,31 @@ textarea {
     color: #fff;
     resize: none;
     font-family: var(--font-body);
-    margin-bottom: 10px;
+    margin-bottom: 0;
 }
 
 .save-diary-btn {
     width: 100%;
-    padding: 10px;
+    padding: 12px;
     background: #ffb7b2;
     border: none;
     border-radius: 10px;
     color: #2a1b2e;
     font-weight: bold;
     cursor: pointer;
-    margin-bottom: 20px;
+    transition: 0.3s;
+}
+
+.save-diary-btn:hover {
+    background: #ffcdd2;
 }
 
 .entries-container {
-    max-height: 300px;
+    flex-grow: 1;
+    /* Kalan alanı kapla */
     overflow-y: auto;
+    min-height: 0;
+    padding-right: 5px;
 }
 
 .diary-card {
@@ -2324,18 +2406,10 @@ textarea {
     background: rgba(255, 255, 255, 0.05);
 }
 
-.diary-header:hover {
-    background: rgba(255, 255, 255, 0.1);
-}
-
 .diary-date-label {
     font-size: 0.95rem;
     color: #fff;
     font-weight: 600;
-    /* Optional: Ensure long dates don't break layout on tiny screens */
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 
 .toggle-icon {
@@ -2355,8 +2429,8 @@ textarea {
 }
 
 .diary-card.expanded .diary-body {
-    max-height: 500px;
-    /* Arbitrary large height or use JS for precise calculation */
+    max-height: 300px;
+    /* İçerik için limit */
     padding: 15px;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     overflow-y: auto;
@@ -2366,15 +2440,8 @@ textarea {
     font-size: 0.95rem;
     color: #eee;
     line-height: 1.5;
-}
-
-.styled-date-input {
-    background: rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    padding: 10px;
-    border-radius: 10px;
-    color: #fff;
-    font-family: var(--font-body);
+    white-space: pre-wrap;
+    /* Satır başlarını koru */
 }
 
 /* =========================================
@@ -2547,6 +2614,4 @@ textarea {
     transform: translateY(-3px) scale(1.05);
     box-shadow: 0 15px 35px rgba(255, 255, 255, 0.3);
     background: #f1f1f1;
-}
-
 }
