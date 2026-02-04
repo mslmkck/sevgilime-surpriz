@@ -2261,10 +2261,14 @@ textarea {
     gap: 10px;
     margin-bottom: 15px;
     flex-shrink: 0;
+    width: 100%;
+    /* Ensure it fits container */
 }
 
 .input-group input {
     flex: 1;
+    min-width: 0;
+    /* Important for flex item not to overflow */
     padding: 12px;
     border-radius: 30px;
     border: 1px solid rgba(255, 255, 255, 0.2);
