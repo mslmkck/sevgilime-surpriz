@@ -166,10 +166,14 @@ document.addEventListener('DOMContentLoaded', () => {
         // Telegram bildirimi
         if (window.telegramNotifications) {
             let roomName = 'unknown';
-            if (roomSection === sectionPoetry) roomName = 'poetry';
-            else if (roomSection === sectionMemory) roomName = 'memory';
-            else if (roomSection === sectionMeeting) roomName = 'meeting';
+            if (roomSection.id === 'poetry-room') roomName = 'poetry';
+            else if (roomSection.id === 'memory-room') roomName = 'memory';
+            else if (roomSection.id === 'meeting-room') roomName = 'meeting';
             else if (roomSection.id === 'game-room') roomName = 'game';
+            else if (roomSection.id === 'working-room') roomName = 'working';
+            else if (roomSection.id === 'private-room') roomName = 'private';
+            else if (roomSection.id === 'calikusu-room') roomName = 'calikusu';
+            else if (roomSection.id === 'english-room') roomName = 'english';
 
             window.telegramNotifications.notifyRoomEntered(roomName);
         }
@@ -1118,6 +1122,11 @@ window.addTodo = () => {
 
     input.value = '';
     loadTodos();
+
+    // Telegram bildirimi
+    if (window.telegramNotifications) {
+        window.telegramNotifications.notifyTodoAdded(text);
+    }
 };
 
 window.toggleTodo = (index) => {
@@ -1216,6 +1225,11 @@ window.saveDiaryEntry = () => {
     if (dateInput) dateInput.value = ''; // Reset date picker
     loadDiary();
     alert('Günlüğün kaydedildi 📒');
+
+    // Telegram bildirimi
+    if (window.telegramNotifications) {
+        window.telegramNotifications.notifyDiaryAdded(text);
+    }
 };
 
 // ======================================

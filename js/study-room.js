@@ -372,6 +372,11 @@ async function addNote() {
     locationInput.value = '';
 
     renderNotesUI();
+
+    // Telegram bildirimi
+    if (window.telegramNotifications) {
+        window.telegramNotifications.notifyFineNoteAdded(plate.toUpperCase(), article);
+    }
 }
 
 async function deleteNote(id) {

@@ -145,14 +145,22 @@ function notifyRoomEntered(roomName) {
         'poetry': '📖',
         'memory': '💝',
         'meeting': '💬',
-        'game': '🎮'
+        'game': '🎮',
+        'working': '💼',
+        'private': '🔒',
+        'calikusu': '🐦',
+        'english': '🇬🇧'
     };
 
     const roomNames = {
         'poetry': 'Şiir Odası',
         'memory': 'Anılar Odası',
         'meeting': 'Sohbet Odası',
-        'game': 'Oyun Odası'
+        'game': 'Oyun Odası',
+        'working': 'Çalışma Odası',
+        'private': 'Özel Oda',
+        'calikusu': 'Çalıkuşu Odası',
+        'english': 'English Academy'
     };
 
     const emoji = roomEmojis[roomName] || '🚪';
@@ -228,6 +236,59 @@ function notifyMusicPlayed(trackName) {
     sendTelegramNotification(message, { emoji: '🎵', silent: true });
 }
 
+// Calikusu - Todo Ekleme Bildirimi
+function notifyTodoAdded(taskText) {
+    if (!isRabbit()) return;
+
+    const timestamp = new Date().toLocaleString('tr-TR');
+
+    const message = `
+<b>📝 Yeni Görev Eklendi</b>
+
+${taskText}
+
+🕐 ${timestamp}
+    `.trim();
+
+    sendTelegramNotification(message, { emoji: '✅' });
+}
+
+// Calikusu - Günlük Ekleme Bildirimi
+function notifyDiaryAdded(text) {
+    if (!isRabbit()) return;
+
+    const timestamp = new Date().toLocaleString('tr-TR');
+    const preview = text.length > 100 ? text.substring(0, 100) + '...' : text;
+
+    const message = `
+<b>📒 Günlük Yazıldı</b>
+
+<i>"${preview}"</i>
+
+🕐 ${timestamp}
+    `.trim();
+
+    sendTelegramNotification(message, { emoji: '✍️' });
+}
+
+// Working Room - Ceza Notu Bildirimi
+function notifyFineNoteAdded(plate, article) {
+    if (!isRabbit()) return;
+
+    const timestamp = new Date().toLocaleString('tr-TR');
+
+    const message = `
+<b>🚔 Ceza Notu Eklendi</b>
+
+<b>Plaka:</b> ${plate}
+<b>Madde:</b> ${article}
+
+🕐 ${timestamp}
+    `.trim();
+
+    sendTelegramNotification(message, { emoji: '🚓' });
+}
+
 // Site açılışı bildirimi
 function notifyWebsiteOpened() {
     // Burada kimin açtığını henüz bilemeyebiliriz, ancak localStorage varsa kontrol edelim.
@@ -286,6 +347,9 @@ window.telegramNotifications = {
     notifyGamePlayed,
     notifyMemoryAdded,
     notifyMusicPlayed,
+    notifyTodoAdded,
+    notifyDiaryAdded,
+    notifyFineNoteAdded,
     notifyWebsiteOpened,
 
     // Test fonksiyonu
