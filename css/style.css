@@ -2346,7 +2346,8 @@ textarea {
     flex-grow: 1;
     overflow-y: auto;
     padding-right: 5px;
-    /* Scrollbar payı */
+    padding-bottom: 20px;
+    /* Liste sonu için boşluk */
 }
 
 .styled-list {

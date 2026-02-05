@@ -191,10 +191,11 @@
 
 /* İçeriklerin alt navigasyonun altında kalmaması için padding ekle */
 .room-section {
-    padding-bottom: calc(90px + env(safe-area-inset-bottom)) !important;
-    /* Nav bar yüksekliği + güvenli alan + biraz boşluk */
+    padding-bottom: calc(120px + env(safe-area-inset-bottom)) !important;
+    /* Nav bar + ek güvenlik payı */
     min-height: 100dvh;
     /* Dynamic viewport height */
+    box-sizing: border-box;
 }
 
 /* Scroll sorunlarını önlemek için */
