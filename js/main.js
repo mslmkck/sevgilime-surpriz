@@ -45,8 +45,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Müzik kontrolcüsünü göster
-        const musicCont = document.getElementById('music-container');
+        const musicCont = document.getElementById('music-player-container');
         if (musicCont) musicCont.classList.remove('hidden');
+
+        // Bottom Nav Göster
+        const bottomNav = document.getElementById('bottom-nav');
+        if (bottomNav) bottomNav.classList.remove('hidden');
     }
 
     if (enterBtn) {
@@ -88,8 +92,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // Profili kaydet
         localStorage.setItem('userProfile', profileType);
 
-        // Müzik kontrolcüsünü göster (Kullanıcı isterse buradan başlatır)
-        const musicCont = document.getElementById('music-container');
+        // Müzik kontrolcüsünü göster
+        const musicCont = document.getElementById('music-player-container');
         if (musicCont) musicCont.classList.remove('hidden');
 
         // Supabase'e kaydet
@@ -108,6 +112,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // Ana içeriği göster
         if (mainContent) {
             mainContent.classList.remove('hidden');
+            // Bottom Nav Göster
+            const bottomNav = document.getElementById('bottom-nav');
+            if (bottomNav) bottomNav.classList.remove('hidden');
+
             AOS.refresh();
 
             // Kayıtlı oda var mı kontrol et
@@ -192,6 +200,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (calikusuRoom) calikusuRoom.classList.add('hidden');
         const englishRoom = document.getElementById('english-room');
         if (englishRoom) englishRoom.classList.add('hidden');
+        const musicRoom = document.getElementById('music-room');
+        if (musicRoom) musicRoom.classList.add('hidden');
+
+        movePlayerToBackground(); // Player persistence logic
 
         // Oyun Odası varsa onu da gizle
         const gameRoom = document.getElementById('game-room');
@@ -208,6 +220,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Seçim ekranını geri getir
         roomSelection.classList.remove('hidden');
+
+        // Scroll başa al
+        window.scrollTo(0, 0);
+
+        // Bottom Nav Update
+        updateBottomNavState('hall');
 
         // Aktif odayı temizle
         localStorage.removeItem('activeRoomId');
@@ -254,9 +272,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (btnCalikusu) {
         btnCalikusu.addEventListener('click', () => {
-            openRoom(calikusuRoom);
-            loadTodos();
-            loadDiary();
+            const currentProfile = localStorage.getItem('userProfile');
+
+            if (currentProfile === 'rabbit') {
+                const password = prompt("Çalıkuşu'nun dünyasına girmek için parolayı söyle 🌸:");
+                if (password && password.toLowerCase() === 'prenses') {
+                    openRoom(calikusuRoom);
+                    loadTodos();
+                    loadDiary();
+                } else {
+                    alert("Yanlış parola! Sadece gerçek prensesler girebilir. 🚫");
+                }
+            } else {
+                // Tilki (veya diğerleri) şifresiz girebilir (Admin gibi)
+                openRoom(calikusuRoom);
+                loadTodos();
+                loadDiary();
+            }
         });
     }
 
@@ -270,9 +302,141 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+
+
     // ======================================
-    // 4.1 ANI ODASI: RENDER & LIGHTBOX
+    // 3.1 DIRECT NAVIGATION (BOTTOM NAV)
     // ======================================
+    window.updateBottomNavState = (target) => {
+        const navItems = document.querySelectorAll('.nav-item');
+        navItems.forEach(item => item.classList.remove('active'));
+
+        // HTML Sırası:
+        // 0: Hall
+        // 1: Meeting (Sohbet)
+        // 2: Memory (Anılar)
+        // 3: Poetry (Şiir)
+        // 4: Game (Oyun)
+        // 5: Working (Çalışma)
+        // 6: English (İngilizce)
+        // 7: Calikusu (Çalıkuşu)
+        // 8: Private (Özel)
+
+        let activeIndex = -1;
+        if (target === 'hall') activeIndex = 0;
+        else if (target === 'meeting-room') activeIndex = 1;
+        else if (target === 'memory-room') activeIndex = 2;
+        else if (target === 'poetry-room') activeIndex = 3;
+        else if (target === 'game-room') activeIndex = 4;
+        else if (target === 'working-room') activeIndex = 5;
+        else if (target === 'english-room') activeIndex = 6;
+        else if (target === 'calikusu-room') activeIndex = 7;
+        else if (target === 'private-room') activeIndex = 8;
+        else if (target === 'music-room') activeIndex = 9; // YENİ: Müzik Odası
+
+        if (activeIndex !== -1 && navItems[activeIndex]) {
+            navItems[activeIndex].classList.add('active');
+            // Menü kaydırılabilir olduğu için aktif öğeyi görünür yapalım
+            navItems[activeIndex].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        }
+    };
+
+    window.openDirectRoom = function (roomId, event) {
+        if (event) event.preventDefault();
+
+        // --- GÜVENLİK KONTROLLERİ ---
+        // 1. Özel Oda Şifre Kontrolü
+        if (roomId === 'private-room') {
+            const password = prompt("Bu odaya girmek için şifreyi söyle:");
+            if (password !== 'yasak') {
+                alert("Yanlış şifre! Giremezsin. 🚫");
+                return; // Erişimi engelle
+            }
+        }
+
+        // 2. Çalıkuşu Odası Şifre Kontrolü
+        if (roomId === 'calikusu-room') {
+            const currentProfile = localStorage.getItem('userProfile');
+            if (currentProfile === 'rabbit') {
+                const password = prompt("Çalıkuşu'nun dünyasına girmek için parolayı söyle 🌸:");
+                if (!password || password.toLowerCase() !== 'prenses') {
+                    alert("Yanlış parola! Sadece gerçek prensesler girebilir. 🚫");
+                    return; // Erişimi engelle
+                }
+            }
+            // Tilki (fox) ise şifresiz geçebilir
+        }
+        // ----------------------------
+
+        // Önce Hol'e dönme işlemini (gizleme) yap, ama room selection'ı açma
+        // Tüm odaları kapat
+        if (sectionPoetry) sectionPoetry.classList.add('hidden');
+        if (sectionMemory) sectionMemory.classList.add('hidden');
+        if (sectionMeeting) sectionMeeting.classList.add('hidden');
+        if (workingRoom) workingRoom.classList.add('hidden');
+        if (privateRoom) privateRoom.classList.add('hidden');
+        if (calikusuRoom) calikusuRoom.classList.add('hidden');
+        if (englishRoom) englishRoom.classList.add('hidden');
+
+        // Müzik Odası logic
+        const musicRoom = document.getElementById('music-room');
+        if (musicRoom) musicRoom.classList.add('hidden');
+
+        const gameRoom = document.getElementById('game-room');
+        if (gameRoom) gameRoom.classList.add('hidden');
+
+        // Hallway (Oda Seçimi) GİZLE
+        if (roomSelection) roomSelection.classList.add('hidden');
+
+        // --- PLAYER PERSISTENCE ---
+        if (roomId === 'music-room') {
+            movePlayerToForeground();
+        } else {
+            // Başka odaya gidiyorsak ve player YouTube ise backgrounda al
+            movePlayerToBackground();
+        }
+        // --------------------------
+
+        // Target Odayı Bul
+        const targetRoom = document.getElementById(roomId);
+        if (targetRoom) {
+            targetRoom.classList.remove('hidden');
+            window.scrollTo(0, 0);
+            localStorage.setItem('activeRoomId', roomId);
+
+            // Telegram bildirimi
+            if (window.telegramNotifications) {
+                window.telegramNotifications.notifyRoomEntered(roomId);
+            }
+
+            // Odaya özel init fonksiyonları
+            if (roomId === 'poetry-room') {
+                // Şiir yükle
+                if (btnPoetry) btnPoetry.click();
+                else renderFloatingPoems();
+            }
+            else if (roomId === 'memory-room') renderMemories();
+            else if (roomId === 'calikusu-room') {
+                if (typeof loadTodos === 'function') loadTodos();
+                if (typeof loadDiary === 'function') loadDiary();
+            }
+            else if (roomId === 'english-room') {
+                if (typeof checkDailyEnglish === 'function') checkDailyEnglish();
+            }
+            else if (roomId === 'music-room') {
+                // Müzik odası açılınca yapılacaklar (Gerekirse)
+                if (typeof renderPlaylist === 'function') renderPlaylist();
+            }
+            else if (roomId === 'working-room') {
+                // Özel işlem gerekirse buraya
+            }
+
+            updateBottomNavState(roomId);
+        } else {
+            // Eğer oda bulunamazsa (örn: henüz login değil)
+            console.error("Oda bulunamadı:", roomId);
+        }
+    };
 
     let currentMemories = [];
     let lightboxIndex = 0; // Şu an lightbox'ta hangi slot açık (1-9)
@@ -430,111 +594,428 @@ document.addEventListener('DOMContentLoaded', () => {
     // ======================================
     // 5. MÜZİK OYNATICI MANTIĞI
     // ======================================
-    const musicContainer = document.getElementById('music-container');
-    const musicPanel = document.getElementById('music-panel');
-    const musicBtn = document.getElementById('music-btn');
-    const playPauseBtn = document.getElementById('play-pause-btn');
-    const prevBtn = document.getElementById('prev-btn');
-    const nextBtn = document.getElementById('next-btn');
-    const volumeSlider = document.getElementById('volume-slider');
-    const playlistItems = document.querySelectorAll('#playlist li');
+    // ======================================
+    // 5. MÜZİK OYNATICI MANTIĞI (MP3 + YOUTUBE HIBRIT)
+    // ======================================
+    let playlist = [
+        { type: 'mp3', src: 'assets/music/track1.mp3', title: 'Bir Beyaz Orkide', artist: 'Sezen Aksu' },
+        { type: 'mp3', src: 'assets/music/track2.mp3', title: 'Sen Bilmezsin', artist: 'Dedublüman' },
+        { type: 'mp3', src: 'assets/music/track3.mp3', title: 'Sen Beni Unutamazsın', artist: 'Emre Fel' },
+        { type: 'mp3', src: 'assets/music/track4.mp3', title: 'Senden Geçemiyorum', artist: 'Madrigal' }
+    ];
 
-    let isPlaying = false;
+    // LocalStorage'dan kayıtlı listeyi al
+    const savedPlaylist = JSON.parse(localStorage.getItem('user_playlist'));
+    if (savedPlaylist && savedPlaylist.length > 0) {
+        playlist = savedPlaylist;
+    } else {
+        localStorage.setItem('user_playlist', JSON.stringify(playlist));
+    }
+
     let currentTrackIndex = 0;
+    let isPlaying = false;
+    let player = null; // YouTube Player Instance
 
-    // Panel Aç/Kapa
-    if (musicBtn) {
-        musicBtn.addEventListener('click', () => {
-            if (musicPanel.classList.contains('hidden')) {
-                musicPanel.classList.remove('hidden');
+    // UI Elements
+    const musicContainer = document.getElementById('music-player-container');
+    const fullPanel = document.getElementById('full-music-panel');
+    const miniPlayBtn = document.getElementById('mini-play-btn');
+    const mainPlayBtn = document.getElementById('main-play-btn');
+    const miniTitle = document.getElementById('current-track-title');
+    const miniArtist = document.getElementById('current-track-artist');
+    const playlistUl = document.getElementById('playlist');
+
+    // 1. YouTube IFrame API Yükleme
+    const tag = document.createElement('script');
+    tag.src = "https://www.youtube.com/iframe_api";
+    const firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+    // PLAYER STATE Helpers
+    function movePlayerToForeground() {
+        const ytPlaceholder = document.getElementById('youtube-player-placeholder');
+        const albumContainer = document.getElementById('album-art-container');
+        if (ytPlaceholder && albumContainer) {
+            albumContainer.appendChild(ytPlaceholder);
+            ytPlaceholder.style.position = 'absolute';
+            ytPlaceholder.style.top = '0';
+            ytPlaceholder.style.left = '0';
+            ytPlaceholder.style.width = '100%';
+            ytPlaceholder.style.height = '100%';
+            ytPlaceholder.style.opacity = '1';
+            ytPlaceholder.style.zIndex = '100';
+            ytPlaceholder.style.borderRadius = '50%';
+        }
+    }
+
+    function movePlayerToBackground() {
+        const ytPlaceholder = document.getElementById('youtube-player-placeholder');
+        if (ytPlaceholder) {
+            document.body.appendChild(ytPlaceholder);
+            ytPlaceholder.style.position = 'fixed';
+            ytPlaceholder.style.top = '0';
+            ytPlaceholder.style.left = '0';
+            ytPlaceholder.style.width = '1px';
+            ytPlaceholder.style.height = '1px';
+            ytPlaceholder.style.opacity = '0';
+            ytPlaceholder.style.zIndex = '-1';
+            ytPlaceholder.style.borderRadius = '0';
+        }
+    }
+
+    window.onYouTubeIframeAPIReady = () => {
+        // YouTube API Başlatma
+
+        const playerOptions = {
+            height: '100%',
+            width: '100%',
+            videoId: '',
+            host: 'https://www.youtube.com',
+            playerVars: {
+                'playsinline': 1,
+                'controls': 1,
+                'disablekb': 1,
+                'fs': 0,
+                'rel': 0,
+                'enablejsapi': 1,
+            },
+            events: {
+                'onReady': (event) => {
+                    console.log("YouTube Player Hazır");
+                    onPlayerReady(event);
+                },
+                'onStateChange': onPlayerStateChange,
+                'onError': (e) => {
+                    console.error("YouTube Player Hatası:", e);
+                }
+            }
+        };
+
+        // Origin sadece HTTP/HTTPS ise eklenmeli, file:// ise eklenmemeli (çünkü mismatch yapar)
+        if (window.location.protocol !== 'file:') {
+            playerOptions.playerVars.origin = window.location.origin;
+        }
+
+        player = new YT.Player('youtube-player-placeholder', playerOptions);
+    };
+
+    function onPlayerReady(event) {
+        // Hazır
+        console.log("YouTube Player Ready");
+    }
+
+    function onPlayerStateChange(event) {
+        // 0: Ended, 1: Playing, 2: Paused
+        if (event.data === YT.PlayerState.ENDED) {
+            playNext();
+        } else if (event.data === YT.PlayerState.PLAYING) {
+            isPlaying = true;
+            updatePlayIcons();
+        } else if (event.data === YT.PlayerState.PAUSED) {
+            isPlaying = false;
+            updatePlayIcons();
+        }
+    }
+
+    // 2. Playlist Render
+    window.renderPlaylist = () => {
+        if (!playlistUl) return;
+        playlistUl.innerHTML = '';
+
+        playlist.forEach((track, index) => {
+            const li = document.createElement('li');
+            li.className = `playlist-item ${index === currentTrackIndex ? 'active' : ''}`;
+            li.innerHTML = `
+                <i class="${track.type === 'youtube' ? 'fab fa-youtube' : 'fas fa-music'}"></i>
+                <div class="playlist-info">
+                    <span class="song-title">${track.title}</span>
+                    <span class="song-meta">${track.artist || (track.type === 'youtube' ? 'YouTube' : 'Müzik')}</span>
+                </div>
+                <button class="delete-track-btn" onclick="removeTrack(${index}, event)">
+                    <i class="fas fa-trash"></i>
+                </button>
+            `;
+            li.onclick = (e) => {
+                if (!e.target.closest('.delete-track-btn')) {
+                    playTrack(index);
+                }
+            };
+            playlistUl.appendChild(li);
+        });
+
+        // Update Mini Player Info
+        if (playlist[currentTrackIndex]) {
+            miniTitle.textContent = playlist[currentTrackIndex].title;
+            miniArtist.textContent = playlist[currentTrackIndex].artist || 'Müzik Çalar';
+        }
+    };
+
+    // 3. Play Logic
+    window.playTrack = (index) => {
+        if (index < 0) index = playlist.length - 1;
+        if (index >= playlist.length) index = 0;
+
+        currentTrackIndex = index;
+        const track = playlist[index];
+
+        // UI Eleman seç
+        const vinylUI = document.getElementById('vinyl-record-ui');
+        const ytPlaceholder = document.getElementById('youtube-player-placeholder');
+        const albumContainer = document.getElementById('album-art-container');
+
+        // --- UI RESET START ---
+        // Varsayılan: Vinyl görünür, YouTube gizli ve yerinde (body veya hidden div)
+        if (vinylUI) vinylUI.style.display = 'block';
+        if (ytPlaceholder) {
+            // Eski yerine veya gizli moda al (reset)
+            // Ancak pratik olması için biz her playTrack'te logic kuracağız
+            // YouTube ise taşıyacağız, değilse gizleyeceğiz
+        }
+        // --- UI RESET END ---
+
+        // Önce her şeyi durdur
+        audio.pause();
+        audio.currentTime = 0;
+        if (player && player.stopVideo) player.stopVideo();
+
+        renderPlaylist(); // Active class update
+
+        const titleEl = document.getElementById('current-track-title');
+        const artistEl = document.getElementById('current-track-artist');
+
+        if (track.type === 'mp3') {
+            // MP3 MODU
+            if (vinylUI) {
+                vinylUI.style.display = 'block';
+                vinylUI.classList.remove('playing');
+                void vinylUI.offsetWidth;
+                vinylUI.classList.add('playing');
+            }
+            // YouTube placeholder'ı gizle
+            if (ytPlaceholder) {
+                ytPlaceholder.style.position = 'absolute';
+                ytPlaceholder.style.zIndex = '-1';
+                ytPlaceholder.style.opacity = '0';
+            }
+
+            audio.src = track.src;
+            audio.play().catch(e => console.error(e));
+            isPlaying = true;
+
+        } else if (track.type === 'youtube') {
+            // YOUTUBE MODU
+            // Hangi odadayız kontrol et
+            const musicRoom = document.getElementById('music-room');
+            const inMusicRoom = musicRoom && !musicRoom.classList.contains('hidden');
+
+            if (inMusicRoom) {
+                // Vinyl Gizle
+                if (vinylUI) vinylUI.style.display = 'none';
+                movePlayerToForeground();
             } else {
-                musicPanel.classList.add('hidden');
+                movePlayerToBackground();
+            }
+
+            if (player && player.loadVideoById) {
+                player.loadVideoById(track.videoId);
+                isPlaying = true;
+            } else {
+                // Player init olmamış olabilir
+                console.log("Player not ready yet, waiting...");
+                setTimeout(() => {
+                    if (player && player.loadVideoById) {
+                        player.loadVideoById(track.videoId);
+                        isPlaying = true;
+                        updatePlayIcons();
+                    }
+                }, 1500);
+            }
+        }
+
+        updatePlayIcons();
+
+        // Info Update
+        if (titleEl) titleEl.textContent = track.title;
+        if (artistEl) artistEl.textContent = track.artist || 'Müzik Çalar';
+
+        // Mini player update (eğer varsa)
+        if (typeof miniTitle !== 'undefined') miniTitle.textContent = track.title;
+        if (typeof miniArtist !== 'undefined') miniArtist.textContent = track.artist || 'Müzik Çalar';
+    };
+
+    window.togglePlay = () => {
+        const track = playlist[currentTrackIndex];
+
+        if (track.type === 'mp3') {
+            if (audio.paused) {
+                audio.play();
+                isPlaying = true;
+            } else {
+                audio.pause();
+                isPlaying = false;
+            }
+        } else if (track.type === 'youtube') {
+            if (player && player.getPlayerState) {
+                const state = player.getPlayerState();
+                if (state === YT.PlayerState.PLAYING) {
+                    player.pauseVideo();
+                    isPlaying = false;
+                } else {
+                    player.playVideo();
+                    isPlaying = true;
+                }
+            }
+        }
+        updatePlayIcons();
+    };
+
+    function updatePlayIcons() {
+        const iconHtml = isPlaying ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-play"></i>';
+        if (miniPlayBtn) miniPlayBtn.innerHTML = iconHtml;
+        if (mainPlayBtn) mainPlayBtn.innerHTML = iconHtml;
+    }
+
+    window.playNext = () => {
+        playTrack(currentTrackIndex + 1);
+    };
+
+    window.playPrev = () => {
+        playTrack(currentTrackIndex - 1);
+    };
+
+    // 4. Panel Toggle
+    window.toggleMusicPanel = () => {
+        if (musicContainer.classList.contains('expanded')) {
+            musicContainer.classList.remove('expanded');
+            // Mini Player geri gelsin (CSS transition sonrası veya hemen)
+            document.getElementById('mini-player').style.display = 'flex';
+        } else {
+            musicContainer.classList.add('expanded');
+            // Mini Player gizlensin
+            // document.getElementById('mini-player').style.display = 'none'; // CSS ile hallettik ama JS ile de garanti olsun
+        }
+    };
+
+    // 5. YouTube Ekleme
+    // 5. YouTube Ekleme
+    window.addYoutubeTrack = async () => {
+        const input = document.getElementById('yt-input');
+        const url = input.value.trim();
+
+        if (!url) return;
+
+        // Video ID Çıkarma
+        let videoId = '';
+        try {
+            if (url.includes('youtu.be')) {
+                videoId = url.split('youtu.be/')[1].split('?')[0];
+            } else if (url.includes('youtube.com/watch')) {
+                const urlObj = new URL(url);
+                videoId = urlObj.searchParams.get('v');
+            } else if (url.includes('embed')) {
+                videoId = url.split('embed/')[1].split('?')[0];
+            }
+        } catch (e) {
+            console.error("ID parse hatası:", e);
+        }
+
+        if (!videoId || videoId.length < 11) {
+            // Regex Fallback
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            const match = url.match(regExp);
+            if (match && match[2].length == 11) {
+                videoId = match[2];
+            } else {
+                alert("Geçersiz YouTube linki! Lütfen tam link girin.");
+                return;
+            }
+        }
+
+        let trackTitle = 'YouTube Video';
+        const apiKey = 'AIzaSyBD20NlGmp5MXJoLkdfI3VR_nV6gruDb30'; // Kullanıcının sağladığı API Key
+
+        try {
+            // Önce Resmi YouTube API ile dene
+            const apiResponse = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}&key=${apiKey}`);
+            const apiData = await apiResponse.json();
+
+            if (apiData.items && apiData.items.length > 0) {
+                trackTitle = apiData.items[0].snippet.title;
+            } else {
+                throw new Error("API'den başlık alınamadı, fallback'e geçiliyor...");
+            }
+        } catch (apiError) {
+            console.warn("YouTube API Hatası (Fallback kullanılıyor):", apiError);
+            // Fallback: noembed.com
+            try {
+                const response = await fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${videoId}`);
+                const data = await response.json();
+                if (data.title) trackTitle = data.title;
+            } catch (e) {
+                console.log("Noembed de başarısız oldu:", e);
+            }
+        }
+
+        const newTrack = {
+            type: 'youtube',
+            videoId: videoId,
+            src: '',
+            title: trackTitle,
+            artist: 'YouTube'
+        };
+
+        // Prompt kaldırıldı
+
+        playlist.push(newTrack);
+        localStorage.setItem('user_playlist', JSON.stringify(playlist));
+        renderPlaylist();
+
+        input.value = '';
+
+        // Bildirim ve Otomatik Çalma
+        alert("Eklendi: " + trackTitle);
+        if (confirm("Hemen çalmak ister misin?")) {
+            playTrack(playlist.length - 1);
+        }
+    };
+
+    window.removeTrack = (index, event) => {
+        event.stopPropagation();
+        if (confirm("Bu şarkıyı listeden silmek istiyor musun?")) {
+            playlist.splice(index, 1);
+            localStorage.setItem('user_playlist', JSON.stringify(playlist));
+            renderPlaylist();
+
+            // Eğer silinen çalıyorsa durdur veya sonrakine geç
+            if (index === currentTrackIndex) {
+                playTrack(index); // Index değişmedi ama içerik değişti, sıradaki gelir.
+            } else if (index < currentTrackIndex) {
+                currentTrackIndex--; // Index kayması düzelt
+            }
+        }
+    };
+
+    // Init Render
+    renderPlaylist();
+
+    // Ses Kontrolü (Audio Only - YouTube API ayrı volume yönetir ama ikisini sync edebiliriz)
+    const volSlider = document.getElementById('volume-slider');
+    if (volSlider) {
+        volSlider.addEventListener('input', (e) => {
+            const val = e.target.value;
+            audio.volume = val / 100;
+            if (player && player.setVolume) {
+                player.setVolume(val);
             }
         });
     }
 
-    // Şarkı Çal
-    function playTrack(index) {
-        // Liste sınırları kontrolü
-        if (index < 0) index = playlistItems.length - 1;
-        if (index >= playlistItems.length) index = 0;
+    // Audio Ended (MP3 için)
+    audio.onended = () => {
+        playNext();
+    };
 
-        currentTrackIndex = index;
-        const newSrc = playlistItems[currentTrackIndex].getAttribute('data-src');
-
-        // UI Güncelle (Active class)
-        playlistItems.forEach(item => item.classList.remove('active'));
-        playlistItems[currentTrackIndex].classList.add('active');
-
-        // Audio kaynağını zorla güncelle ve yükle (Sorunsuz geçiş için)
-        audio.src = newSrc;
-        audio.load();
-
-        const playPromise = audio.play();
-        if (playPromise !== undefined) {
-            playPromise.then(() => {
-                isPlaying = true;
-                updatePlayIcon();
-                console.log("Şarkı çalıyor:", newSrc);
-            }).catch(err => {
-                console.error("Çalma hatası:", err);
-                // Otomatik geçiş hatası olursa (örneğin kullanıcı etkileşimi yoksa)
-            });
-        }
-    }
-
-    // Toggle Play/Pause
-    function togglePlay() {
-        if (audio.paused) {
-            audio.play();
-            isPlaying = true;
-        } else {
-            audio.pause();
-            isPlaying = false;
-        }
-        updatePlayIcon();
-    }
-
-    function updatePlayIcon() {
-        if (playPauseBtn) {
-            playPauseBtn.innerHTML = isPlaying ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-play"></i>';
-        }
-    }
-
-    // Event Listeners
-    if (playPauseBtn) playPauseBtn.addEventListener('click', togglePlay);
-
-    if (prevBtn) prevBtn.addEventListener('click', () => {
-        playTrack(currentTrackIndex - 1);
-    });
-
-    if (nextBtn) nextBtn.addEventListener('click', () => {
-        playTrack(currentTrackIndex + 1);
-    });
-
-    // Liste elemanlarına tıklama
-    playlistItems.forEach((item, index) => {
-        item.addEventListener('click', () => {
-            playTrack(index);
-        });
-    });
-
-    // Ses Kontrolü
-    if (volumeSlider) {
-        volumeSlider.addEventListener('input', (e) => {
-            audio.volume = e.target.value;
-        });
-    }
-
-    // Müzik bittiğinde sıradakine geç
-    audio.addEventListener('ended', () => {
-        playTrack(currentTrackIndex + 1);
-    });
-
-    // Initial State: İlk şarkıyı active yap (çalmadan)
-    if (playlistItems.length > 0) {
-        playlistItems[0].classList.add('active');
-    }
+    // Initial State: İlk şarkıyı active yap (çalmadan) handled by renderPlaylist
 
     // Uygulama başladığında müzik kutusunu göster
     if (enterBtn) {

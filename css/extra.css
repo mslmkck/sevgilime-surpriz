@@ -1,0 +1,722 @@
+/* =========================================
+   XX. PRELOADER & BOTTOM NAV & MOBILE FIXES
+   ========================================= */
+
+/* PRELOADER STYLE */
+#preloader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #0f0f13;
+    z-index: 99999;
+    /* En üstte */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 0.5s ease, visibility 0.5s;
+}
+
+.heart-loader {
+    position: relative;
+    width: 50px;
+    height: 50px;
+    animation: heartBeat 1.2s infinite cubic-bezier(0.215, 0.61, 0.355, 1);
+}
+
+.heart-loader .heart {
+    background-color: var(--primary-color);
+    width: 50px;
+    height: 50px;
+    transform: rotate(45deg);
+}
+
+.heart-loader .heart::before,
+.heart-loader .heart::after {
+    content: "";
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    background-color: var(--primary-color);
+    border-radius: 50%;
+}
+
+.heart-loader .heart::before {
+    top: -25px;
+    left: 0;
+}
+
+.heart-loader .heart::after {
+    left: -25px;
+    top: 0;
+}
+
+.loading-text {
+    margin-top: 50px;
+    color: var(--text-color);
+    font-family: var(--font-body);
+    font-size: 1.1rem;
+    letter-spacing: 1px;
+    animation: pulseText 1.5s infinite ease-in-out;
+}
+
+@keyframes heartBeat {
+    0% {
+        transform: scale(0.95);
+    }
+
+    5% {
+        transform: scale(1.1);
+    }
+
+    39% {
+        transform: scale(0.85);
+    }
+
+    45% {
+        transform: scale(1);
+    }
+
+    60% {
+        transform: scale(0.95);
+    }
+
+    100% {
+        transform: scale(0.9);
+    }
+}
+
+@keyframes pulseText {
+
+    0%,
+    100% {
+        opacity: 0.6;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+
+/* BOTTOM NAVIGATION BAR (MOBILE MENU) */
+#bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 70px;
+    /* Standart yükseklik */
+    background: rgba(15, 15, 19, 0.95);
+    /* Yarı saydam arka plan */
+    backdrop-filter: blur(10px);
+    /* Glassmorphism */
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+
+    /* Horizontal Scroll Layout */
+    display: flex;
+    justify-content: flex-start;
+    /* Sola yaslı başlasın */
+    align-items: center;
+    overflow-x: auto;
+    /* Yatay kaydırma */
+    -webkit-overflow-scrolling: touch;
+    /* Smooth scroll iOS */
+
+    z-index: 10000;
+    padding-bottom: env(safe-area-inset-bottom);
+    /* iPhone Home Bar boşluğu */
+    height: calc(70px + env(safe-area-inset-bottom));
+    /* Toplam yükseklik */
+    transition: transform 0.3s ease-in-out;
+
+    /* Scrollbar'ı gizle */
+    scrollbar-width: none;
+    /* Firefox */
+}
+
+#bottom-nav::-webkit-scrollbar {
+    display: none;
+    /* Chrome, Safari */
+}
+
+#bottom-nav.hidden {
+    transform: translateY(100%);
+    /* Aşağı kaydırarak gizle */
+    display: flex !important;
+    /* display:flex korunmalı, transform ile gizleniyor */
+}
+
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.75rem;
+    /* Biraz küçültelim */
+    transition: all 0.3s;
+
+    /* Fixed width for scrollable items */
+    min-width: 70px;
+    flex-shrink: 0;
+    /* Küçülmesin */
+    height: 100%;
+    padding: 0 5px;
+}
+
+.nav-item i {
+    font-size: 1.4rem;
+    margin-bottom: 5px;
+    transition: transform 0.2s;
+}
+
+.nav-item.active {
+    color: var(--primary-color);
+}
+
+.nav-item.active i {
+    transform: translateY(-3px);
+    filter: drop-shadow(0 0 5px var(--primary-color));
+}
+
+.nav-item:hover {
+    color: #fff;
+}
+
+/* MOBILE SAFARI & IPHONE FIXES */
+
+/* İçeriklerin alt navigasyonun altında kalmaması için padding ekle */
+.room-section {
+    padding-bottom: calc(90px + env(safe-area-inset-bottom)) !important;
+    /* Nav bar yüksekliği + güvenli alan + biraz boşluk */
+    min-height: 100dvh;
+    /* Dynamic viewport height */
+}
+
+/* Scroll sorunlarını önlemek için */
+body {
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Yatay taşmayı kesin engelle */
+body,
+html {
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100%;
+}
+
+/* Input zoom fix (tekrar kontrol) */
+@media screen and (max-width: 768px) {
+
+
+    /* =========================================
+   XX. ADVANCED MUSIC PLAYER
+   ========================================= */
+
+    #music-player-container {
+        display: none !important;
+        /* Eski player iptal - yeni sayfaya taşındı */
+        position: fixed;
+        bottom: calc(70px + env(safe-area-inset-bottom));
+        /* Bottom Nav'ın hemen üstü */
+        left: 0;
+        width: 100%;
+        z-index: 9999;
+        /* display: flex; */
+        flex-direction: column;
+        pointer-events: none;
+        /* Boş alanlara tıklamayı engelle */
+    }
+
+    /* =========================================
+   XX. MUSIC ROOM (FULL PAGE PLAYER)
+   ========================================= */
+    .music-room-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        max-width: 500px;
+        margin: 0 auto;
+        /* gap: 30px; REMOVED GAP */
+        z-index: 2;
+        /* padding-bottom: 80px; MOVED TO SCROLL AREA */
+        height: 100vh;
+        padding-top: 60px;
+        /* Header space */
+        overflow: hidden;
+        /* Taşmayı engelle */
+    }
+
+    /* 1. Playing View (TOP FIXED - COMPACT) */
+    .current-song-view {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        text-align: center;
+        flex-shrink: 0;
+        padding-bottom: 5px;
+        /* Minimal padding */
+        background: rgba(15, 15, 19, 0.98);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        z-index: 10;
+    }
+
+    .album-art-large {
+        width: 110px;
+        /* Small size */
+        height: 110px;
+        margin: 10px 0;
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+        border-radius: 50%;
+    }
+
+    .vinyl-record {
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle, #111 20%, #333 21%, #111 22%, #333 50%, #111 100%);
+        border-radius: 50%;
+        position: relative;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+        border: 5px solid rgba(255, 255, 255, 0.05);
+        animation: spin 10s linear infinite;
+        animation-play-state: paused;
+    }
+
+    .vinyl-record.playing {
+        animation-play-state: running;
+    }
+
+    .vinyl-label {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 35px;
+        /* Reduced */
+        height: 35px;
+        /* Reduced */
+        background: linear-gradient(135deg, #e74c3c, #8e44ad);
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        font-size: 1.2rem;
+        box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.3);
+        cursor: pointer;
+    }
+
+    .song-info-large h2 {
+        font-size: 1.5rem;
+        color: white;
+        margin-bottom: 5px;
+        font-family: var(--font-heading);
+    }
+
+    .song-info-large p {
+        color: var(--text-muted);
+        font-size: 1rem;
+    }
+
+    /* Controls */
+    .main-controls-large {
+        display: flex;
+        align-items: center;
+        gap: 40px;
+        margin: 30px 0;
+    }
+
+    .ctrl-btn-lg {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 2rem;
+        cursor: pointer;
+        opacity: 0.8;
+        transition: opacity 0.2s;
+    }
+
+    .ctrl-btn-lg:hover {
+        opacity: 1;
+    }
+
+    .play-btn-xl {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #e74c3c, #c0392b);
+        border: none;
+        color: white;
+        font-size: 2.5rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 0 0 20px rgba(231, 76, 60, 0.4);
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+
+    .play-btn-xl:active {
+        transform: scale(0.95);
+    }
+
+    .volume-container-lg {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        width: 80%;
+        color: #ccc;
+    }
+
+    /* 2. Playlist View (SCROLLABLE BOTTOM) */
+    .playlist-view {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.03);
+        /* border-radius: 15px; */
+        border-top-left-radius: 20px;
+        border-top-right-radius: 20px;
+        padding: 20px 20px 100px 20px;
+        /* Alttan boşluk (nav bar için) */
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        flex: 1;
+        /* Kalan tüm boşluğu doldur */
+        overflow-y: auto;
+        /* Kendi içinde scroll */
+        margin-top: 10px;
+    }
+
+    .add-music-bar {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+
+    .add-music-bar input {
+        flex: 1;
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: white;
+        padding: 10px;
+        border-radius: 8px;
+    }
+
+    .add-music-bar button {
+        background: #e74c3c;
+        border: none;
+        color: white;
+        width: 45px;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+
+    .styled-playlist-lg {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        /* max-height: 250px; REMOVED - Container scrolls now */
+        overflow-y: visible;
+    }
+
+    /* Reusing playlist item styles from extra.css if valid, or redefine briefly */
+    .playlist-item i {
+        margin-right: 15px;
+    }
+
+    @keyframes spin {
+        from {
+            transform: rotate(0deg);
+        }
+
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* MINI PLAYER BAR */
+    #mini-player {
+        background: rgba(22, 22, 28, 0.95);
+        backdrop-filter: blur(12px);
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        height: 60px;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 15px;
+        box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.5);
+        pointer-events: auto;
+        /* Etkileşimi aç */
+        transition: all 0.3s;
+    }
+
+    .track-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex: 1;
+        overflow: hidden;
+        cursor: pointer;
+    }
+
+    .track-icon {
+        width: 40px;
+        height: 40px;
+        background: radial-gradient(circle, #e74c3c, #8e44ad);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.2rem;
+    }
+
+    .fa-spin-slow {
+        animation: fa-spin 4s infinite linear;
+    }
+
+    .track-details {
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    #current-track-title {
+        color: white;
+        font-weight: 600;
+        font-size: 0.9rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    #current-track-artist {
+        color: #aaa;
+        font-size: 0.75rem;
+    }
+
+    .mini-controls {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .mini-controls button {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.2rem;
+        cursor: pointer;
+        padding: 5px;
+    }
+
+    .mini-controls button:active {
+        transform: scale(0.9);
+    }
+
+    /* FULL PANEL (EXPANDED) */
+    #full-music-panel {
+        background: rgba(15, 15, 20, 0.98);
+        backdrop-filter: blur(15px);
+        width: 100%;
+        height: 0;
+        overflow: hidden;
+        transition: height 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+        border-top-left-radius: 20px;
+        border-top-right-radius: 20px;
+        display: flex;
+        flex-direction: column;
+        pointer-events: auto;
+        position: absolute;
+        bottom: 0;
+        /* Mini player'ın üzerine açılacak şekilde ayarlanabilir ama JS ile container'ı büyütebiliriz. 
+                Veya container bottom'dan marginli, panel absolute bottom 0 ise, container height artmalı. */
+    }
+
+    /* JS ile panel açıldığında container height'ı 100vh yapacağız */
+    #music-player-container.expanded {
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        /* Dim effect */
+        pointer-events: auto;
+    }
+
+    #music-player-container.expanded #full-music-panel {
+        height: 70vh;
+        /* Ekranın %70'ini kapla */
+        padding: 20px;
+    }
+
+    #music-player-container.expanded #mini-player {
+        display: none;
+        /* Açıkken mini player'ı gizle */
+    }
+
+    .panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        color: white;
+    }
+
+    .panel-header h3 {
+        margin: 0;
+        font-size: 1.1rem;
+    }
+
+    /* Add YouTube Input Style */
+    .add-music-area {
+        margin-bottom: 20px;
+    }
+
+    .input-group {
+        display: flex;
+        gap: 10px;
+    }
+
+    #yt-input {
+        flex: 1;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 10px;
+        border-radius: 8px;
+        color: white;
+        font-size: 0.9rem;
+    }
+
+    #yt-input::placeholder {
+        color: #aaa;
+    }
+
+    .add-music-area button {
+        background: #e74c3c;
+        border: none;
+        color: white;
+        width: 40px;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+
+    /* Playlist Styles */
+    .styled-playlist {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        flex: 1;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .playlist-item {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .playlist-item:hover,
+    .playlist-item.active {
+        background: rgba(231, 76, 60, 0.2);
+        border: 1px solid rgba(231, 76, 60, 0.5);
+    }
+
+    .playlist-item i {
+        margin-right: 15px;
+        font-size: 1.2rem;
+        color: #e74c3c;
+    }
+
+    .playlist-info {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+    }
+
+    .song-title {
+        color: white;
+        font-size: 0.95rem;
+        font-weight: 500;
+    }
+
+    .song-meta {
+        color: #aaa;
+        font-size: 0.75rem;
+    }
+
+    .delete-track-btn {
+        background: none;
+        border: none;
+        color: #666;
+        padding: 5px;
+        cursor: pointer;
+    }
+
+    .delete-track-btn:hover {
+        color: #e74c3c;
+    }
+
+
+    /* Main Controls in Full Panel */
+    .main-controls {
+        margin-top: 20px;
+    }
+
+    .buttons-row {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 30px;
+        margin-bottom: 20px;
+    }
+
+    .ctrl-btn {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.5rem;
+        cursor: pointer;
+    }
+
+    .play-btn-large {
+        width: 60px;
+        height: 60px;
+        background: #e74c3c;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+    }
+
+    .volume-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #aaa;
+    }
+
+    #volume-slider {
+        flex: 1;
+        accent-color: #e74c3c;
+        height: 4px;
+    }
+}

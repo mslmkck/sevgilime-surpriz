@@ -12,13 +12,16 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Poppins:wght@300;400;600&display=swap"
         rel="stylesheet">
+    <!-- Preconnect for Image CDN -->
+    <link rel="preconnect" href="https://images.unsplash.com">
     <!-- Font Awesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- AOS Library for scroll animations -->
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/games.css">
+    <link rel="stylesheet" href="css/style.css?v=3">
+    <link rel="stylesheet" href="css/games.css?v=3">
+    <link rel="stylesheet" href="css/extra.css?v=3">
 
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -66,9 +69,9 @@
         <div id="room-selection">
             <h2 class="room-title" data-aos="fade-down">Nereye Gitmek İstersin?</h2>
             <div class="rooms-container">
-                <!-- Buluşma Odası Kartı (YENİ) -->
                 <div class="room-card" id="btn-meeting" data-aos="fade-up">
-                    <div class="room-img" style="background-image: url('assets/img/meeting_room.png');"></div>
+                    <div class="room-img" style="background-image: url('assets/img/meeting_room.png');" loading="lazy">
+                    </div>
                     <div class="room-info">
                         <h3>Buluşma Odası</h3>
                     </div>
@@ -207,13 +210,13 @@
                     <!-- 9 Adet Slot - JS ile kontrol edilecek -->
                     <div class="frame-slot" id="slot-1">
                         <img id="img-1"
-                            src="https://images.unsplash.com/photo-1516961642265-531546e84af2?q=80&w=1000&auto=format&fit=crop"
-                            alt="Memory">
+                            src="https://images.unsplash.com/photo-1516961642265-531546e84af2?q=60&w=800&auto=format&fit=crop"
+                            alt="Memory" loading="lazy">
                     </div>
                     <div class="frame-slot" id="slot-2">
                         <img id="img-2"
-                            src="https://images.unsplash.com/photo-1529619768328-e37af76c6fe5?q=80&w=1000&auto=format&fit=crop"
-                            alt="Memory">
+                            src="https://images.unsplash.com/photo-1529619768328-e37af76c6fe5?q=60&w=800&auto=format&fit=crop"
+                            alt="Memory" loading="lazy">
                     </div>
                     <div class="frame-slot" id="slot-3">
                         <div class="empty-placeholder"><i class="fas fa-image"></i><br>Boş</div>
@@ -621,50 +624,139 @@
                 </div>
             </div>
         </section>
-    </main>
 
-    <!-- MÜZİK OYNATICI -->
-    <div id="music-container" class="hidden">
-        <!-- Müzik Kontrol Butonu -->
-        <button id="music-btn">
-            <i class="fas fa-music"></i>
-        </button>
+        <!-- MÜZİK ODASI (YENİ - TAM EKRAN PLAYER) -->
+        <section id="music-room" class="room-section hidden"
+            style="background: url('assets/img/music_bg.jpg') no-repeat center center/cover;">
+            <div class="overlay" style="background: rgba(0,0,0,0.85);"></div>
 
-        <!-- Müzik Paneli -->
-        <div id="music-panel" class="hidden">
-            <h4>Müzik Listesi</h4>
-            <ul id="playlist">
-                <li data-src="assets/music/track1.mp3">🎵 Bir Beyaz Orkide</li>
-                <li data-src="assets/music/track2.mp3">🎸 Dedublüman - Sen Bilmezsin</li>
-                <li data-src="assets/music/track3.mp3">🎤 Sen Beni Unutamazsın</li>
-                <li data-src="assets/music/track4.mp3">💔 Senden Geçemiyorum</li>
-            </ul>
-            <div class="controls">
-                <button id="prev-btn"><i class="fas fa-backward"></i></button>
-                <button id="play-pause-btn"><i class="fas fa-play"></i></button>
-                <button id="next-btn"><i class="fas fa-forward"></i></button>
+            <button class="back-btn" onclick="goBackToHall()">
+                <i class="fas fa-arrow-left"></i> Hol'e Dön
+            </button>
+
+            <!-- YOUTUBE PLAYER (Gizli ama DOM'da aktif) -->
+            <div id="youtube-player-placeholder"
+                style="opacity: 0; position: absolute; z-index: -1; width: 1px; height: 1px;"></div>
+
+            <div class="music-room-container">
+                <div class="current-song-view">
+                    <div class="album-art-large" id="album-art-container">
+                        <div class="vinyl-record" id="vinyl-record-ui">
+                            <div class="vinyl-label" onclick="togglePlay()">
+                                <i class="fas fa-music"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="song-info-large">
+                        <h2 id="current-track-title">Parça Seçiniz</h2>
+                        <p id="current-track-artist">Müzik Çalar</p>
+                    </div>
+
+                    <div class="main-controls-large">
+                        <button class="ctrl-btn-lg" onclick="playPrev()"><i class="fas fa-step-backward"></i></button>
+                        <button class="play-btn-xl" id="main-play-btn" onclick="togglePlay()">
+                            <i class="fas fa-play"></i>
+                        </button>
+                        <button class="ctrl-btn-lg" onclick="playNext()"><i class="fas fa-step-forward"></i></button>
+                    </div>
+
+                    <div class="volume-container-lg">
+                        <i class="fas fa-volume-down"></i>
+                        <input type="range" id="volume-slider" min="0" max="100" value="50">
+                        <i class="fas fa-volume-up"></i>
+                    </div>
+                </div>
+
+                <div class="playlist-view">
+                    <div class="add-music-bar">
+                        <input type="text" id="yt-input" placeholder="YouTube Linki...">
+                        <button onclick="addYoutubeTrack()"><i class="fas fa-plus"></i></button>
+                    </div>
+
+                    <ul id="playlist" class="styled-playlist-lg">
+                        <!-- JS ile dolacak -->
+                    </ul>
+                </div>
             </div>
-            <!-- Ses Kontrolü -->
-            <div class="volume-control">
-                <i class="fas fa-volume-down"></i>
-                <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="0.5">
-                <i class="fas fa-volume-up"></i>
-            </div>
-        </div>
-    </div>
+        </section>
 
-    <!-- Scripts -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <script src="js/telegram-notifications.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="js/supabase-client.js"></script>
-    <script src="js/main.js?v=2"></script>
-    <script src="js/quiz-game.js?v=2"></script>
-    <script src="js/trivia-game.js?v=2"></script> <!-- YENİ -->
-    <script src="js/study-room.js?v=2"></script>
-    <script src="js/games.js?v=2"></script>
+        <!-- MÜZİK OYNATICI (YENİLENMİŞ) -->
+        <!-- MÜZİK OYNATICI (YENİLENMİŞ) - KALDIRILDI (YENİ ODAYA TAŞINIYOR) -->
+        <!-- <div id="music-player-container" class="hidden">
+        <div id="youtube-player-placeholder" style="display:none;"></div>
+        ...
+    </div> -->
+
+
+
+        <!-- Scripts -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+        <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+        <script src="js/telegram-notifications.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+        <script src="js/supabase-client.js"></script>
+        <script src="js/main.js?v=3"></script>
+        <script src="js/quiz-game.js?v=3"></script>
+        <script src="js/trivia-game.js?v=3"></script>
+        <script src="js/study-room.js?v=3"></script>
+        <script src="js/games.js?v=3"></script>
+
+        <!-- MOBILE BOTTOM NAVIGATION -->
+        <nav id="bottom-nav" class="hidden">
+            <a href="#" class="nav-item active" onclick="goBackToHall(event)">
+                <i class="fas fa-home"></i>
+                <span>Hol</span>
+            </a>
+            <a href="#" class="nav-item" onclick="openDirectRoom('meeting-room', event)">
+                <i class="fas fa-comments"></i>
+                <span>Sohbet</span>
+            </a>
+            <a href="#" class="nav-item" onclick="openDirectRoom('memory-room', event)">
+                <i class="fas fa-images"></i>
+                <span>Anılar</span>
+            </a>
+            <a href="#" class="nav-item" onclick="openDirectRoom('poetry-room', event)">
+                <i class="fas fa-feather-alt"></i>
+                <span>Şiir</span>
+            </a>
+            <a href="#" class="nav-item" onclick="openDirectRoom('game-room', event)">
+                <i class="fas fa-gamepad"></i>
+                <span>Oyun</span>
+            </a>
+            <a href="#" class="nav-item" onclick="openDirectRoom('working-room', event)">
+                <i class="fas fa-briefcase"></i>
+                <span>Çalışma</span>
+            </a>
+            <a href="#" class="nav-item" onclick="openDirectRoom('english-room', event)">
+                <i class="fas fa-language"></i>
+                <span>İngilizce</span>
+            </a>
+            <a href="#" class="nav-item" onclick="openDirectRoom('calikusu-room', event)">
+                <i class="fas fa-dove"></i>
+                <span>Çalıkuşu</span>
+            </a>
+            <a href="#" class="nav-item" onclick="openDirectRoom('private-room', event)">
+                <i class="fas fa-lock"></i>
+                <span>Özel</span>
+            </a>
+            <a href="#" class="nav-item" onclick="openDirectRoom('music-room', event)">
+                <i class="fas fa-music"></i>
+                <span>Müzik</span>
+            </a>
+        </nav>
+
+        <script>
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function () {
+                    navigator.serviceWorker.register('./sw.js').then(function (registration) {
+                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                    }, function (err) {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+                });
+            }
+        </script>
 </body>
 
 </html>

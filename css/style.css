@@ -77,17 +77,21 @@ textarea {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    padding: 2rem;
+    justify-content: flex-start;
+    /* Üstten başla */
+    padding: 3rem 1rem 6rem 1rem;
+    /* Üst padding artırılabilir veya azaltılabilir, alt menu için boşluk */
     background: linear-gradient(to bottom, #1a1a20, #0f0f13);
 }
 
 .room-title {
     font-family: var(--font-heading);
-    font-size: 2.5rem;
-    margin-bottom: 3rem;
+    font-size: 2rem;
+    margin-bottom: 2rem;
+    margin-top: 1rem;
     color: var(--primary-color);
     text-shadow: 0 0 10px rgba(212, 165, 165, 0.3);
+    text-align: center;
 }
 
 .rooms-container {
@@ -96,6 +100,7 @@ textarea {
     flex-wrap: wrap;
     justify-content: center;
     max-width: 1200px;
+    width: 100%;
 }
 
 .room-card {
@@ -148,6 +153,50 @@ textarea {
     font-family: var(--font-heading);
     font-size: 1.5rem;
     margin-bottom: 0;
+}
+
+/* MOBILE COMPACT LAYOUT */
+@media screen and (max-width: 768px) {
+    #room-selection {
+        padding-top: 2rem;
+        /* Başlık daha yukarıda */
+        justify-content: flex-start;
+    }
+
+    .room-title {
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .rooms-container {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        /* 2 Kolon */
+        gap: 12px;
+        padding-bottom: 80px;
+        /* Alt menü payı */
+    }
+
+    .room-card {
+        width: 100%;
+        /* Konteyneri doldur */
+        height: 160px;
+        /* Çok daha küçük yükseklik */
+        border-radius: 12px;
+    }
+
+    .room-img {
+        height: 65%;
+    }
+
+    .room-info {
+        height: 35%;
+        padding: 0.5rem;
+    }
+
+    .room-info h3 {
+        font-size: 0.9rem;
+    }
 }
 
 
