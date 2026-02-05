@@ -635,8 +635,8 @@
             </button>
 
             <!-- YOUTUBE PLAYER (Gizli ama DOM'da aktif) -->
-            <div id="youtube-player-placeholder"
-                style="opacity: 0; position: absolute; z-index: -1; width: 1px; height: 1px;"></div>
+            <!-- YOUTUBE PLAYER KALDIRILDI -->
+            <!-- <div id="youtube-player-placeholder"></div> -->
 
             <div class="music-room-container">
                 <div class="current-song-view">
@@ -669,8 +669,11 @@
 
                 <div class="playlist-view">
                     <div class="add-music-bar">
-                        <input type="text" id="yt-input" placeholder="YouTube Linki...">
-                        <button onclick="addYoutubeTrack()"><i class="fas fa-plus"></i></button>
+                        <label for="mp3-input" class="mp3-upload-label">
+                            <i class="fas fa-file-audio"></i> MP3 Yükle
+                        </label>
+                        <input type="file" id="mp3-input" accept="audio/mp3,audio/*" style="display: none;"
+                            onchange="addMp3Track(this)">
                     </div>
 
                     <ul id="playlist" class="styled-playlist-lg">
@@ -703,48 +706,7 @@
         <script src="js/games.js?v=3"></script>
 
         <!-- MOBILE BOTTOM NAVIGATION -->
-        <nav id="bottom-nav" class="hidden">
-            <a href="#" class="nav-item active" onclick="goBackToHall(event)">
-                <i class="fas fa-home"></i>
-                <span>Hol</span>
-            </a>
-            <a href="#" class="nav-item" onclick="openDirectRoom('meeting-room', event)">
-                <i class="fas fa-comments"></i>
-                <span>Sohbet</span>
-            </a>
-            <a href="#" class="nav-item" onclick="openDirectRoom('memory-room', event)">
-                <i class="fas fa-images"></i>
-                <span>Anılar</span>
-            </a>
-            <a href="#" class="nav-item" onclick="openDirectRoom('poetry-room', event)">
-                <i class="fas fa-feather-alt"></i>
-                <span>Şiir</span>
-            </a>
-            <a href="#" class="nav-item" onclick="openDirectRoom('game-room', event)">
-                <i class="fas fa-gamepad"></i>
-                <span>Oyun</span>
-            </a>
-            <a href="#" class="nav-item" onclick="openDirectRoom('working-room', event)">
-                <i class="fas fa-briefcase"></i>
-                <span>Çalışma</span>
-            </a>
-            <a href="#" class="nav-item" onclick="openDirectRoom('english-room', event)">
-                <i class="fas fa-language"></i>
-                <span>İngilizce</span>
-            </a>
-            <a href="#" class="nav-item" onclick="openDirectRoom('calikusu-room', event)">
-                <i class="fas fa-dove"></i>
-                <span>Çalıkuşu</span>
-            </a>
-            <a href="#" class="nav-item" onclick="openDirectRoom('private-room', event)">
-                <i class="fas fa-lock"></i>
-                <span>Özel</span>
-            </a>
-            <a href="#" class="nav-item" onclick="openDirectRoom('music-room', event)">
-                <i class="fas fa-music"></i>
-                <span>Müzik</span>
-            </a>
-        </nav>
+        <!-- MOBILE BOTTOM NAVIGATION REMOVED -->
 
         <script>
             if ('serviceWorker' in navigator) {

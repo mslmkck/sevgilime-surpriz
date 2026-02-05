@@ -308,37 +308,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 3.1 DIRECT NAVIGATION (BOTTOM NAV)
     // ======================================
     window.updateBottomNavState = (target) => {
-        const navItems = document.querySelectorAll('.nav-item');
-        navItems.forEach(item => item.classList.remove('active'));
-
-        // HTML Sırası:
-        // 0: Hall
-        // 1: Meeting (Sohbet)
-        // 2: Memory (Anılar)
-        // 3: Poetry (Şiir)
-        // 4: Game (Oyun)
-        // 5: Working (Çalışma)
-        // 6: English (İngilizce)
-        // 7: Calikusu (Çalıkuşu)
-        // 8: Private (Özel)
-
-        let activeIndex = -1;
-        if (target === 'hall') activeIndex = 0;
-        else if (target === 'meeting-room') activeIndex = 1;
-        else if (target === 'memory-room') activeIndex = 2;
-        else if (target === 'poetry-room') activeIndex = 3;
-        else if (target === 'game-room') activeIndex = 4;
-        else if (target === 'working-room') activeIndex = 5;
-        else if (target === 'english-room') activeIndex = 6;
-        else if (target === 'calikusu-room') activeIndex = 7;
-        else if (target === 'private-room') activeIndex = 8;
-        else if (target === 'music-room') activeIndex = 9; // YENİ: Müzik Odası
-
-        if (activeIndex !== -1 && navItems[activeIndex]) {
-            navItems[activeIndex].classList.add('active');
-            // Menü kaydırılabilir olduğu için aktif öğeyi görünür yapalım
-            navItems[activeIndex].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-        }
+        // Nav kaldırıldı
     };
 
     window.openDirectRoom = function (roomId, event) {
@@ -664,39 +634,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     window.onYouTubeIframeAPIReady = () => {
-        // YouTube API Başlatma
-
-        const playerOptions = {
-            height: '100%',
-            width: '100%',
-            videoId: '',
-            host: 'https://www.youtube.com',
-            playerVars: {
-                'playsinline': 1,
-                'controls': 1,
-                'disablekb': 1,
-                'fs': 0,
-                'rel': 0,
-                'enablejsapi': 1,
-            },
-            events: {
-                'onReady': (event) => {
-                    console.log("YouTube Player Hazır");
-                    onPlayerReady(event);
-                },
-                'onStateChange': onPlayerStateChange,
-                'onError': (e) => {
-                    console.error("YouTube Player Hatası:", e);
-                }
-            }
-        };
-
-        // Origin sadece HTTP/HTTPS ise eklenmeli, file:// ise eklenmemeli (çünkü mismatch yapar)
-        if (window.location.protocol !== 'file:') {
-            playerOptions.playerVars.origin = window.location.origin;
-        }
-
-        player = new YT.Player('youtube-player-placeholder', playerOptions);
+        // YouTube API Kaldırıldı
     };
 
     function onPlayerReady(event) {
@@ -704,18 +642,8 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("YouTube Player Ready");
     }
 
-    function onPlayerStateChange(event) {
-        // 0: Ended, 1: Playing, 2: Paused
-        if (event.data === YT.PlayerState.ENDED) {
-            playNext();
-        } else if (event.data === YT.PlayerState.PLAYING) {
-            isPlaying = true;
-            updatePlayIcons();
-        } else if (event.data === YT.PlayerState.PAUSED) {
-            isPlaying = false;
-            updatePlayIcons();
-        }
-    }
+    // YouTube Player State Change Removed
+    function onPlayerStateChange(event) { }
 
     // 2. Playlist Render
     window.renderPlaylist = () => {
@@ -726,10 +654,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const li = document.createElement('li');
             li.className = `playlist-item ${index === currentTrackIndex ? 'active' : ''}`;
             li.innerHTML = `
-                <i class="${track.type === 'youtube' ? 'fab fa-youtube' : 'fas fa-music'}"></i>
+                <i class="fas fa-music"></i>
                 <div class="playlist-info">
                     <span class="song-title">${track.title}</span>
-                    <span class="song-meta">${track.artist || (track.type === 'youtube' ? 'YouTube' : 'Müzik')}</span>
+                    <span class="song-meta">${track.artist || 'Müzik'}</span>
                 </div>
                 <button class="delete-track-btn" onclick="removeTrack(${index}, event)">
                     <i class="fas fa-trash"></i>
@@ -791,45 +719,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 void vinylUI.offsetWidth;
                 vinylUI.classList.add('playing');
             }
-            // YouTube placeholder'ı gizle
-            if (ytPlaceholder) {
-                ytPlaceholder.style.position = 'absolute';
-                ytPlaceholder.style.zIndex = '-1';
-                ytPlaceholder.style.opacity = '0';
-            }
 
             audio.src = track.src;
             audio.play().catch(e => console.error(e));
             isPlaying = true;
-
-        } else if (track.type === 'youtube') {
-            // YOUTUBE MODU
-            // Hangi odadayız kontrol et
-            const musicRoom = document.getElementById('music-room');
-            const inMusicRoom = musicRoom && !musicRoom.classList.contains('hidden');
-
-            if (inMusicRoom) {
-                // Vinyl Gizle
-                if (vinylUI) vinylUI.style.display = 'none';
-                movePlayerToForeground();
-            } else {
-                movePlayerToBackground();
-            }
-
-            if (player && player.loadVideoById) {
-                player.loadVideoById(track.videoId);
-                isPlaying = true;
-            } else {
-                // Player init olmamış olabilir
-                console.log("Player not ready yet, waiting...");
-                setTimeout(() => {
-                    if (player && player.loadVideoById) {
-                        player.loadVideoById(track.videoId);
-                        isPlaying = true;
-                        updatePlayIcons();
-                    }
-                }, 1500);
-            }
         }
 
         updatePlayIcons();
@@ -998,15 +891,43 @@ document.addEventListener('DOMContentLoaded', () => {
     // Init Render
     renderPlaylist();
 
-    // Ses Kontrolü (Audio Only - YouTube API ayrı volume yönetir ama ikisini sync edebiliriz)
+    // 5. MP3 Ekleme (Dosya Seçimi)
+    window.addMp3Track = function (input) {
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            const objectUrl = URL.createObjectURL(file);
+
+            // Playlist'e ekle
+            const newTrack = {
+                type: 'mp3',
+                title: file.name.replace(/\.[^/.]+$/, ""), // Uzantıyı kaldır
+                artist: 'Yerel Dosya',
+                src: objectUrl
+            };
+
+            playlist.push(newTrack);
+
+            // Eğer yeni liste localStorage'a kaydedilirse, objectUrl çalışmayacaktır.
+            // Bu yüzden "yerel" dosyaları localStorage'da saklarken dikkatli olmalıyız
+            // veya sadece session süresince tutmalıyız.
+            // Şimdilik sadece RAM'de tutalım.
+
+            renderPlaylist();
+
+            // Direkt çal
+            playTrack(playlist.length - 1);
+
+            // Inputu temizle ki aynı dosya tekrar seçilebilsin
+            input.value = '';
+        }
+    };
+
+    // Ses Kontrolü (Audio Only)
     const volSlider = document.getElementById('volume-slider');
     if (volSlider) {
         volSlider.addEventListener('input', (e) => {
             const val = e.target.value;
             audio.volume = val / 100;
-            if (player && player.setVolume) {
-                player.setVolume(val);
-            }
         });
     }
 

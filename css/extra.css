@@ -101,100 +101,11 @@
 }
 
 
-/* BOTTOM NAVIGATION BAR (MOBILE MENU) */
-#bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 70px;
-    /* Standart yükseklik */
-    background: rgba(15, 15, 19, 0.95);
-    /* Yarı saydam arka plan */
-    backdrop-filter: blur(10px);
-    /* Glassmorphism */
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-
-    /* Horizontal Scroll Layout */
-    display: flex;
-    justify-content: flex-start;
-    /* Sola yaslı başlasın */
-    align-items: center;
-    overflow-x: auto;
-    /* Yatay kaydırma */
-    -webkit-overflow-scrolling: touch;
-    /* Smooth scroll iOS */
-
-    z-index: 10000;
-    padding-bottom: env(safe-area-inset-bottom);
-    /* iPhone Home Bar boşluğu */
-    height: calc(70px + env(safe-area-inset-bottom));
-    /* Toplam yükseklik */
-    transition: transform 0.3s ease-in-out;
-
-    /* Scrollbar'ı gizle */
-    scrollbar-width: none;
-    /* Firefox */
-}
-
-#bottom-nav::-webkit-scrollbar {
-    display: none;
-    /* Chrome, Safari */
-}
-
-#bottom-nav.hidden {
-    transform: translateY(100%);
-    /* Aşağı kaydırarak gizle */
-    display: flex !important;
-    /* display:flex korunmalı, transform ile gizleniyor */
-}
-
-.nav-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: var(--text-muted);
-    text-decoration: none;
-    font-size: 0.75rem;
-    /* Biraz küçültelim */
-    transition: all 0.3s;
-
-    /* Fixed width for scrollable items */
-    min-width: 70px;
-    flex-shrink: 0;
-    /* Küçülmesin */
-    height: 100%;
-    padding: 0 5px;
-}
-
-.nav-item i {
-    font-size: 1.4rem;
-    margin-bottom: 5px;
-    transition: transform 0.2s;
-}
-
-.nav-item.active {
-    color: var(--primary-color);
-}
-
-.nav-item.active i {
-    transform: translateY(-3px);
-    filter: drop-shadow(0 0 5px var(--primary-color));
-}
-
-.nav-item:hover {
-    color: #fff;
-}
-
 /* MOBILE SAFARI & IPHONE FIXES */
-
-/* İçeriklerin alt navigasyonun altında kalmaması için padding ekle */
+/* İçeriklerin alt navigasyonun altında kalmaması için padding ekle - NAV KALDIRILDIĞI İÇİN NORMALE DÖNDÜ */
 .room-section {
-    padding-bottom: calc(120px + env(safe-area-inset-bottom)) !important;
-    /* Nav bar + ek güvenlik payı */
+    padding-bottom: env(safe-area-inset-bottom) !important;
     min-height: 100dvh;
-    /* Dynamic viewport height */
     box-sizing: border-box;
 }
 
@@ -399,28 +310,32 @@ html {
     }
 
     .add-music-bar {
-        display: flex;
-        gap: 10px;
+        width: 100%;
         margin-bottom: 15px;
     }
 
-    .add-music-bar input {
-        flex: 1;
-        background: rgba(0, 0, 0, 0.3);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        color: white;
-        padding: 10px;
-        border-radius: 8px;
+    .mp3-upload-label {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        padding: 12px;
+        background: rgba(231, 76, 60, 0.2);
+        border: 1px dashed rgba(231, 76, 60, 0.5);
+        border-radius: 10px;
+        color: #fff;
+        font-family: var(--font-body);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        gap: 10px;
     }
 
-    .add-music-bar button {
-        background: #e74c3c;
-        border: none;
-        color: white;
-        width: 45px;
-        border-radius: 8px;
-        cursor: pointer;
+    .mp3-upload-label:active {
+        background: rgba(231, 76, 60, 0.4);
+        transform: scale(0.98);
     }
+
+    /* Old button style removed/hidden via new layout but kept minimal just in case */
 
     .styled-playlist-lg {
         list-style: none;
