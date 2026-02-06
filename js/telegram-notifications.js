@@ -149,7 +149,8 @@ function notifyRoomEntered(roomName) {
         'working': '💼',
         'private': '🔒',
         'calikusu': '🐦',
-        'english': '🇬🇧'
+        'english': '🇬🇧',
+        'music': '🎵'
     };
 
     const roomNames = {
@@ -160,7 +161,8 @@ function notifyRoomEntered(roomName) {
         'working': 'Çalışma Odası',
         'private': 'Özel Oda',
         'calikusu': 'Çalıkuşu Odası',
-        'english': 'English Academy'
+        'english': 'English Academy',
+        'music': 'Müzik Odası'
     };
 
     const emoji = roomEmojis[roomName] || '🚪';
@@ -312,6 +314,21 @@ Tavşan siteye girdi! 🐰
     sendTelegramNotification(message, { emoji: '🌟' });
 }
 
+// Özel mesaj gönderme (genel amaçlı)
+function sendCustomNotification(customMessage, options = {}) {
+    if (!isRabbit()) return;
+
+    const timestamp = new Date().toLocaleString('tr-TR');
+
+    const message = `
+${customMessage}
+
+🕐 ${timestamp}
+    `.trim();
+
+    sendTelegramNotification(message, options);
+}
+
 // =============================================
 // GLOBAL EXPORT
 // =============================================
@@ -351,6 +368,7 @@ window.telegramNotifications = {
     notifyDiaryAdded,
     notifyFineNoteAdded,
     notifyWebsiteOpened,
+    sendCustomNotification,
 
     // Test fonksiyonu
     test: () => {

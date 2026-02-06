@@ -85,6 +85,14 @@
                     </div>
                 </div>
 
+                <!-- Müzik Odası Kartı (YENİ) -->
+                <div class="room-card" id="btn-music" data-aos="fade-up">
+                    <div class="room-img" style="background-image: url('assets/img/music_bg.jpg');"></div>
+                    <div class="room-info">
+                        <h3>🎵 Müzik Odası</h3>
+                    </div>
+                </div>
+
                 <!-- Anı Odası Kartı -->
                 <div class="room-card" id="btn-memory" data-aos="fade-left">
                     <div class="room-img" style="background-image: url('assets/img/memory_room.png');"></div>
@@ -515,11 +523,44 @@
                 <i class="fas fa-arrow-left"></i> Hol'e Dön
             </button>
 
-            <div class="working-content">
-                <i class="fas fa-user-secret" style="font-size: 5rem; color: #e74c3c; margin-bottom: 20px;"></i>
-                <h1>Özel Oda</h1>
-                <p>Buraya sadece şifreyi bilenler girebilir...</p>
-                <p style="margin-top: 20px; font-size: 1.2rem;">🤫</p>
+            <div class="private-room-content">
+                <div class="private-question-card">
+                    <i class="fas fa-heart" style="font-size: 3rem; color: #e74c3c; margin-bottom: 20px;"></i>
+                    <h2 class="private-question">Onunla beraber olsaydın ne yapardın?</h2>
+
+                    <!-- Tavşan Cevap Alanı -->
+                    <div class="answer-section">
+                        <div class="character-label">
+                            <span class="character-emoji">🐰</span>
+                            <span class="character-name">Tavşan'ın Cevabı</span>
+                        </div>
+                        <textarea id="rabbit-answer" class="private-answer-input"
+                            placeholder="Tavşan, düşüncelerini buraya yaz..." rows="4"></textarea>
+                    </div>
+
+                    <!-- Tilki Cevap Alanı -->
+                    <div class="answer-section">
+                        <div class="character-label">
+                            <span class="character-emoji">🦊</span>
+                            <span class="character-name">Tilki'nin Cevabı</span>
+                        </div>
+                        <textarea id="fox-answer" class="private-answer-input"
+                            placeholder="Tilki, düşüncelerini buraya yaz..." rows="4"></textarea>
+                    </div>
+
+                    <!-- Kaydet Butonu -->
+                    <button class="save-private-answer-btn" onclick="savePrivateAnswers()">
+                        <i class="fas fa-save"></i> Cevapları Kaydet
+                    </button>
+
+                    <!-- Kaydedilmiş Cevaplar -->
+                    <div id="saved-answers-container" class="saved-answers-container hidden">
+                        <h3>💝 Kaydedilmiş Cevaplar</h3>
+                        <div id="saved-answers-list">
+                            <!-- JS ile dolacak -->
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
         <!-- ÇALIKUŞU ODASI (YENİ) -->
@@ -626,60 +667,99 @@
         </section>
 
         <!-- MÜZİK ODASI (YENİ - TAM EKRAN PLAYER) -->
-        <section id="music-room" class="room-section hidden"
-            style="background: url('assets/img/music_bg.jpg') no-repeat center center/cover;">
-            <div class="overlay" style="background: rgba(0,0,0,0.85);"></div>
-
-            <button class="back-btn" onclick="goBackToHall()">
-                <i class="fas fa-arrow-left"></i> Hol'e Dön
-            </button>
-
-            <!-- YOUTUBE PLAYER (Gizli ama DOM'da aktif) -->
-            <!-- YOUTUBE PLAYER KALDIRILDI -->
-            <!-- <div id="youtube-player-placeholder"></div> -->
-
+        <!-- MÜZİK ODASI (PRO PLAYER DESIGN) -->
+        <section id="music-room" class="room-section hidden" style="padding: 0; background: #0f0f13;">
             <div class="music-room-container">
-                <div class="current-song-view">
-                    <div class="album-art-large" id="album-art-container">
-                        <div class="vinyl-record" id="vinyl-record-ui">
-                            <div class="vinyl-label" onclick="togglePlay()">
-                                <i class="fas fa-music"></i>
-                            </div>
+                <!-- Arka Plan Efekti -->
+                <div class="player-bg-effect"></div>
+
+                <!-- Header -->
+                <div class="player-header">
+                    <button class="close-player-btn" onclick="goBackToHall()">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <div class="player-title-head">Playing From Playlist</div>
+                    <button class="close-player-btn" onclick=""> <!-- More options placeholder -->
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                </div>
+
+                <!-- Main Visual (Vinyl) -->
+                <div class="player-visual">
+                    <div class="vinyl-wrapper">
+                        <div class="vinyl-disc" id="vinyl-record-ui">
+                            <div class="vinyl-center"></div>
                         </div>
-                    </div>
-                    <div class="song-info-large">
-                        <h2 id="current-track-title">Parça Seçiniz</h2>
-                        <p id="current-track-artist">Müzik Çalar</p>
-                    </div>
-
-                    <div class="main-controls-large">
-                        <button class="ctrl-btn-lg" onclick="playPrev()"><i class="fas fa-step-backward"></i></button>
-                        <button class="play-btn-xl" id="main-play-btn" onclick="togglePlay()">
-                            <i class="fas fa-play"></i>
-                        </button>
-                        <button class="ctrl-btn-lg" onclick="playNext()"><i class="fas fa-step-forward"></i></button>
-                    </div>
-
-                    <div class="volume-container-lg">
-                        <i class="fas fa-volume-down"></i>
-                        <input type="range" id="volume-slider" min="0" max="100" value="50">
-                        <i class="fas fa-volume-up"></i>
                     </div>
                 </div>
 
-                <div class="playlist-view">
-                    <div class="add-music-bar">
-                        <label for="mp3-input" class="mp3-upload-label">
-                            <i class="fas fa-file-audio"></i> MP3 Yükle
+                <!-- Controls & Info Area -->
+                <div class="player-controls-area">
+                    <!-- Track Info -->
+                    <div class="track-info-display">
+                        <div class="track-title-lg" id="current-track-title">Parça Seçiniz</div>
+                        <div class="track-artist-lg" id="current-track-artist">Müzik Çalar</div>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div class="progress-container" id="progress-container">
+                        <div class="progress-bar" id="progress-bar">
+                            <div class="progress-handle"></div>
+                        </div>
+                    </div>
+                    <div class="time-stamps">
+                        <span id="current-time">0:00</span>
+                        <span id="total-duration">0:00</span>
+                    </div>
+
+                    <!-- Main Buttons -->
+                    <div class="control-buttons-row">
+                        <button class="ctrl-btn" id="shuffle-btn"><i class="fas fa-random"></i></button>
+                        <button class="ctrl-btn" onclick="playPrev()"><i class="fas fa-step-backward"></i></button>
+
+                        <button class="play-pause-btn" id="main-play-btn" onclick="togglePlay()">
+                            <i class="fas fa-play"></i>
+                        </button>
+
+                        <button class="ctrl-btn" onclick="playNext()"><i class="fas fa-step-forward"></i></button>
+                        <button class="ctrl-btn" id="repeat-btn"><i class="fas fa-redo"></i></button>
+                    </div>
+
+                    <!-- Footer Actions -->
+                    <div class="player-footer">
+                        <button class="volume-btn"><i class="fas fa-volume-up"></i></button>
+                        <button class="playlist-toggle-btn" onclick="togglePlaylistDrawer()">
+                            <i class="fas fa-list-ul"></i> Sıradaki Parçalar
+                        </button>
+                        <button class="volume-btn"><i class="fas fa-share-alt"></i></button>
+                    </div>
+                </div>
+
+                <!-- PLAYLIST DRAWER (ÇEKMECE) -->
+                <div class="drawer-overlay" id="drawer-overlay" onclick="togglePlaylistDrawer()"></div>
+                <div class="playlist-drawer" id="playlist-drawer">
+                    <div class="drawer-header">
+                        <h3>Sıradaki Parçalar</h3>
+                        <button class="close-drawer-btn" onclick="togglePlaylistDrawer()">
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                    </div>
+
+                    <div class="drawer-upload-area">
+                        <label for="mp3-input" class="upload-btn-full">
+                            <i class="fas fa-file-audio"></i> Yeni Müzik Ekle
                         </label>
                         <input type="file" id="mp3-input" accept="audio/mp3,audio/*" style="display: none;"
                             onchange="addMp3Track(this)">
                     </div>
 
-                    <ul id="playlist" class="styled-playlist-lg">
-                        <!-- JS ile dolacak -->
-                    </ul>
+                    <div class="playlist-content">
+                        <ul id="playlist" class="styled-playlist">
+                            <!-- JS ile liste buraya dolacak -->
+                        </ul>
+                    </div>
                 </div>
+
             </div>
         </section>
 
@@ -699,13 +779,13 @@
         <script src="js/telegram-notifications.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
         <script src="js/supabase-client.js"></script>
-        <script src="js/main.js?v=3"></script>
+        <script src="js/music-db.js"></script> <!-- Müzik Veritabanı Eklendi -->
+        <script src="js/main.js?v=4"></script> <!-- Versiyon güncellendi -->
         <script src="js/quiz-game.js?v=3"></script>
         <script src="js/trivia-game.js?v=3"></script>
         <script src="js/study-room.js?v=3"></script>
         <script src="js/games.js?v=3"></script>
 
-        <!-- MOBILE BOTTOM NAVIGATION -->
         <!-- MOBILE BOTTOM NAVIGATION REMOVED -->
 
         <script>

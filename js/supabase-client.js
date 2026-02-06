@@ -506,6 +506,47 @@ async function getSpeedLimits() {
 }
 
 // =============================================
+// PRIVATE ROOM ANSWERS FUNCTIONS
+// =============================================
+
+async function savePrivateAnswer(character, answerText) {
+    if (!supabaseClient) return null;
+    try {
+        const { data, error } = await supabaseClient
+            .from('private_answers')
+            .insert({
+                character: character,
+                answer_text: answerText
+            })
+            .select()
+            .single();
+
+        if (error) throw error;
+        console.log('✅ Özel oda cevabı kaydedildi:', character);
+        return data;
+    } catch (error) {
+        console.error('❌ Özel oda cevabı kaydetme hatası:', error);
+        return null;
+    }
+}
+
+async function getPrivateAnswers() {
+    if (!supabaseClient) return [];
+    try {
+        const { data, error } = await supabaseClient
+            .from('private_answers')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        return data || [];
+    } catch (error) {
+        console.error('❌ Özel oda cevapları okuma hatası:', error);
+        return [];
+    }
+}
+
+// =============================================
 // EXPORT HELPER
 // =============================================
 
@@ -529,5 +570,7 @@ window.supabaseHelpers = {
     saveSign,
     getSigns,
     saveSpeedLimit,
-    getSpeedLimits
+    getSpeedLimits,
+    savePrivateAnswer,
+    getPrivateAnswers
 };

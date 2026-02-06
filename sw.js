@@ -1,18 +1,18 @@
-const CACHE_NAME = 'my-site-cache-v3';
-const urlsToCache = [
+const CACHE_NAME = 'romantic-v9'; // Versiyon artırıldı (v9)
+const ASSETS_TO_CACHE = [
     './',
     './index.html',
-    './css/style.css?v=3',
-    './css/games.css?v=3',
-    './css/extra.css?v=3',
-    './js/main.js?v=3',
-    './js/games.js?v=3',
+    './css/style.css',
+    './css/games.css',
+    './css/extra.css',
+    './js/main.js',
+    './js/music-db.js',
+    './manifest.json',
     './js/quiz-game.js?v=3',
     './js/trivia-game.js?v=3',
     './js/study-room.js?v=3',
     './js/telegram-notifications.js',
     './js/supabase-client.js',
-    './assets/img/icon.png'
 ];
 
 self.addEventListener('install', function (event) {

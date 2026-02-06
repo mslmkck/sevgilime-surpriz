@@ -182,6 +182,7 @@ document.addEventListener('DOMContentLoaded', () => {
             else if (roomSection.id === 'private-room') roomName = 'private';
             else if (roomSection.id === 'calikusu-room') roomName = 'calikusu';
             else if (roomSection.id === 'english-room') roomName = 'english';
+            else if (roomSection.id === 'music-room') roomName = 'music';
 
             window.telegramNotifications.notifyRoomEntered(roomName);
         }
@@ -203,7 +204,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const musicRoom = document.getElementById('music-room');
         if (musicRoom) musicRoom.classList.add('hidden');
 
-        movePlayerToBackground(); // Player persistence logic
+        // movePlayerToBackground kaldırıldı
 
         // Oyun Odası varsa onu da gizle
         const gameRoom = document.getElementById('game-room');
@@ -247,6 +248,24 @@ document.addEventListener('DOMContentLoaded', () => {
         openRoom(sectionMemory);
         renderMemories();
     });
+
+    // MÜZİK ODASI NAVIGATION
+    const btnMusic = document.getElementById('btn-music');
+    const musicRoom = document.getElementById('music-room');
+    if (btnMusic && musicRoom) {
+        btnMusic.addEventListener('click', () => {
+            openRoom(musicRoom);
+            if (window.musicDB) {
+                // Eğer playlist boşsa, otomatik yüklemesini isteyebiliriz ama
+                // loadPlaylist zaten sayfa açılışında çalışıyor.
+                // Belki UI resetlemesi yapılabilir.
+                renderPlaylist();
+            }
+        });
+    }
+
+    const btnGame = document.getElementById('btn-game');
+    const sectionGame = document.getElementById('game-room');
 
     if (btnMeeting) btnMeeting.addEventListener('click', () => openRoom(sectionMeeting));
 
@@ -562,394 +581,383 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ======================================
-    // 5. MÜZİK OYNATICI MANTIĞI
+    // 5. MÜZİK OYNATICI MANTIĞI (PRO PLAYER V2)
     // ======================================
-    // ======================================
-    // 5. MÜZİK OYNATICI MANTIĞI (MP3 + YOUTUBE HIBRIT)
-    // ======================================
-    let playlist = [
-        { type: 'mp3', src: 'assets/music/track1.mp3', title: 'Bir Beyaz Orkide', artist: 'Sezen Aksu' },
-        { type: 'mp3', src: 'assets/music/track2.mp3', title: 'Sen Bilmezsin', artist: 'Dedublüman' },
-        { type: 'mp3', src: 'assets/music/track3.mp3', title: 'Sen Beni Unutamazsın', artist: 'Emre Fel' },
-        { type: 'mp3', src: 'assets/music/track4.mp3', title: 'Senden Geçemiyorum', artist: 'Madrigal' }
+
+    // Varsayılan Playlist
+    const defaultPlaylist = [
+        { id: 'def1', type: 'asset', src: 'assets/music/track1.mp3', title: 'Bir Beyaz Orkide', artist: 'Sezen Aksu' },
+        { id: 'def2', type: 'asset', src: 'assets/music/track2.mp3', title: 'Sen Bilmezsin', artist: 'Dedublüman' },
+        { id: 'def3', type: 'asset', src: 'assets/music/track3.mp3', title: 'Track 3', artist: 'Müzik Odası' },
+        { id: 'def4', type: 'asset', src: 'assets/music/track4.mp3', title: 'Track 4', artist: 'Müzik Odası' }
     ];
 
-    // LocalStorage'dan kayıtlı listeyi al
-    const savedPlaylist = JSON.parse(localStorage.getItem('user_playlist'));
-    if (savedPlaylist && savedPlaylist.length > 0) {
-        playlist = savedPlaylist;
-    } else {
-        localStorage.setItem('user_playlist', JSON.stringify(playlist));
-    }
-
+    let playlist = []; // Aktif playlist
     let currentTrackIndex = 0;
+    // ... (diğer değişkenler aynı kalsın)
+
+    // ... initMusicPlayer aynı ...
+
+    // ... setupAudioEvents aynı ...
+
+    // ... loadPlaylist, renderPlaylist, loadTrackInfo, playTrack, togglePlay, playNext, playPrev aynı ...
+
+    // Buraya kadar olan kodu atlayarak sadece addMp3Track kısmını değiştireceğim.
+    // Ancak replace_file_content contiguous (bitişik) blok istediği için aradaki fonksyonları tekrar yazmamak adına
+    // sadece addMp3Track ve defaultPlaylist'i değiştiremem. İki ayrı çağrı yapmalıyım veya bloğu daraltmalıyım.
+
+    // Strateji: Önce defaultPlaylist'i değiştireyim. Sonra addMp3Track'i.
+    // Bu daha güvenli ve az kod tekrarı olur.
     let isPlaying = false;
-    let player = null; // YouTube Player Instance
+    let isShuffle = false;
+    let isRepeat = false;
 
-    // UI Elements
-    const musicContainer = document.getElementById('music-player-container');
-    const fullPanel = document.getElementById('full-music-panel');
-    const miniPlayBtn = document.getElementById('mini-play-btn');
-    const mainPlayBtn = document.getElementById('main-play-btn');
-    const miniTitle = document.getElementById('current-track-title');
-    const miniArtist = document.getElementById('current-track-artist');
-    const playlistUl = document.getElementById('playlist');
+    // UI Elementleri (Global erişim için load sonrasında tekrar kontrol ediyoruz)
+    let uiElements = {};
 
-    // 1. YouTube IFrame API Yükleme
-    const tag = document.createElement('script');
-    tag.src = "https://www.youtube.com/iframe_api";
-    const firstScriptTag = document.getElementsByTagName('script')[0];
-    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+    function getUI() {
+        return {
+            title: document.getElementById('current-track-title'),
+            artist: document.getElementById('current-track-artist'),
+            playIcon: document.querySelector('#main-play-btn i'),
+            progressBar: document.getElementById('progress-bar'),
+            currentTime: document.getElementById('current-time'),
+            totalDuration: document.getElementById('total-duration'),
+            playlistDrawer: document.getElementById('playlist-drawer'),
+            drawerOverlay: document.getElementById('drawer-overlay'),
+            vinylDisc: document.getElementById('vinyl-record-ui'),
+            playlistUl: document.getElementById('playlist')
+        };
+    }
 
-    // PLAYER STATE Helpers
-    function movePlayerToForeground() {
-        const ytPlaceholder = document.getElementById('youtube-player-placeholder');
-        const albumContainer = document.getElementById('album-art-container');
-        if (ytPlaceholder && albumContainer) {
-            albumContainer.appendChild(ytPlaceholder);
-            ytPlaceholder.style.position = 'absolute';
-            ytPlaceholder.style.top = '0';
-            ytPlaceholder.style.left = '0';
-            ytPlaceholder.style.width = '100%';
-            ytPlaceholder.style.height = '100%';
-            ytPlaceholder.style.opacity = '1';
-            ytPlaceholder.style.zIndex = '100';
-            ytPlaceholder.style.borderRadius = '50%';
+    // 1. Oynatıcıyı Başlat (DB + Playlist)
+    async function initMusicPlayer() {
+        if (window.musicDB) {
+            try {
+                await window.musicDB.init();
+                console.log("🎵 Müzik DB Başlatıldı");
+                await loadPlaylist();
+            } catch (err) {
+                console.error("Müzik DB hatası:", err);
+                playlist = [...defaultPlaylist];
+                renderPlaylist();
+            }
+        } else {
+            playlist = [...defaultPlaylist];
+            renderPlaylist();
+        }
+
+        setupAudioEvents();
+    }
+
+    // Audio Eventleri
+    function setupAudioEvents() {
+        const ui = getUI();
+
+        // Time Update (Progress Bar)
+        audio.addEventListener('timeupdate', () => {
+            const { currentTime, duration } = audio;
+            if (isNaN(duration)) return;
+
+            // Bar genişliği
+            const progressPercent = (currentTime / duration) * 100;
+            if (ui.progressBar) ui.progressBar.style.width = `${progressPercent}%`;
+
+            // Süre metinleri
+            if (ui.currentTime) ui.currentTime.textContent = formatTime(currentTime);
+            if (ui.totalDuration) ui.totalDuration.textContent = formatTime(duration);
+        });
+
+        // Click on Progress Container (Seek)
+        const progressContainer = document.getElementById('progress-container');
+        if (progressContainer) {
+            progressContainer.addEventListener('click', (e) => {
+                const width = progressContainer.clientWidth;
+                const clickX = e.offsetX;
+                const duration = audio.duration;
+                if (!isNaN(duration)) {
+                    audio.currentTime = (clickX / width) * duration;
+                }
+            });
+        }
+
+        // Song Ended
+        audio.addEventListener('ended', () => {
+            if (isRepeat) {
+                audio.play(); // Tekrar çal
+            } else {
+                playNext(); // Sıradakine geç
+            }
+        });
+
+        // Shuffle Button
+        const shuffleBtn = document.getElementById('shuffle-btn');
+        if (shuffleBtn) {
+            shuffleBtn.addEventListener('click', () => {
+                isShuffle = !isShuffle;
+                shuffleBtn.style.color = isShuffle ? '#e74c3c' : 'white';
+            });
+        }
+
+        // Repeat Button
+        const repeatBtn = document.getElementById('repeat-btn');
+        if (repeatBtn) {
+            repeatBtn.addEventListener('click', () => {
+                isRepeat = !isRepeat;
+                repeatBtn.style.color = isRepeat ? '#e74c3c' : 'white';
+            });
         }
     }
 
-    function movePlayerToBackground() {
-        const ytPlaceholder = document.getElementById('youtube-player-placeholder');
-        if (ytPlaceholder) {
-            document.body.appendChild(ytPlaceholder);
-            ytPlaceholder.style.position = 'fixed';
-            ytPlaceholder.style.top = '0';
-            ytPlaceholder.style.left = '0';
-            ytPlaceholder.style.width = '1px';
-            ytPlaceholder.style.height = '1px';
-            ytPlaceholder.style.opacity = '0';
-            ytPlaceholder.style.zIndex = '-1';
-            ytPlaceholder.style.borderRadius = '0';
+    function formatTime(seconds) {
+        const min = Math.floor(seconds / 60);
+        const sec = Math.floor(seconds % 60);
+        return `${min}:${sec < 10 ? '0' : ''}${sec}`;
+    }
+
+    // 2. Playlist Yükle
+    async function loadPlaylist() {
+        try {
+            const userTracks = await window.musicDB.getAllTracks();
+            const formattedUserTracks = userTracks.map(t => ({
+                id: t.id,
+                type: 'blob', // Kullanıcı ekledi
+                src: URL.createObjectURL(t.file),
+                title: t.title,
+                artist: t.artist
+            }));
+
+            // Birleştir
+            playlist = [...defaultPlaylist, ...formattedUserTracks];
+
+            // Eğer shuffle açıksa karıştırılabilir ama şimdilik düz liste
+            renderPlaylist();
+
+            // İlk şarkıyı hazırla (UI)
+            if (playlist.length > 0 && !audio.src) {
+                loadTrackInfo(0);
+            }
+
+        } catch (err) {
+            console.error("Playlist yükleme hatası:", err);
+            // Hata olsa bile varsayılanları göster
+            playlist = [...defaultPlaylist];
+            renderPlaylist();
         }
     }
 
-    window.onYouTubeIframeAPIReady = () => {
-        // YouTube API Kaldırıldı
-    };
-
-    function onPlayerReady(event) {
-        // Hazır
-        console.log("YouTube Player Ready");
-    }
-
-    // YouTube Player State Change Removed
-    function onPlayerStateChange(event) { }
-
-    // 2. Playlist Render
+    // 3. Playlist Render
     window.renderPlaylist = () => {
-        if (!playlistUl) return;
-        playlistUl.innerHTML = '';
+        const ui = getUI();
+        if (!ui.playlistUl) return;
+        ui.playlistUl.innerHTML = '';
+
+        if (playlist.length === 0) {
+            ui.playlistUl.innerHTML = '<li style="padding:20px; text-align:center; color:#777;">Henüz müzik yok. Ekleyin!</li>';
+            return;
+        }
 
         playlist.forEach((track, index) => {
             const li = document.createElement('li');
             li.className = `playlist-item ${index === currentTrackIndex ? 'active' : ''}`;
+
+            // Silme butonu (HERKES İÇİN AÇIK)
+            // Varsayılan şarkılar için id string, kullanıcı şarkıları için number
+            // Bunu deleteTrack fonksiyonunda kontrol edeceğiz.
+            const deleteBtn = `<button class="delete-track-btn" title="Sil" onclick="deleteTrack('${track.id}', event)"><i class="fas fa-trash-alt"></i></button>`;
+
             li.innerHTML = `
                 <i class="fas fa-music"></i>
                 <div class="playlist-info">
                     <span class="song-title">${track.title}</span>
-                    <span class="song-meta">${track.artist || 'Müzik'}</span>
+                    <span class="song-meta">${track.artist || ''}</span>
                 </div>
-                <button class="delete-track-btn" onclick="removeTrack(${index}, event)">
-                    <i class="fas fa-trash"></i>
-                </button>
+                ${deleteBtn}
             `;
+
             li.onclick = (e) => {
+                // Silme butonuna basıldıysa oynatma
                 if (!e.target.closest('.delete-track-btn')) {
                     playTrack(index);
+                    togglePlaylistDrawer(); // Seçince listeyi kapat
                 }
             };
-            playlistUl.appendChild(li);
+            ui.playlistUl.appendChild(li);
         });
-
-        // Update Mini Player Info
-        if (playlist[currentTrackIndex]) {
-            miniTitle.textContent = playlist[currentTrackIndex].title;
-            miniArtist.textContent = playlist[currentTrackIndex].artist || 'Müzik Çalar';
-        }
     };
 
-    // 3. Play Logic
+    // 4. Şarkı Bilgisi Yükle
+    function loadTrackInfo(index) {
+        if (index < 0 || index >= playlist.length) return;
+        const track = playlist[index];
+        const ui = getUI();
+
+        if (ui.title) ui.title.textContent = track.title;
+        if (ui.artist) ui.artist.textContent = track.artist || '';
+
+        // Metadata (Duration) yüklenince süreyi göster
+        audio.onloadedmetadata = () => {
+            if (ui.totalDuration) ui.totalDuration.textContent = formatTime(audio.duration);
+        };
+    }
+
+    // 5. Oynatma
     window.playTrack = (index) => {
+        // Döngüsel geçiş
         if (index < 0) index = playlist.length - 1;
         if (index >= playlist.length) index = 0;
 
         currentTrackIndex = index;
         const track = playlist[index];
 
-        // UI Eleman seç
-        const vinylUI = document.getElementById('vinyl-record-ui');
-        const ytPlaceholder = document.getElementById('youtube-player-placeholder');
-        const albumContainer = document.getElementById('album-art-container');
+        loadTrackInfo(index);
+        renderPlaylist(); // Highlight update
 
-        // --- UI RESET START ---
-        // Varsayılan: Vinyl görünür, YouTube gizli ve yerinde (body veya hidden div)
-        if (vinylUI) vinylUI.style.display = 'block';
-        if (ytPlaceholder) {
-            // Eski yerine veya gizli moda al (reset)
-            // Ancak pratik olması için biz her playTrack'te logic kuracağız
-            // YouTube ise taşıyacağız, değilse gizleyeceğiz
-        }
-        // --- UI RESET END ---
-
-        // Önce her şeyi durdur
-        audio.pause();
-        audio.currentTime = 0;
-        if (player && player.stopVideo) player.stopVideo();
-
-        renderPlaylist(); // Active class update
-
-        const titleEl = document.getElementById('current-track-title');
-        const artistEl = document.getElementById('current-track-artist');
-
-        if (track.type === 'mp3') {
-            // MP3 MODU
-            if (vinylUI) {
-                vinylUI.style.display = 'block';
-                vinylUI.classList.remove('playing');
-                void vinylUI.offsetWidth;
-                vinylUI.classList.add('playing');
-            }
-
-            audio.src = track.src;
-            audio.play().catch(e => console.error(e));
+        audio.src = track.src;
+        audio.play().then(() => {
             isPlaying = true;
-        }
-
-        updatePlayIcons();
-
-        // Info Update
-        if (titleEl) titleEl.textContent = track.title;
-        if (artistEl) artistEl.textContent = track.artist || 'Müzik Çalar';
-
-        // Mini player update (eğer varsa)
-        if (typeof miniTitle !== 'undefined') miniTitle.textContent = track.title;
-        if (typeof miniArtist !== 'undefined') miniArtist.textContent = track.artist || 'Müzik Çalar';
+            updatePlayIcons();
+            startVinyl();
+        }).catch(e => console.error("Play error:", e));
     };
 
     window.togglePlay = () => {
-        const track = playlist[currentTrackIndex];
-
-        if (track.type === 'mp3') {
-            if (audio.paused) {
+        if (playlist.length === 0) return;
+        if (audio.paused) {
+            if (!audio.src) playTrack(currentTrackIndex); // Başlamamışsa başlat
+            else {
                 audio.play();
                 isPlaying = true;
-            } else {
-                audio.pause();
-                isPlaying = false;
+                updatePlayIcons();
+                startVinyl();
             }
-        } else if (track.type === 'youtube') {
-            if (player && player.getPlayerState) {
-                const state = player.getPlayerState();
-                if (state === YT.PlayerState.PLAYING) {
-                    player.pauseVideo();
-                    isPlaying = false;
-                } else {
-                    player.playVideo();
-                    isPlaying = true;
-                }
-            }
+        } else {
+            audio.pause();
+            isPlaying = false;
+            updatePlayIcons();
+            stopVinyl();
         }
-        updatePlayIcons();
     };
 
-    function updatePlayIcons() {
-        const iconHtml = isPlaying ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-play"></i>';
-        if (miniPlayBtn) miniPlayBtn.innerHTML = iconHtml;
-        if (mainPlayBtn) mainPlayBtn.innerHTML = iconHtml;
-    }
-
     window.playNext = () => {
-        playTrack(currentTrackIndex + 1);
+        if (isShuffle) {
+            // Rastgele index
+            let rand = Math.floor(Math.random() * playlist.length);
+            playTrack(rand);
+        } else {
+            playTrack(currentTrackIndex + 1);
+        }
     };
 
     window.playPrev = () => {
         playTrack(currentTrackIndex - 1);
     };
 
-    // 4. Panel Toggle
-    window.toggleMusicPanel = () => {
-        if (musicContainer.classList.contains('expanded')) {
-            musicContainer.classList.remove('expanded');
-            // Mini Player geri gelsin (CSS transition sonrası veya hemen)
-            document.getElementById('mini-player').style.display = 'flex';
-        } else {
-            musicContainer.classList.add('expanded');
-            // Mini Player gizlensin
-            // document.getElementById('mini-player').style.display = 'none'; // CSS ile hallettik ama JS ile de garanti olsun
+    function updatePlayIcons() {
+        const ui = getUI();
+        if (ui.playIcon) {
+            ui.playIcon.className = isPlaying ? 'fas fa-pause' : 'fas fa-play';
         }
-    };
+    }
 
-    // 5. YouTube Ekleme
-    // 5. YouTube Ekleme
-    window.addYoutubeTrack = async () => {
-        const input = document.getElementById('yt-input');
-        const url = input.value.trim();
+    function startVinyl() {
+        const ui = getUI();
+        if (ui.vinylDisc) ui.vinylDisc.classList.add('playing');
+    }
 
-        if (!url) return;
+    function stopVinyl() {
+        const ui = getUI();
+        if (ui.vinylDisc) ui.vinylDisc.classList.remove('playing');
+    }
 
-        // Video ID Çıkarma
-        let videoId = '';
-        try {
-            if (url.includes('youtu.be')) {
-                videoId = url.split('youtu.be/')[1].split('?')[0];
-            } else if (url.includes('youtube.com/watch')) {
-                const urlObj = new URL(url);
-                videoId = urlObj.searchParams.get('v');
-            } else if (url.includes('embed')) {
-                videoId = url.split('embed/')[1].split('?')[0];
-            }
-        } catch (e) {
-            console.error("ID parse hatası:", e);
-        }
-
-        if (!videoId || videoId.length < 11) {
-            // Regex Fallback
-            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-            const match = url.match(regExp);
-            if (match && match[2].length == 11) {
-                videoId = match[2];
-            } else {
-                alert("Geçersiz YouTube linki! Lütfen tam link girin.");
-                return;
-            }
-        }
-
-        let trackTitle = 'YouTube Video';
-        const apiKey = 'AIzaSyBD20NlGmp5MXJoLkdfI3VR_nV6gruDb30'; // Kullanıcının sağladığı API Key
-
-        try {
-            // Önce Resmi YouTube API ile dene
-            const apiResponse = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}&key=${apiKey}`);
-            const apiData = await apiResponse.json();
-
-            if (apiData.items && apiData.items.length > 0) {
-                trackTitle = apiData.items[0].snippet.title;
-            } else {
-                throw new Error("API'den başlık alınamadı, fallback'e geçiliyor...");
-            }
-        } catch (apiError) {
-            console.warn("YouTube API Hatası (Fallback kullanılıyor):", apiError);
-            // Fallback: noembed.com
-            try {
-                const response = await fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${videoId}`);
-                const data = await response.json();
-                if (data.title) trackTitle = data.title;
-            } catch (e) {
-                console.log("Noembed de başarısız oldu:", e);
-            }
-        }
-
-        const newTrack = {
-            type: 'youtube',
-            videoId: videoId,
-            src: '',
-            title: trackTitle,
-            artist: 'YouTube'
-        };
-
-        // Prompt kaldırıldı
-
-        playlist.push(newTrack);
-        localStorage.setItem('user_playlist', JSON.stringify(playlist));
-        renderPlaylist();
-
-        input.value = '';
-
-        // Bildirim ve Otomatik Çalma
-        alert("Eklendi: " + trackTitle);
-        if (confirm("Hemen çalmak ister misin?")) {
-            playTrack(playlist.length - 1);
-        }
-    };
-
-    window.removeTrack = (index, event) => {
-        event.stopPropagation();
-        if (confirm("Bu şarkıyı listeden silmek istiyor musun?")) {
-            playlist.splice(index, 1);
-            localStorage.setItem('user_playlist', JSON.stringify(playlist));
-            renderPlaylist();
-
-            // Eğer silinen çalıyorsa durdur veya sonrakine geç
-            if (index === currentTrackIndex) {
-                playTrack(index); // Index değişmedi ama içerik değişti, sıradaki gelir.
-            } else if (index < currentTrackIndex) {
-                currentTrackIndex--; // Index kayması düzelt
-            }
-        }
-    };
-
-    // Init Render
-    renderPlaylist();
-
-    // 5. MP3 Ekleme (Dosya Seçimi)
-    window.addMp3Track = function (input) {
+    // 6. MP3 Ekleme
+    window.addMp3Track = async (input) => {
         if (input.files && input.files[0]) {
             const file = input.files[0];
-            const objectUrl = URL.createObjectURL(file);
+            let fileName = file.name.replace(/\.[^/.]+$/, "");
+            let title = fileName;
+            let artist = ""; // "Bilinmeyen Sanatçı" yerine boş
 
-            // Playlist'e ekle
-            const newTrack = {
-                type: 'mp3',
-                title: file.name.replace(/\.[^/.]+$/, ""), // Uzantıyı kaldır
-                artist: 'Yerel Dosya',
-                src: objectUrl
-            };
+            if (fileName.includes("-")) {
+                const parts = fileName.split("-");
+                if (parts.length >= 2) {
+                    artist = parts[0].trim();
+                    title = parts.slice(1).join("-").trim();
+                }
+            }
 
-            playlist.push(newTrack);
-
-            // Eğer yeni liste localStorage'a kaydedilirse, objectUrl çalışmayacaktır.
-            // Bu yüzden "yerel" dosyaları localStorage'da saklarken dikkatli olmalıyız
-            // veya sadece session süresince tutmalıyız.
-            // Şimdilik sadece RAM'de tutalım.
-
-            renderPlaylist();
-
-            // Direkt çal
-            playTrack(playlist.length - 1);
-
-            // Inputu temizle ki aynı dosya tekrar seçilebilsin
-            input.value = '';
+            try {
+                await window.musicDB.addTrack(file, title, artist);
+                alert(`"${title}" listeye eklendi!`);
+                await loadPlaylist();
+                input.value = '';
+            } catch (err) {
+                console.error("Ekleme hatası:", err);
+                alert("Hata oluştu.");
+            }
         }
     };
 
-    // Ses Kontrolü (Audio Only)
-    const volSlider = document.getElementById('volume-slider');
-    if (volSlider) {
-        volSlider.addEventListener('input', (e) => {
-            const val = e.target.value;
-            audio.volume = val / 100;
-        });
-    }
+    // 7. Şarkı Silme
+    window.deleteTrack = async (id, event) => {
+        if (event) event.stopPropagation();
+        if (confirm("Listeden kaldırılsın mı?")) {
+            try {
+                // Eğer ID string ise ve 'def' ile başlıyorsa (Varsayılan şarkı)
+                if (typeof id === 'string' && id.startsWith('def')) {
+                    // Sadece listeden çıkar (DB işlemi yok)
+                    playlist = playlist.filter(track => track.id !== id);
+                    if (playlist.length === 0) {
+                        audio.pause();
+                        audio.src = "";
+                        isPlaying = false;
+                        updatePlayIcons();
+                        stopVinyl();
+                    }
+                    renderPlaylist();
+                    return; // DB işlemine gerek yok
+                }
 
-    // Audio Ended (MP3 için)
-    audio.onended = () => {
-        playNext();
+                // Kullanıcı şarkısı (IndexedDB)
+                await window.musicDB.deleteTrack(Number(id)); // ID'yi sayıya çevir
+
+                // Eğer çalan şarkıysa durdur
+                const currentTrack = playlist[currentTrackIndex];
+                if (currentTrack && currentTrack.id == id) { // Loose equality for string/number match check if needed
+                    audio.pause();
+                    isPlaying = false;
+                    audio.src = "";
+                    updatePlayIcons();
+                    stopVinyl();
+                }
+
+                await loadPlaylist();
+            } catch (err) {
+                console.error("Silme hatası:", err);
+                // alert("Silinirken hata oluştu.");
+            }
+        }
     };
 
-    // Initial State: İlk şarkıyı active yap (çalmadan) handled by renderPlaylist
+    // 8. Drawer Toggle
+    window.togglePlaylistDrawer = () => {
+        const ui = getUI();
+        if (ui.playlistDrawer) {
+            ui.playlistDrawer.classList.toggle('open');
+            /* Overlay toggle */
+            if (ui.drawerOverlay) {
+                // Overlay class toggle is handled by CSS sibling selector if adjacent, 
+                // but let's be safe and toggle it explicitly or rely on 'open' class on drawer
+            }
+        }
+    };
 
-    // Uygulama başladığında müzik kutusunu göster
-    if (enterBtn) {
-        enterBtn.addEventListener('click', () => {
-            setTimeout(() => {
-                if (musicContainer) musicContainer.classList.remove('hidden');
-            }, 1000);
-        });
-    }
-
+    // Müzik Oynatıcıyı Başlat
+    initMusicPlayer();
     // ======================================
     // 6. ŞİİR ODASI MANTIĞI (FLOATING POEMS)
     // ======================================
+
     const floatingArea = document.getElementById('floating-area');
     const poemModal = document.getElementById('poem-modal');
     const modalPoemTitle = document.getElementById('modal-poem-title');
@@ -1882,6 +1890,124 @@ window.restartDailyEnglish = () => {
     showEnglishWord(currentWordIndex);
 };
 
+
+// ======================================
+// ÖZEL ODA (PRIVATE ROOM) FUNCTIONS
+// ======================================
+
+// Özel Oda açıldığında kaydedilmiş cevapları yükle
+window.loadPrivateAnswers = async function () {
+    if (!window.supabaseHelpers) return;
+
+    try {
+        const answers = await window.supabaseHelpers.getPrivateAnswers();
+
+        if (answers && answers.length > 0) {
+            const savedContainer = document.getElementById('saved-answers-container');
+            const savedList = document.getElementById('saved-answers-list');
+
+            if (savedContainer && savedList) {
+                savedContainer.classList.remove('hidden');
+                savedList.innerHTML = '';
+
+                answers.forEach(answer => {
+                    const answerItem = document.createElement('div');
+                    answerItem.className = 'saved-answer-item';
+
+                    const characterEmoji = answer.character === 'rabbit' ? '🐰' : '🦊';
+                    const characterName = answer.character === 'rabbit' ? 'Tavşan' : 'Tilki';
+                    const date = new Date(answer.created_at).toLocaleDateString('tr-TR', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+
+                    answerItem.innerHTML = `
+                        <div class="saved-answer-header">
+                            <span class="character-emoji">${characterEmoji}</span>
+                            <span class="character-name">${characterName}</span>
+                        </div>
+                        <div class="saved-answer-text">${answer.answer_text}</div>
+                        <div class="saved-answer-date">${date}</div>
+                    `;
+
+                    savedList.appendChild(answerItem);
+                });
+            }
+        }
+    } catch (error) {
+        console.error('Cevaplar yüklenirken hata:', error);
+    }
+};
+
+// Cevapları kaydet
+window.savePrivateAnswers = async function () {
+    const rabbitAnswer = document.getElementById('rabbit-answer').value.trim();
+    const foxAnswer = document.getElementById('fox-answer').value.trim();
+
+    if (!rabbitAnswer && !foxAnswer) {
+        alert('Lütfen en az bir cevap yazın! 💭');
+        return;
+    }
+
+    if (!window.supabaseHelpers) {
+        alert('Bağlantı hatası! Lütfen tekrar deneyin.');
+        return;
+    }
+
+    try {
+        // Tavşan cevabını kaydet
+        if (rabbitAnswer) {
+            await window.supabaseHelpers.savePrivateAnswer('rabbit', rabbitAnswer);
+        }
+
+        // Tilki cevabını kaydet
+        if (foxAnswer) {
+            await window.supabaseHelpers.savePrivateAnswer('fox', foxAnswer);
+        }
+
+        // Başarı mesajı
+        alert('Cevaplarınız kaydedildi! 💝');
+
+        // Telegram bildirimi
+        if (window.telegramNotifications && typeof window.telegramNotifications.sendCustomNotification === 'function') {
+            const message = `🔒 Özel Oda'da yeni cevaplar:\n${rabbitAnswer ? '🐰 Tavşan: ' + rabbitAnswer.substring(0, 50) + '...\n' : ''}${foxAnswer ? '🦊 Tilki: ' + foxAnswer.substring(0, 50) + '...' : ''}`;
+            window.telegramNotifications.sendCustomNotification(message);
+        }
+
+        // Formu temizle
+        document.getElementById('rabbit-answer').value = '';
+        document.getElementById('fox-answer').value = '';
+
+        // Kaydedilmiş cevapları yeniden yükle
+        await loadPrivateAnswers();
+
+    } catch (error) {
+        console.error('Cevaplar kaydedilirken hata:', error);
+        alert('Bir hata oluştu! Lütfen tekrar deneyin.');
+    }
+};
+
+// Özel Oda açıldığında cevapları yükle
+const privateRoomObserver = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+        const privateRoom = document.getElementById('private-room');
+        if (privateRoom && !privateRoom.classList.contains('hidden')) {
+            loadPrivateAnswers();
+        }
+    });
+});
+
+// Observer'ı başlat
+const privateRoom = document.getElementById('private-room');
+if (privateRoom) {
+    privateRoomObserver.observe(privateRoom, {
+        attributes: true,
+        attributeFilter: ['class']
+    });
+}
 
 
 
