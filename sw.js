@@ -1,4 +1,4 @@
-const CACHE_NAME = 'romantic-v9'; // Versiyon artırıldı (v9)
+const CACHE_NAME = 'romantic-v11'; // Versiyon artırıldı (v11)
 const ASSETS_TO_CACHE = [
     './',
     './index.html',
@@ -8,9 +8,9 @@ const ASSETS_TO_CACHE = [
     './js/main.js',
     './js/music-db.js',
     './manifest.json',
-    './js/quiz-game.js?v=3',
-    './js/trivia-game.js?v=3',
-    './js/study-room.js?v=3',
+    './js/quiz-game.js?v=4',
+    './js/trivia-game.js?v=4',
+    './js/study-room.js?v=4',
     './js/telegram-notifications.js',
     './js/supabase-client.js',
 ];
@@ -21,7 +21,7 @@ self.addEventListener('install', function (event) {
         caches.open(CACHE_NAME)
             .then(function (cache) {
                 console.log('Opened cache');
-                return cache.addAll(urlsToCache);
+                return cache.addAll(ASSETS_TO_CACHE);
             })
     );
     self.skipWaiting(); // Force activation
