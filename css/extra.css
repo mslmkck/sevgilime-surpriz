@@ -757,3 +757,165 @@ html {
         }
     }
 }
+
+/* =========================================
+   XX. DESTRUCTION ROOM (İMHA ODASI)
+   ========================================= */
+.destruction-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+    z-index: 2;
+    background: radial-gradient(circle, #2c0000 0%, #000000 100%);
+    color: white;
+}
+
+.destruction-container {
+    background: rgba(0, 0, 0, 0.8);
+    border: 2px solid #e74c3c;
+    border-radius: 20px;
+    padding: 40px;
+    max-width: 600px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 0 50px rgba(231, 76, 60, 0.4);
+    animation: fadeIn 0.5s ease;
+}
+
+.destruction-icon {
+    font-size: 4rem;
+    color: #e74c3c;
+    margin-bottom: 20px;
+}
+
+.destruction-title {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #e74c3c;
+    margin-bottom: 30px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-shadow: 0 0 10px rgba(231, 76, 60, 0.6);
+}
+
+.question-card {
+    min-height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 30px;
+}
+
+.question-text {
+    font-size: 1.4rem;
+    font-weight: 600;
+    line-height: 1.5;
+}
+
+.destruction-btn-group {
+    display: flex;
+    justify-content: space-around;
+    gap: 20px;
+}
+
+.destruct-btn {
+    padding: 15px 40px;
+    border-radius: 50px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+    transition: all 0.3s;
+    text-transform: uppercase;
+    flex: 1;
+}
+
+.yes-btn {
+    background: #e74c3c;
+    color: white;
+    box-shadow: 0 0 15px rgba(231, 76, 60, 0.4);
+}
+
+.yes-btn:hover {
+    background: #c0392b;
+    transform: scale(1.05);
+}
+
+.no-btn {
+    background: #333;
+    color: white;
+    border: 1px solid #555;
+}
+
+.no-btn:hover {
+    background: #444;
+}
+
+/* Countdown Styles */
+.countdown-display {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 4rem;
+    font-weight: bold;
+    color: #e74c3c;
+    margin: 30px 0;
+    text-shadow: 0 0 20px rgba(231, 76, 60, 0.8);
+    border: 2px dashed #e74c3c;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.destruction-desc {
+    font-size: 1.1rem;
+    color: #ccc;
+    margin-bottom: 10px;
+}
+
+.destruction-warning {
+    color: #f1c40f;
+    font-weight: bold;
+    font-size: 1.1rem;
+    margin-top: 20px;
+    animation: flash 2s infinite;
+}
+
+/* Animations */
+@keyframes blink {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+
+@keyframes flash {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.2;
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease forwards;
+}
+
+@media (max-width: 600px) {
+    .countdown-display {
+        font-size: 2.5rem;
+    }
+
+    .destruction-container {
+        padding: 20px;
+    }
+}

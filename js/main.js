@@ -183,6 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
             else if (roomSection.id === 'calikusu-room') roomName = 'calikusu';
             else if (roomSection.id === 'english-room') roomName = 'english';
             else if (roomSection.id === 'music-room') roomName = 'music';
+            else if (roomSection.id === 'destruction-room') roomName = 'destruction';
 
             window.telegramNotifications.notifyRoomEntered(roomName);
         }
@@ -203,6 +204,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (englishRoom) englishRoom.classList.add('hidden');
         const musicRoom = document.getElementById('music-room');
         if (musicRoom) musicRoom.classList.add('hidden');
+        const destructionRoom = document.getElementById('destruction-room');
+        if (destructionRoom) destructionRoom.classList.add('hidden');
 
         // movePlayerToBackground kaldırıldı
 
@@ -321,6 +324,18 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    const btnDestruction = document.getElementById('btn-destruction');
+    const destructionRoom = document.getElementById('destruction-room');
+
+    if (btnDestruction) {
+        btnDestruction.addEventListener('click', () => {
+            openRoom(destructionRoom);
+            if (window.destructionRoom) {
+                window.destructionRoom.init();
+            }
+        });
+    }
+
 
 
     // ======================================
@@ -366,6 +381,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (privateRoom) privateRoom.classList.add('hidden');
         if (calikusuRoom) calikusuRoom.classList.add('hidden');
         if (englishRoom) englishRoom.classList.add('hidden');
+        const destructionRoom = document.getElementById('destruction-room');
+        if (destructionRoom) destructionRoom.classList.add('hidden');
 
         // Müzik Odası logic
         const musicRoom = document.getElementById('music-room');
@@ -418,6 +435,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             else if (roomId === 'working-room') {
                 // Özel işlem gerekirse buraya
+            }
+            else if (roomId === 'destruction-room') {
+                if (window.destructionRoom) window.destructionRoom.init();
             }
 
             updateBottomNavState(roomId);
