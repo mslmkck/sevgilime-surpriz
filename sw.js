@@ -1,4 +1,4 @@
-const CACHE_NAME = 'romantic-v11'; // Versiyon artırıldı (v11)
+const CACHE_NAME = 'romantic-v13'; // Versiyon artırıldı (v13)
 const ASSETS_TO_CACHE = [
     './',
     './index.html',
@@ -8,9 +8,9 @@ const ASSETS_TO_CACHE = [
     './js/main.js',
     './js/music-db.js',
     './manifest.json',
-    './js/quiz-game.js?v=4',
-    './js/trivia-game.js?v=4',
-    './js/study-room.js?v=4',
+    './js/quiz-game.js?v=8',
+    './js/trivia-game.js?v=8',
+    './js/study-room.js?v=8',
     './js/telegram-notifications.js',
     './js/supabase-client.js',
 ];
@@ -33,6 +33,7 @@ self.addEventListener('activate', function (event) {
         caches.keys().then(function (cacheNames) {
             return Promise.all(
                 cacheNames.map(function (cacheName) {
+                    // Eski cache'leri SİL
                     if (cacheWhitelist.indexOf(cacheName) === -1) {
                         return caches.delete(cacheName);
                     }
@@ -43,15 +44,25 @@ self.addEventListener('activate', function (event) {
     self.clients.claim(); // Force control
 });
 
+// NETWORK FIRST STRATEGİSİ (Önce internete bak, yoksa cache'e bak)
+// Bu strateji güncellemelerin anında görünmesini garanti eder.
 self.addEventListener('fetch', function (event) {
     event.respondWith(
-        caches.match(event.request)
+        fetch(event.request)
             .then(function (response) {
-                // Cache hit - return response
-                if (response) {
-                    return response;
-                }
-                return fetch(event.request);
+                // İnternetten başarılı cevap geldiyse, onu dönerken cache'i de güncelle
+                // Ancak dinamik dosyalarda dikkatli olmak gerek.
+                // Şimdilik sadece cevabı dönelim, cache'i elle güncellemeyelim 
+                // (Asset'ler install'da güncelleniyor zaten)
+
+                // NOT: Gerçek bir Network First için dönen cevabı cache'e de atabiliriz
+                // ama basitlik ve güvenilirlik için sadece return response yeterli.
+                // Eğer offline destek çok kritik değilse bu en temizidir.
+                return response;
+            })
+            .catch(function () {
+                // İnternet yoksa cache'den dön
+                return caches.match(event.request);
             })
     );
 });
