@@ -1,0 +1,221 @@
+/* Mood Tracker Styles (Premium Glassmorphism) */
+
+/* Container */
+.mood-section {
+    width: 100%;
+    max-width: 600px;
+    margin: 40px auto 20px auto;
+    /* Üst boşluğu artır */
+    text-align: center;
+    padding: 0 15px;
+    position: relative;
+    z-index: 10;
+}
+
+/* Başlık */
+.mood-title {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+    font-weight: 300;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Buton Grubu */
+.mood-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 25px;
+}
+
+/* Mood Butonları */
+.mood-btn {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 12px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    min-width: 75px;
+    position: relative;
+    overflow: hidden;
+}
+
+.mood-btn:hover {
+    transform: translateY(-5px) scale(1.05);
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.mood-btn:active {
+    transform: scale(0.95);
+}
+
+/* Seçili Olduğunda (Aktif) */
+.mood-btn.active {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+}
+
+.mood-icon {
+    font-size: 2rem;
+    margin-bottom: 6px;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+    transition: transform 0.3s ease;
+}
+
+.mood-btn:hover .mood-icon {
+    transform: scale(1.2) rotate(10deg);
+}
+
+.mood-label {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 500;
+}
+
+/* --- PARTNER MOOD DISPLAY (Diğer kişinin modu) --- */
+.partner-mood-display {
+    margin: 20px auto 30px auto;
+    /* Üstten ve alttan boşluk */
+    width: 90%;
+    max-width: 400px;
+    display: flex;
+    justify-content: center;
+    animation: slideDown 0.8s ease-out;
+}
+
+.partner-mood-card {
+    background: rgba(15, 15, 19, 0.8);
+    /* Daha koyu, daha uyumlu */
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 20px;
+    /* Daha modern köşe */
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    width: 100%;
+}
+
+.partner-mood-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+}
+
+.partner-icon-circle {
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.partner-mood-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    flex: 1;
+}
+
+.partner-name {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin-bottom: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.partner-status {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.partner-time {
+    font-size: 0.65rem;
+    color: rgba(255, 255, 255, 0.4);
+    margin-top: 2px;
+    margin-left: auto;
+    /* Sağa yasla */
+}
+
+/* Modlara Özel Renkler (Glow Efektleri) */
+.mood-glow-happy {
+    border-color: rgba(241, 196, 15, 0.5);
+    box-shadow: 0 0 15px rgba(241, 196, 15, 0.2);
+}
+
+.mood-glow-sad {
+    border-color: rgba(52, 152, 219, 0.5);
+    box-shadow: 0 0 15px rgba(52, 152, 219, 0.2);
+}
+
+.mood-glow-tired {
+    border-color: rgba(149, 165, 166, 0.5);
+    box-shadow: 0 0 15px rgba(149, 165, 166, 0.2);
+}
+
+.mood-glow-love {
+    border-color: rgba(233, 30, 99, 0.5);
+    box-shadow: 0 0 15px rgba(233, 30, 99, 0.2);
+}
+
+.mood-glow-angry {
+    border-color: rgba(231, 76, 60, 0.5);
+    box-shadow: 0 0 15px rgba(231, 76, 60, 0.2);
+}
+
+.mood-glow-excited {
+    border-color: rgba(155, 89, 182, 0.5);
+    box-shadow: 0 0 15px rgba(155, 89, 182, 0.2);
+}
+
+/* Animasyonlar */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}

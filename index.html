@@ -27,9 +27,11 @@
     <link rel="stylesheet" href="css/style.css?v=8">
     <link rel="stylesheet" href="css/games.css?v=8">
     <link rel="stylesheet" href="css/extra.css?v=8">
+    <link rel="stylesheet" href="css/mood.css?v=1">
 
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/mood-tracker.js"></script>
 
     <!-- PWA / iOS Web App Settings -->
     <link rel="manifest" href="manifest.json">
@@ -69,8 +71,19 @@
         </div>
     </div>
 
+
     <!-- ANA İÇERİK (Oda Seçimi) -->
     <main id="main-content" class="hidden">
+
+        <!-- MOOD TRACKER (YENİ) -->
+        <div id="mood-tracker-section" class="mood-section">
+            <!-- Partner Modu (Varsa) -->
+            <div id="partner-mood-display" class="partner-mood-display hidden"></div>
+
+            <!-- Benim Mod Seçimim -->
+            <div id="mood-selection-area" class="mood-selection-area"></div>
+        </div>
+
         <div id="room-selection">
             <h2 class="room-title" data-aos="fade-down">Nereye Gitmek İstersin?</h2>
             <div class="rooms-container">
@@ -155,16 +168,7 @@
                     </div>
                 </div>
 
-                <!-- İmha Odası Kartı (YENİ) -->
-                <div class="room-card" id="btn-destruction" data-aos="fade-up">
-                    <div class="room-img"
-                        style="background-color: #000; display: flex; justify-content: center; align-items: center; border: 2px solid #e74c3c;">
-                        <i class="fas fa-radiation" style="font-size: 5rem; color: #e74c3c;"></i>
-                    </div>
-                    <div class="room-info">
-                        <h3 style="color: #e74c3c;">⚠️ İmha Odası</h3>
-                    </div>
-                </div>
+
             </div>
 
 
@@ -682,73 +686,7 @@
             </div>
         </section>
 
-        <!-- İMHA ODASI (YENİ) -->
-        <section id="destruction-room" class="room-section hidden">
-            <div class="overlay" style="background: rgba(0,0,0,0.95);"></div>
 
-            <button class="back-btn" onclick="goBackToHall()">
-                <i class="fas fa-arrow-left"></i> Hol'e Dön
-            </button>
-
-            <div class="destruction-wrapper">
-
-                <!-- SORU AŞAMASI -->
-                <div id="destruction-question-container" class="destruction-container">
-                    <div class="destruction-icon">
-                        <i class="fas fa-biohazard fa-pulse"></i>
-                    </div>
-                    <h2 class="destruction-title">GÜVENLİK PROTOKOLÜ</h2>
-                    <div class="question-card">
-                        <p id="destruction-question-text" class="question-text">Sitenin kapanmasını istiyor musun?</p>
-                    </div>
-                    <div class="destruction-btn-group">
-                        <button class="destruct-btn no-btn" onclick="window.destructionRoom.handleNo()">HAYIR</button>
-                        <button class="destruct-btn yes-btn" onclick="window.destructionRoom.handleYes()">EVET</button>
-                    </div>
-                </div>
-
-                <!-- GERİ SAYIM AŞAMASI -->
-                <div id="destruction-countdown-container" class="destruction-container hidden">
-                    <div class="destruction-icon">
-                        <i class="fas fa-radiation-alt fa-spin" style="color: red; animation-duration: 5s;"></i>
-                    </div>
-                    <h2 class="destruction-title" style="color: red; animation: blink 1s infinite;">KENDİNİ İMHA GERİ
-                        SAYIMI</h2>
-                    <p class="destruction-desc" id="destruction-status-text">Sistem belirtilen süre sonunda kalıcı
-                        olarak silinecektir.</p>
-
-                    <div class="countdown-display">
-                        <span id="destruction-timer-display">72:00:00</span>
-                    </div>
-
-                    <p class="destruction-warning">⚠️ BU İŞLEM GERİ ALINAMAZ ⚠️</p>
-
-                    <!-- Yeni Eklenen Final Onay Kısmı (Sayacın hemen altında) -->
-                    <div id="destruction-final-confirm" class="hidden"
-                        style="margin-top: 30px; border-top: 1px solid #555; padding-top: 20px;">
-                        <h3 style="color: white; margin-bottom: 15px;">Her şeyi bitirmek istediğine emin misin?</h3>
-                        <div class="destruction-btn-group">
-                            <button class="destruct-btn no-btn"
-                                onclick="window.destructionRoom.handleFinalConfirmation('no')">HAYIR, DURDUR</button>
-                            <button class="destruct-btn yes-btn"
-                                onclick="window.destructionRoom.handleFinalConfirmation('yes')">EVET, EMİNİM</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- BAŞARISIZLIK / RED AŞAMASI -->
-                <div id="destruction-fail-container" class="destruction-container hidden">
-                    <div class="destruction-icon">
-                        <i class="fas fa-shield-alt" style="color: #2ecc71;"></i>
-                    </div>
-                    <h2 class="destruction-title" style="color: #2ecc71;">İPTAL EDİLDİ</h2>
-                    <p class="destruction-desc">Kullanıcı onayı alınamadığı için geri sayım başlatılamadı.</p>
-                    <p class="destruction-desc" style="margin-top:20px; font-style:italic;">"Güvenlik protokolleri
-                        devrede."</p>
-                </div>
-
-            </div>
-        </section>
 
         <!-- MÜZİK ODASI (YENİ - TAM EKRAN PLAYER) -->
         <!-- MÜZİK ODASI (PRO PLAYER DESIGN) -->

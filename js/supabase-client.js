@@ -12,6 +12,7 @@ let supabaseClient;
 if (window.supabase) {
     try {
         supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        window.supabaseClient = supabaseClient; // Global erişim için
         console.log('✅ Supabase bağlantısı başlatıldı: ', SUPABASE_URL);
     } catch (err) {
         console.error('Supabase başlatma hatası:', err);
