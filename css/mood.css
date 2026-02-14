@@ -3,11 +3,10 @@
 /* Container */
 .mood-section {
     width: 100%;
-    max-width: 600px;
-    margin: 40px auto 20px auto;
-    /* Üst boşluğu artır */
+    max-width: 500px;
+    margin: 20px auto 10px auto; /* Reduced margins */
     text-align: center;
-    padding: 0 15px;
+    padding: 0 10px;
     position: relative;
     z-index: 10;
 }
@@ -15,8 +14,8 @@
 /* Başlık */
 .mood-title {
     color: rgba(255, 255, 255, 0.8);
-    font-size: 1.1rem;
-    margin-bottom: 15px;
+    font-size: 1rem; /* Slightly smaller */
+    margin-bottom: 10px;
     font-weight: 300;
     letter-spacing: 1px;
     text-transform: uppercase;
@@ -27,9 +26,9 @@
 .mood-buttons {
     display: flex;
     justify-content: center;
-    gap: 12px;
+    gap: 8px; /* Reduced gap */
     flex-wrap: wrap;
-    margin-bottom: 25px;
+    margin-bottom: 15px;
 }
 
 /* Mood Butonları */
@@ -38,20 +37,20 @@
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 16px;
-    padding: 12px 10px;
+    border-radius: 12px;
+    padding: 8px 6px; /* Reduced padding */
     display: flex;
     flex-direction: column;
     align-items: center;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    min-width: 75px;
+    min-width: 60px; /* Reduced min-width */
     position: relative;
     overflow: hidden;
 }
 
 .mood-btn:hover {
-    transform: translateY(-5px) scale(1.05);
+    transform: translateY(-3px) scale(1.02);
     background: rgba(255, 255, 255, 0.15);
     border-color: rgba(255, 255, 255, 0.3);
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
@@ -65,24 +64,40 @@
 .mood-btn.active {
     background: rgba(255, 255, 255, 0.25);
     border-color: rgba(255, 255, 255, 0.8);
-    box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
 }
 
 .mood-icon {
-    font-size: 2rem;
-    margin-bottom: 6px;
+    font-size: 1.5rem; /* Reduced icon size */
+    margin-bottom: 4px;
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
     transition: transform 0.3s ease;
 }
 
 .mood-btn:hover .mood-icon {
-    transform: scale(1.2) rotate(10deg);
+    transform: scale(1.1) rotate(5deg);
 }
 
 .mood-label {
-    font-size: 0.75rem;
+    font-size: 0.65rem; /* Reduced font size */
     color: rgba(255, 255, 255, 0.9);
     font-weight: 500;
+}
+
+/* Mobile Adjustments */
+@media (max-width: 480px) {
+    .mood-btn {
+        min-width: 50px;
+        padding: 6px 4px;
+    }
+    .mood-icon {
+        font-size: 1.3rem;
+    }
+    .mood-label {
+        font-size: 0.6rem;
+        display: none; /* Hide labels on very small screens if needed, or keep small */
+        display: block; /* Keeping it block for now but small */
+    }
 }
 
 /* --- PARTNER MOOD DISPLAY (Diğer kişinin modu) --- */

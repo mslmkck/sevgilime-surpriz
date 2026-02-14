@@ -548,6 +548,50 @@ async function getPrivateAnswers() {
 }
 
 // =============================================
+// FUTURE LETTERS (GELECEĞE MEKTUPLAR)
+// =============================================
+
+async function saveFutureLetter(title, content, unlockDate) {
+    if (!supabaseClient) return null;
+    const sender = getCurrentProfile();
+    try {
+        const { data, error } = await supabaseClient
+            .from('future_letters')
+            .insert({
+                title: title,
+                content: content,
+                unlock_date: unlockDate,
+                sender: sender
+            })
+            .select()
+            .single();
+
+        if (error) throw error;
+        console.log('✅ Geleceğe mektup kaydedildi');
+        return data;
+    } catch (error) {
+        console.error('❌ Mektup kaydetme hatası:', error);
+        return null;
+    }
+}
+
+async function getFutureLetters() {
+    if (!supabaseClient) return [];
+    try {
+        const { data, error } = await supabaseClient
+            .from('future_letters')
+            .select('*')
+            .order('unlock_date', { ascending: true }); // En yakın tarihli başta
+
+        if (error) throw error;
+        return data || [];
+    } catch (error) {
+        console.error('❌ Mektupları okuma hatası:', error);
+        return [];
+    }
+}
+
+// =============================================
 // EXPORT HELPER
 // =============================================
 
@@ -573,5 +617,7 @@ window.supabaseHelpers = {
     saveSpeedLimit,
     getSpeedLimits,
     savePrivateAnswer,
-    getPrivateAnswers
+    getPrivateAnswers,
+    saveFutureLetter,
+    getFutureLetters
 };

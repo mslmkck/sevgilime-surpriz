@@ -248,15 +248,164 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (btnPoetry) btnPoetry.addEventListener('click', async () => {
         openRoom(sectionPoetry);
-        if (window.supabaseHelpers) {
-            // Şiirleri yükle
-            const dbPoems = await window.supabaseHelpers.getPoems();
-            if (dbPoems && dbPoems.length > 0) {
-                poems = dbPoems;
-            }
-            renderFloatingPoems();
-        }
+        // Varsayılan olarak şiirleri aç
+        switchPoetryTab('poems');
     });
+
+    // ======================================
+    // POETRY & LETTERS ROOM LOGIC
+    // ======================================
+
+    window.switchPoetryTab = async (tabName) => {
+        const poemsArea = document.getElementById('poems-content-area');
+        const lettersArea = document.getElementById('letters-content-area');
+        const btnPoems = document.getElementById('tab-btn-poems');
+        const btnLetters = document.getElementById('tab-btn-letters');
+
+        if (tabName === 'poems') {
+            poemsArea.classList.remove('hidden');
+            lettersArea.classList.add('hidden');
+            btnPoems.classList.add('active');
+            btnLetters.classList.remove('active');
+
+            if (window.supabaseHelpers) {
+                const dbPoems = await window.supabaseHelpers.getPoems();
+                if (dbPoems && dbPoems.length > 0) {
+                    poems = dbPoems;
+                }
+                renderFloatingPoems();
+            }
+        } else {
+            poemsArea.classList.add('hidden');
+            lettersArea.classList.remove('hidden');
+            btnPoems.classList.remove('active');
+            btnLetters.classList.add('active');
+
+            renderLetters();
+        }
+    };
+
+    // --- MEKTUP MANTIĞI ---
+    window.toggleAddLetterForm = () => {
+        const form = document.getElementById('new-letter-form');
+        form.classList.toggle('hidden');
+    };
+
+    window.saveNewLetter = async () => {
+        const title = document.getElementById('new-letter-title').value;
+        const body = document.getElementById('new-letter-body').value;
+        const dateStr = document.getElementById('new-letter-date').value;
+
+        if (!title || !body || !dateStr) {
+            alert("Lütfen tüm alanları doldurun!");
+            return;
+        }
+
+        const unlockDate = new Date(dateStr).toISOString();
+
+        if (window.supabaseHelpers) {
+            await window.supabaseHelpers.saveFutureLetter(title, body, unlockDate);
+            alert("Mektup zaman kapsülüne kondu! ⏳");
+            toggleAddLetterForm();
+            renderLetters(); // Listeyi yenile
+        }
+    };
+
+    window.renderLetters = async () => {
+        const grid = document.getElementById('letters-grid');
+        grid.innerHTML = '<p style="color:white; width:100%;">Mektuplar yükleniyor...</p>';
+
+        if (!window.supabaseHelpers) return;
+
+        const letters = await window.supabaseHelpers.getFutureLetters();
+        grid.innerHTML = '';
+
+        if (letters.length === 0) {
+            grid.innerHTML = '<p style="color:white; opacity:0.7;">Henüz geleceğe yazılmış bir mektup yok.</p>';
+            return;
+        }
+
+        const now = new Date();
+
+        letters.forEach(letter => {
+            const unlockDate = new Date(letter.unlock_date);
+            const isLocked = now < unlockDate;
+            const card = document.createElement('div');
+
+            // Kart Stili
+            card.style.cssText = `
+                background: ${isLocked ? 'rgba(44, 62, 80, 0.9)' : 'rgba(236, 240, 241, 0.95)'};
+                color: ${isLocked ? '#bdc3c7' : '#2c3e50'};
+                width: 140px;
+                height: 180px;
+                border-radius: 10px;
+                padding: 15px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: space-between;
+                cursor: pointer;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+                transition: transform 0.3s;
+                position: relative;
+                overflow: hidden;
+            `;
+
+            // Kilit İkonu / Zarf İkonu
+            const icon = isLocked ? '<i class="fas fa-lock" style="font-size: 2.5rem; margin-top:20px;"></i>' : '<i class="fas fa-envelope-open-text" style="font-size: 2.5rem; margin-top:20px; color: #e67e22;"></i>';
+
+            // Tarih Formatı
+            const dateOptions = { year: 'numeric', month: 'short', day: 'numeric' };
+            const dateDisplay = unlockDate.toLocaleDateString('tr-TR', dateOptions);
+
+            card.innerHTML = `
+                ${icon}
+                <div style="text-align:center; z-index:2;">
+                    <h4 style="font-size: 0.9rem; margin-bottom: 5px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">${letter.title}</h4>
+                    <span style="font-size: 0.7rem; opacity: 0.8;">${isLocked ? 'Açılış:' : ''} ${dateDisplay}</span>
+                </div>
+            `;
+
+            if (isLocked) {
+                // Kilitliyken tıklandığında
+                card.onclick = () => {
+                    const diffTime = Math.abs(unlockDate - now);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    alert(`Bu mektubu açmak için daha ${diffDays} gün beklemen lazım! 🚫`);
+                };
+            } else {
+                // Açıkken tıklandığında
+                card.onclick = () => openLetterReadModal(letter);
+            }
+
+            // Hover efekti
+            card.onmouseenter = () => card.style.transform = 'translateY(-5px)';
+            card.onmouseleave = () => card.style.transform = 'translateY(0)';
+
+            grid.appendChild(card);
+        });
+    };
+
+    // Mektup Okuma Modalı
+    window.openLetterReadModal = (letter) => {
+        const modal = document.getElementById('letter-read-modal');
+        const title = document.getElementById('letter-read-title');
+        const meta = document.getElementById('letter-read-meta');
+        const body = document.getElementById('letter-read-body');
+
+        const dateOptions = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+        const sentDate = new Date(letter.created_at).toLocaleDateString('tr-TR', dateOptions);
+
+        title.textContent = letter.title;
+        meta.textContent = `Kimden: ${letter.sender === 'rabbit' ? '🐰 Tavşan' : (letter.sender === 'fox' ? '🦊 Tilki' : 'Bilinmiyor')} | Yazılma Tarihi: ${sentDate}`;
+        body.textContent = letter.content;
+
+        modal.classList.remove('hidden');
+    };
+
+    window.closeLetterReadModal = () => {
+        document.getElementById('letter-read-modal').classList.add('hidden');
+    };
 
     if (btnMemory) btnMemory.addEventListener('click', async () => {
         openRoom(sectionMemory);

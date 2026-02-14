@@ -76,15 +76,16 @@
     <main id="main-content" class="hidden">
 
         <!-- MOOD TRACKER (YENİ) -->
-        <div id="mood-tracker-section" class="mood-section">
-            <!-- Partner Modu (Varsa) -->
-            <div id="partner-mood-display" class="partner-mood-display hidden"></div>
-
-            <!-- Benim Mod Seçimim -->
-            <div id="mood-selection-area" class="mood-selection-area"></div>
-        </div>
-
         <div id="room-selection">
+            <!-- MOOD TRACKER (Taşındı) -->
+            <div id="mood-tracker-section" class="mood-section">
+                <!-- Partner Modu (Varsa) -->
+                <div id="partner-mood-display" class="partner-mood-display hidden"></div>
+
+                <!-- Benim Mod Seçimim -->
+                <div id="mood-selection-area" class="mood-selection-area"></div>
+            </div>
+
             <h2 class="room-title" data-aos="fade-down">Nereye Gitmek İstersin?</h2>
             <div class="rooms-container">
                 <div class="room-card" id="btn-meeting" data-aos="fade-up">
@@ -170,8 +171,6 @@
 
 
             </div>
-
-
         </div>
 
         <!-- ODA İÇERİKLERİ -->
@@ -183,30 +182,79 @@
                 <i class="fas fa-arrow-left"></i> Hol'e Dön
             </button>
 
-            <!-- Uçuşan Şiir İsimleri Alanı -->
-            <div id="floating-area">
-                <!-- JS ile buraya şiir başlıkları eklenecek -->
+            <!-- TABS (YENİ) -->
+            <div class="poetry-tabs"
+                style="position: absolute; top: 80px; width: 100%; display: flex; justify-content: center; gap: 20px; z-index: 20;">
+                <button class="tab-btn active" id="tab-btn-poems" onclick="switchPoetryTab('poems')">Şiirler</button>
+                <button class="tab-btn" id="tab-btn-letters" onclick="switchPoetryTab('letters')">Geleceğe
+                    Mektuplar</button>
             </div>
 
-            <!-- Şiir Okuma Modalı (Parşomen) - Başlangıçta Gizli -->
-            <div id="poem-modal" class="hidden overlay-modal">
-                <button class="close-modal-btn" onclick="closePoemModal()">
-                    <i class="fas fa-times"></i>
-                </button>
-                <div class="parchment-wrapper">
-                    <div class="parchment">
-                        <h2 class="poem-title" id="modal-poem-title">Başlık</h2>
-                        <div class="poem-body" id="modal-poem-body">
-                            <!-- Şiir içeriği buraya gelecek -->
+            <!-- 1. ŞİİRLER ALANI -->
+            <div id="poems-content-area">
+                <!-- Uçuşan Şiir İsimleri Alanı -->
+                <div id="floating-area">
+                    <!-- JS ile buraya şiir başlıkları eklenecek -->
+                </div>
+
+                <!-- Şiir Okuma Modalı -->
+                <div id="poem-modal" class="hidden overlay-modal">
+                    <button class="close-modal-btn" onclick="closePoemModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <div class="parchment-wrapper">
+                        <div class="parchment">
+                            <h2 class="poem-title" id="modal-poem-title">Başlık</h2>
+                            <div class="poem-body" id="modal-poem-body">
+                                <!-- Şiir içeriği buraya gelecek -->
+                            </div>
                         </div>
                     </div>
                 </div>
+
+                <!-- Şiir Ekleme Butonu -->
+                <button id="add-poem-fab" onclick="toggleAddPoemForm()">
+                    <i class="fas fa-feather-alt"></i> Şiir Ekle
+                </button>
             </div>
 
-            <!-- Şiir Ekleme Butonu (Sol Alt) -->
-            <button id="add-poem-fab" onclick="toggleAddPoemForm()">
-                <i class="fas fa-feather-alt"></i> Şiir Ekle
-            </button>
+            <!-- 2. MEKTUPLAR ALANI (YENİ) -->
+            <div id="letters-content-area" class="hidden"
+                style="padding-top: 140px; text-align: center; position: relative; z-index: 15; height: 100%; overflow-y: auto;">
+                <h2 style="color: #fff; font-family: 'Playfair Display', serif; margin-bottom: 20px;">Zaman Kapsülü ⏳
+                </h2>
+
+                <div id="letters-grid"
+                    style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding: 0 20px;">
+                    <!-- JS ile mektuplar buraya gelecek -->
+                </div>
+
+                <!-- Mektup Okuma Modalı -->
+                <div id="letter-read-modal" class="hidden overlay-modal"
+                    style="display: flex; align-items: center; justify-content: center;">
+                    <div
+                        style="background: #fff; padding: 30px; border-radius: 10px; max-width: 90%; width: 500px; position: relative; color: #333; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+                        <button class="close-modal-btn" onclick="closeLetterReadModal()"
+                            style="position: absolute; top: 10px; right: 10px; color: #333; background: none; border: none; font-size: 1.5rem;"><i
+                                class="fas fa-times"></i></button>
+                        <h3 id="letter-read-title"
+                            style="margin-bottom: 15px; border-bottom: 2px solid #eee; padding-bottom: 10px;">Mektup
+                            Başlığı</h3>
+                        <p id="letter-read-meta" style="font-size: 0.8rem; color: #777; margin-bottom: 20px;"></p>
+                        <div id="letter-read-body"
+                            style="white-space: pre-wrap; line-height: 1.6; max-height: 300px; overflow-y: auto;">
+                            <!-- İçerik -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mektup Ekleme Butonu -->
+                <button id="add-letter-fab" onclick="toggleAddLetterForm()"
+                    style="position: fixed; bottom: 30px; right: 30px; background: #e67e22; color: white; width: 60px; height: 60px; border-radius: 50%; border: none; font-size: 24px; box-shadow: 0 4px 15px rgba(230, 126, 34, 0.4); cursor: pointer; z-index: 100; display: flex; justify-content: center; align-items: center; transition: transform 0.3s;">
+                    <i class="fas fa-envelope"></i>
+                </button>
+            </div>
+
 
             <!-- Şiir Ekleme Formu -->
             <div id="new-poem-form" class="hidden overlay-modal">
@@ -217,6 +265,33 @@
                     <div class="form-buttons">
                         <button onclick="saveNewPoem()" class="save-btn">Kaydet</button>
                         <button onclick="toggleAddPoemForm()" class="cancel-btn">İptal</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mektup Ekleme Formu (YENİ) -->
+            <div id="new-letter-form" class="hidden overlay-modal">
+                <div class="form-card"
+                    style="background: #fff; padding: 25px; border-radius: 15px; width: 90%; max-width: 400px; z-index: 1001;">
+                    <h3 style="color: #333; margin-bottom: 15px;">Geleceğe Not Bırak 💌</h3>
+                    <input type="text" id="new-letter-title" placeholder="Konu / Başlık"
+                        style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px;">
+
+                    <label
+                        style="display: block; text-align: left; font-size: 0.8rem; color: #555; margin-bottom: 5px;">Ne
+                        Zaman Açılsın?</label>
+                    <input type="datetime-local" id="new-letter-date"
+                        style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 5px;">
+
+                    <textarea id="new-letter-body" rows="6" placeholder="Sevgili gelecekteki biz..."
+                        style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 5px; resize: none;"></textarea>
+
+                    <div class="form-buttons" style="display: flex; gap: 10px; justify-content: flex-end;">
+                        <button onclick="toggleAddLetterForm()" class="cancel-btn"
+                            style="padding: 10px 20px; border: none; background: #eee; color: #333; border-radius: 5px; cursor: pointer;">İptal</button>
+                        <button onclick="saveNewLetter()" class="save-btn"
+                            style="padding: 10px 20px; border: none; background: #e67e22; color: #fff; border-radius: 5px; cursor: pointer;">Mühürle
+                            ve Gönder</button>
                     </div>
                 </div>
             </div>
