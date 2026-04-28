@@ -19,7 +19,7 @@ Proje oluştuktan sonra sol menüden **SQL Editor** ikonuna tıklayın ve **New 
 Aşağıdaki kodların **TAMAMINI** kopyalayıp oraya yapıştırın ve sağ alttaki **Run** butonuna basın.
 
 ```sql
--- KULLANICI PROFİLLERİ
+-- 1. KULLANICI PROFİLLERİ
 CREATE TABLE IF NOT EXISTS user_profiles (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id TEXT UNIQUE NOT NULL,
@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS user_profiles (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- ŞİİRLER
+-- 2. ŞİİRLER
 CREATE TABLE IF NOT EXISTS poems (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id TEXT NOT NULL,
@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS poems (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- ANILAR (Shared Board için slot_number kullanıyoruz)
+-- 3. ANILAR
 CREATE TABLE IF NOT EXISTS memories (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id TEXT NOT NULL,
@@ -46,16 +46,16 @@ CREATE TABLE IF NOT EXISTS memories (
     UNIQUE(user_id, slot_number)
 );
 
--- SOHBET MESAJLARI
+-- 4. SOHBET MESAJLARI
 CREATE TABLE IF NOT EXISTS chat_messages (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id TEXT, -- Kimin gönderdiği (cihaz id)
-    sender TEXT NOT NULL, -- 'rabbit' veya 'fox'
+    user_id TEXT,
+    sender TEXT NOT NULL,
     message TEXT NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- OYUN SKORLARI
+-- 5. OYUN SKORLARI
 CREATE TABLE IF NOT EXISTS game_scores (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     game_type TEXT NOT NULL,
@@ -64,7 +64,33 @@ CREATE TABLE IF NOT EXISTS game_scores (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- CEZA NOTLARI (ÇALIŞMA ODASI - KİŞİYE ÖZEL)
+-- 6. DUYGU DURUMU (MOOD TRACKER)
+CREATE TABLE IF NOT EXISTS mood_tracker (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_role TEXT NOT NULL,
+    mood_type TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- 7. ÖZEL ODA CEVAPLARI (PRIVATE ANSWERS)
+CREATE TABLE IF NOT EXISTS private_answers (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    character TEXT NOT NULL,
+    answer_text TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- 8. GELECEĞE MEKTUPLAR (FUTURE LETTERS)
+CREATE TABLE IF NOT EXISTS future_letters (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    title TEXT,
+    content TEXT NOT NULL,
+    sender TEXT NOT NULL,
+    unlock_date TIMESTAMP WITH TIME ZONE NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- 9. CEZA NOTLARI
 CREATE TABLE IF NOT EXISTS fine_notes (
     id SERIAL PRIMARY KEY,
     user_profile TEXT NOT NULL,
@@ -76,7 +102,7 @@ CREATE TABLE IF NOT EXISTS fine_notes (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
 
--- EZBER KARTLARI (HERKESE AÇIK)
+-- 10. EZBER KARTLARI
 CREATE TABLE IF NOT EXISTS flashcards (
     id SERIAL PRIMARY KEY,
     term TEXT NOT NULL,
@@ -84,40 +110,46 @@ CREATE TABLE IF NOT EXISTS flashcards (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
 
--- LEVHALAR (HERKESE AÇIK)
+-- 11. LEVHALAR
 CREATE TABLE IF NOT EXISTS signs (
     id SERIAL PRIMARY KEY,
     name TEXT NOT NULL,
-    icon TEXT NOT NULL, -- Emoji veya ikon kodu
+    icon TEXT NOT NULL,
     description TEXT NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
 
--- HIZ LİMİTLERİ (HERKESE AÇIK)
+-- 12. HIZ LİMİTLERİ
 CREATE TABLE IF NOT EXISTS speed_limits (
     id SERIAL PRIMARY KEY,
     type TEXT NOT NULL,
-    "limit" TEXT NOT NULL, -- HATA DÜZELTİLDİ: "limit" özel kelimedir, tırnak içine alındı.
+    "limit" TEXT NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
 
--- GÜVENLİK AYARLARI (RLS) - Şimdilik herkese açık (Public)
+-- GÜVENLİK AYARLARI (RLS)
 ALTER TABLE user_profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE poems ENABLE ROW LEVEL SECURITY;
 ALTER TABLE memories ENABLE ROW LEVEL SECURITY;
 ALTER TABLE chat_messages ENABLE ROW LEVEL SECURITY;
 ALTER TABLE game_scores ENABLE ROW LEVEL SECURITY;
+ALTER TABLE mood_tracker ENABLE ROW LEVEL SECURITY;
+ALTER TABLE private_answers ENABLE ROW LEVEL SECURITY;
+ALTER TABLE future_letters ENABLE ROW LEVEL SECURITY;
 ALTER TABLE fine_notes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE flashcards ENABLE ROW LEVEL SECURITY;
 ALTER TABLE signs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE speed_limits ENABLE ROW LEVEL SECURITY;
 
--- Herkesin okuyup yazabilmesine izin veren politikalar
+-- Politikalar
 CREATE POLICY "Public Profiles" ON user_profiles FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Public Poems" ON poems FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Public Memories" ON memories FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Public Chat" ON chat_messages FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Public Games" ON game_scores FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Public Mood" ON mood_tracker FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Public Private Answers" ON private_answers FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Public Future Letters" ON future_letters FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Public Fine Notes" ON fine_notes FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Public Flashcards" ON flashcards FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Public Signs" ON signs FOR ALL USING (true) WITH CHECK (true);
@@ -131,52 +163,27 @@ commit;
 
 -- VARSAYILAN VERİLERİ EKLE
 INSERT INTO speed_limits (type, "limit") VALUES
-('Yerleşim Yeri İçinde', '50'),
-('Şehirlerarası Çift Yönlü', '90'),
-('Bölünmüş Yollar', '110'),
-('Otoyollar', '120'),
-('Okul Bölgesi', '30');
+('Yerleşim Yeri İçinde', '50'), ('Şehirlerarası Çift Yönlü', '90'), ('Bölünmüş Yollar', '110'), ('Otoyollar', '120'), ('Okul Bölgesi', '30');
 
 INSERT INTO signs (name, icon, description) VALUES
-('DUR', '🛑', 'Kavşaklarda durarak kontrol etmeniz gerektiğini belirtir.'),
-('Girişi Olmayan Yol', '⛔', 'Bu yönden araç girişinin yasak olduğunu belirtir.'),
-('Dikkat', '⚠️', 'Tehlike uyarısı. Hızınızı azaltın.'),
-('Park Yapılmaz', '🚫', 'Belirtilen alana park etmek yasaktır.'),
-('Yaya Geçidi', '🚸', 'Yaya geçidine yaklaşıldığını bildirir.'),
-('Kaygan Yol', '🛣️', 'Yol yüzeyinin kaygan olabileceğini belirtir.');
+('DUR', '🛑', 'Dur kontrol et.'), ('Girişi Olmayan Yol', '⛔', 'Ters yön.'), ('Dikkat', '⚠️', 'Tehlike uyarısı.'), ('Park Yapılmaz', '🚫', 'Yasak.'), ('Yaya Geçidi', '🚸', 'Yavaşla.'), ('Kaygan Yol', '🛣️', 'Kaygan.');
 
 INSERT INTO flashcards (term, definition) VALUES
-('Madde 51/2-a', 'Hız sınırlarını %10 - %30 oranında aşmak.'),
-('Madde 51/2-b', 'Hız sınırlarını %30 - %50 oranında aşmak.'),
-('Madde 51/2-c', 'Hız sınırlarını %50''den fazla aşmak.'),
-('Madde 47/1-b', 'Kırmızı ışık kuralına uymamak.'),
-('Madde 48/5', 'Alkollü araç kullanmak.'),
-('Madde 78/1-a', 'Emniyet kemeri takmamak.'),
-('Madde 73/c', 'Seyir halinde cep telefonu kullanmak.'),
-('Madde 36/3-a', 'Ehliyetsiz araç kullanmak.');
+('Madde 51/2-a', 'Hız %10-%30 aşımı.'), ('Madde 47/1-b', 'Kırmızı ışık.'), ('Madde 48/5', 'Alkol.'), ('Madde 78/1-a', 'Kemer.');
 ```
 
 "Success" mesajını görünce tablolar tamam demektir! ✅
 
 ## 3. Depolama (Storage) Ayarı
 
-Anı defterine fotoğraf yükleyebilmek için bir "Bucket" açmalıyız.
-
 1.  Sol menüden **Storage** ikonuna tıklayın.
 2.  **New Bucket** butonuna basın.
-3.  **Name project:** `memory-photos` (Bu ismi aynen yazın!)
-4.  **Public bucket** seçeneğini **AÇIK (ON)** yapın. (Bu çok önemli!)
-5.  **Save** diyerek kaydedin.
-6.  Bucket oluştuktan sonra, **Configuration** sekmesine gidin ve **Policies** kısmından "New Policy" diyerek *Give users access to all files* gibi hazır bir template seçip "Insert", "Update", "Select" izinlerinin hepsini verip kaydedin. (Veya SQL ile halledebiliriz ama arayüzden "Public" seçmek yeterli olabilir).
+3.  **Name:** `memory-photos` (Public bucket ON olsun).
+4.  Policies kısmından her şeye izin verin.
 
 ## 4. Bağlantı Bilgilerini Alma
 
-1.  Sol menüden **Project Settings** (Dişli çark) > **API** kısmına gidin.
-2.  **Project URL** değerini kopyalayın.
-3.  **Project API Keys** altındaki `anon` `public` key'i kopyalayın.
+1.  **Project Settings** > **API** kısmına gidin.
+2.  `Project URL` ve `anon` key'i kopyalayıp `supabase-client.js` içine yapıştırın.
 
-## 5. Siteye Entegre Etme
-
-Bilgileri masaüstündeki `website/js/supabase-client.js` dosyasına eklediğinizden emin olun.
-
-Kaydettikten sonra siteniz çalışmaya hazır! 🎉
+Siteniz çalışmaya hazır! 🎉
