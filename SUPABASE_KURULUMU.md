@@ -19,7 +19,10 @@ Proje oluştuktan sonra sol menüden **SQL Editor** ikonuna tıklayın ve **New 
 Aşağıdaki kodların **TAMAMINI** kopyalayıp oraya yapıştırın ve sağ alttaki **Run** butonuna basın.
 
 ```sql
--- 1. KULLANICI PROFİLLERİ
+-- =============================================
+-- 1. TABLOLARI OLUŞTUR
+-- =============================================
+
 CREATE TABLE IF NOT EXISTS user_profiles (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id TEXT UNIQUE NOT NULL,
@@ -27,7 +30,6 @@ CREATE TABLE IF NOT EXISTS user_profiles (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- 2. ŞİİRLER
 CREATE TABLE IF NOT EXISTS poems (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id TEXT NOT NULL,
@@ -36,7 +38,6 @@ CREATE TABLE IF NOT EXISTS poems (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- 3. ANILAR
 CREATE TABLE IF NOT EXISTS memories (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id TEXT NOT NULL,
@@ -46,7 +47,6 @@ CREATE TABLE IF NOT EXISTS memories (
     UNIQUE(user_id, slot_number)
 );
 
--- 4. SOHBET MESAJLARI
 CREATE TABLE IF NOT EXISTS chat_messages (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id TEXT,
@@ -55,7 +55,6 @@ CREATE TABLE IF NOT EXISTS chat_messages (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- 5. OYUN SKORLARI
 CREATE TABLE IF NOT EXISTS game_scores (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     game_type TEXT NOT NULL,
@@ -64,7 +63,6 @@ CREATE TABLE IF NOT EXISTS game_scores (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- 6. DUYGU DURUMU (MOOD TRACKER)
 CREATE TABLE IF NOT EXISTS mood_tracker (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_role TEXT NOT NULL,
@@ -72,7 +70,6 @@ CREATE TABLE IF NOT EXISTS mood_tracker (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- 7. ÖZEL ODA CEVAPLARI (PRIVATE ANSWERS)
 CREATE TABLE IF NOT EXISTS private_answers (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     character TEXT NOT NULL,
@@ -80,7 +77,6 @@ CREATE TABLE IF NOT EXISTS private_answers (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- 8. GELECEĞE MEKTUPLAR (FUTURE LETTERS)
 CREATE TABLE IF NOT EXISTS future_letters (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     title TEXT,
@@ -90,7 +86,6 @@ CREATE TABLE IF NOT EXISTS future_letters (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- 9. CEZA NOTLARI
 CREATE TABLE IF NOT EXISTS fine_notes (
     id SERIAL PRIMARY KEY,
     user_profile TEXT NOT NULL,
@@ -102,7 +97,6 @@ CREATE TABLE IF NOT EXISTS fine_notes (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
 
--- 10. EZBER KARTLARI
 CREATE TABLE IF NOT EXISTS flashcards (
     id SERIAL PRIMARY KEY,
     term TEXT NOT NULL,
@@ -110,7 +104,6 @@ CREATE TABLE IF NOT EXISTS flashcards (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
 
--- 11. LEVHALAR
 CREATE TABLE IF NOT EXISTS signs (
     id SERIAL PRIMARY KEY,
     name TEXT NOT NULL,
@@ -119,7 +112,6 @@ CREATE TABLE IF NOT EXISTS signs (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
 
--- 12. HIZ LİMİTLERİ
 CREATE TABLE IF NOT EXISTS speed_limits (
     id SERIAL PRIMARY KEY,
     type TEXT NOT NULL,
@@ -127,7 +119,10 @@ CREATE TABLE IF NOT EXISTS speed_limits (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
 
--- GÜVENLİK AYARLARI (RLS)
+-- =============================================
+-- 2. GÜVENLİK AYARLARI (RLS)
+-- =============================================
+
 ALTER TABLE user_profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE poems ENABLE ROW LEVEL SECURITY;
 ALTER TABLE memories ENABLE ROW LEVEL SECURITY;
@@ -141,7 +136,21 @@ ALTER TABLE flashcards ENABLE ROW LEVEL SECURITY;
 ALTER TABLE signs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE speed_limits ENABLE ROW LEVEL SECURITY;
 
--- Politikalar
+-- ESKİ POLİTİKALARI TEMİZLE (Hata almamak için)
+DROP POLICY IF EXISTS "Public Profiles" ON user_profiles;
+DROP POLICY IF EXISTS "Public Poems" ON poems;
+DROP POLICY IF EXISTS "Public Memories" ON memories;
+DROP POLICY IF EXISTS "Public Chat" ON chat_messages;
+DROP POLICY IF EXISTS "Public Games" ON game_scores;
+DROP POLICY IF EXISTS "Public Mood" ON mood_tracker;
+DROP POLICY IF EXISTS "Public Private Answers" ON private_answers;
+DROP POLICY IF EXISTS "Public Future Letters" ON future_letters;
+DROP POLICY IF EXISTS "Public Fine Notes" ON fine_notes;
+DROP POLICY IF EXISTS "Public Flashcards" ON flashcards;
+DROP POLICY IF EXISTS "Public Signs" ON signs;
+DROP POLICY IF EXISTS "Public Speed Limits" ON speed_limits;
+
+-- YENİ POLİTİKALARI OLUŞTUR
 CREATE POLICY "Public Profiles" ON user_profiles FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Public Poems" ON poems FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Public Memories" ON memories FOR ALL USING (true) WITH CHECK (true);
@@ -155,21 +164,33 @@ CREATE POLICY "Public Flashcards" ON flashcards FOR ALL USING (true) WITH CHECK 
 CREATE POLICY "Public Signs" ON signs FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Public Speed Limits" ON speed_limits FOR ALL USING (true) WITH CHECK (true);
 
--- Realtime özelliğini aç (Chat için gerekli)
+-- =============================================
+-- 3. REALTIME AYARLARI
+-- =============================================
+
 begin;
   drop publication if exists supabase_realtime;
   create publication supabase_realtime for table chat_messages;
 commit;
 
--- VARSAYILAN VERİLERİ EKLE
+-- =============================================
+-- 4. VARSAYILAN VERİLER
+-- =============================================
+
+-- Sadece tablolar boşsa ekle (opsiyonel ama re-run için güvenli olsun diye tırnaklı limit kullandık)
+-- Eğer veriler zaten varsa 'duplicate key' hatası verebilir, sorun değil.
+
 INSERT INTO speed_limits (type, "limit") VALUES
-('Yerleşim Yeri İçinde', '50'), ('Şehirlerarası Çift Yönlü', '90'), ('Bölünmüş Yollar', '110'), ('Otoyollar', '120'), ('Okul Bölgesi', '30');
+('Yerleşim Yeri İçinde', '50'), ('Şehirlerarası Çift Yönlü', '90'), ('Bölünmüş Yollar', '110'), ('Otoyollar', '120'), ('Okul Bölgesi', '30')
+ON CONFLICT DO NOTHING;
 
 INSERT INTO signs (name, icon, description) VALUES
-('DUR', '🛑', 'Dur kontrol et.'), ('Girişi Olmayan Yol', '⛔', 'Ters yön.'), ('Dikkat', '⚠️', 'Tehlike uyarısı.'), ('Park Yapılmaz', '🚫', 'Yasak.'), ('Yaya Geçidi', '🚸', 'Yavaşla.'), ('Kaygan Yol', '🛣️', 'Kaygan.');
+('DUR', '🛑', 'Dur kontrol et.'), ('Girişi Olmayan Yol', '⛔', 'Ters yön.'), ('Dikkat', '⚠️', 'Tehlike uyarısı.'), ('Park Yapılmaz', '🚫', 'Yasak.'), ('Yaya Geçidi', '🚸', 'Yavaşla.'), ('Kaygan Yol', '🛣️', 'Kaygan.')
+ON CONFLICT DO NOTHING;
 
 INSERT INTO flashcards (term, definition) VALUES
-('Madde 51/2-a', 'Hız %10-%30 aşımı.'), ('Madde 47/1-b', 'Kırmızı ışık.'), ('Madde 48/5', 'Alkol.'), ('Madde 78/1-a', 'Kemer.');
+('Madde 51/2-a', 'Hız %10-%30 aşımı.'), ('Madde 47/1-b', 'Kırmızı ışık.'), ('Madde 48/5', 'Alkol.'), ('Madde 78/1-a', 'Kemer.')
+ON CONFLICT DO NOTHING;
 ```
 
 "Success" mesajını görünce tablolar tamam demektir! ✅
@@ -179,11 +200,5 @@ INSERT INTO flashcards (term, definition) VALUES
 1.  Sol menüden **Storage** ikonuna tıklayın.
 2.  **New Bucket** butonuna basın.
 3.  **Name:** `memory-photos` (Public bucket ON olsun).
-4.  Policies kısmından her şeye izin verin.
-
-## 4. Bağlantı Bilgilerini Alma
-
-1.  **Project Settings** > **API** kısmına gidin.
-2.  `Project URL` ve `anon` key'i kopyalayıp `supabase-client.js` içine yapıştırın.
 
 Siteniz çalışmaya hazır! 🎉
