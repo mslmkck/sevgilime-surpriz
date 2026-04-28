@@ -4,8 +4,8 @@
 
 console.log('🚀 Supabase Client v2.1 (Fix Applied) Loaded');
 
-const SUPABASE_URL = 'https://ckfbkfcukokrgprpxuai.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNrZmJrZmN1a29rcmdwcnB4dWFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk3OTg1MDQsImV4cCI6MjA4NTM3NDUwNH0.Bv86d6zfPKO2fiEza69kiChkqTu6XiZbg6Ct-K8N-4Q';
+const SUPABASE_URL = 'https://gdkqcyrbniofiwnyflur.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdka3FjeXJibmlvZml3bnlmbHVyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczNTgxOTUsImV4cCI6MjA5MjkzNDE5NX0.oNyJNc8tHNOAv5K2YU_Nwbb3k_Im4YJG0mfsPRHEpoY';
 
 // Supabase client başlatma
 let supabaseClient;
